@@ -19,3 +19,4 @@ o projeto ficou tão grande que ele quebrou o processo inical, então a sugestã
 16. pedir na issue um arquivo para replicar os erros pode ser o arquivo de estado para ter como debugar e identificar o erro pegar informações importantes do sistema operacional até a versão do hes, clis, ide, qualquer coisa
 17. https://github.com/msitarzewski/agency-agents
 18. https://github.com/garrytan/gstack
+19. https://github.com/addyosmani/agent-skills
