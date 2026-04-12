@@ -8,7 +8,9 @@ o projeto ficou tão grande que ele quebrou o processo inical, então a sugestã
 5. Oriente o usuário a se necessário criar uma nova sessão /new, /clear e roda apenas a etapa em execução para não quebrar mais nenhum ponto do fluxo do hes
 6. criar um readme.md com tutorial de uso do projeto. Seguir exemplos do ecc, superpowers, speckkit.
 7. criar arquivo de contribuição gerar uma skills
-8. criar Skill de criação de uma issue para gerar um pr de correção e remover a pasta de melhorias 
+8. criar Skill de criação de uma issue para gerar um pr de correção e remover a pasta de melhorias a issue pode ser de melhoria e de bugs
 9. pedir para as AIs buscar falhas no projeto e buscar mais artigos
 10. revisar modo de instalação se tem como melhorar e simplificar ainda mais
 11. Buscar link da documentação de mais projetos como setup para o hes. outras ides e cli
+12. verificar o padrão de autoresearch e ver a possibilidade de adicionar
+13. ver o padrão de karptar sobre o obsidian e ver se dá pra adapar no projeto 
