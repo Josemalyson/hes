@@ -9,4 +9,5 @@ o projeto ficou tão grande que ele quebrou o processo inical, então a sugestã
 6. criar um readme.md com tutorial de uso do projeto. Seguir exemplos do ecc, superpowers, speckkit.
 7. criar arquivo de contribuição gerar uma skills
 8. criar Skill de criação de uma issue para gerar um pr de correção e remover a pasta de melhorias 
-9. pedir para as AIs buscar falhas no projeto e buscar mais artigos 
+9. pedir para as AIs buscar falhas no projeto e buscar mais artigos
+10. revisar modo de instalação se tem como melhorar e simplificar ainda mais.
