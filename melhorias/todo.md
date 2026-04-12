@@ -14,6 +14,6 @@ o projeto ficou tão grande que ele quebrou o processo inical, então a sugestã
 11. Buscar link da documentação de mais projetos como setup para o hes. outras ides e cli
 12. verificar o padrão de autoresearch e ver a possibilidade de adicionar
 13. ver o padrão de karptar sobre o obsidian e ver se dá pra adapar no projeto
-14. ter um comando para auto melhorar o projeto onde o usuário pode passar um link ou descrição de referência e ai ele abre uma issue
+14. ter um comando para auto melhorar o projeto onde o usuário pode passar um link ou descrição de referência e ai ele abre uma issue verificar usar esse projeto nessa feature https://github.com/safishamsi/graphify
 15. ter uma analise automático dos prs abertos avaliar se melhoria ou bug faz sentido e comentar
 16. pedir na issue um arquivo para replicar os erros pode ser o arquivo de estado para ter como debugar e identificar o erro pegar informações importantes do sistema operacional até a versão do hes, clis, ide, qualquer coisa 
