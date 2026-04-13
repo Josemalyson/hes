@@ -86,6 +86,12 @@
       "type": "system",
       "triggers": ["/hes harness"],
       "context_load": ["SKILL.md", "skills/harness-health.md", ".hes/state/current.json"]
+    },
+    "issue-create-agent": {
+      "description": "Creates GitHub Issues with auto-diagnostic collection for bugs and improvements",
+      "type": "system",
+      "triggers": ["/hes issue", "/hes bug", "/hes improvement"],
+      "context_load": ["SKILL.md", "skills/09-issue-create.md", ".hes/state/current.json", ".hes/templates/"]
     }
   },
   "sub_agents": {
