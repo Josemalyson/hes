@@ -17,7 +17,9 @@ o projeto ficou tão grande que ele quebrou o processo inical, então a sugestã
 14. ter um comando para auto melhorar o projeto onde o usuário pode passar um link ou descrição de referência e ai ele abre uma issue verificar usar esse projeto nessa feature https://github.com/safishamsi/graphify
 15. ter uma analise automático dos prs abertos avaliar se melhoria ou bug faz sentido e comentar
 16. pedir na issue um arquivo para replicar os erros pode ser o arquivo de estado para ter como debugar e identificar o erro pegar informações importantes do sistema operacional até a versão do hes, clis, ide, qualquer coisa
-17. https://github.com/msitarzewski/agency-agents
-18. https://github.com/garrytan/gstack
-19. https://github.com/addyosmani/agent-skills
-20. https://claude-blog.md/blog/claude-obsidian-second-brain
+17. verificar se pode ter agentes e subagents
+18. ele deveria ter um arquivo AGENTS.md para ficar mais genérico 
+19. https://github.com/msitarzewski/agency-agents
+20. https://github.com/garrytan/gstack
+21. https://github.com/addyosmani/agent-skills
+22. https://claude-blog.md/blog/claude-obsidian-second-brain
