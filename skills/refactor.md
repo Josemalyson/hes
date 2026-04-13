@@ -1,273 +1,273 @@
-# HES Skill — Refactor: Protocolo de Refactoring Guiado
+# HES Skill — Refactor: Guided Refactoring Protocol
 
-> Skill invocada via: "quero refatorar [módulo]" ou `/hes refactor <módulo>`
-> Objetivo: refactoring seguro, orientado a evidências, sem regressões.
+> Skill invoked via: "I want to refactor [module]" or `/hes refactor <module>`
+> Objective: safe, evidence-based refactoring without regressions.
 >
-> Princípio: refactoring não muda comportamento — muda estrutura.
+> Principle: refactoring does not change behavior — it changes structure.
 > "Legacy teams face the harder problem: the harness is most needed
 >  where it is hardest to build." — Fowler, 2026
 
 ---
 
-## ◈ REGRA FUNDAMENTAL
+## ◈ FUNDAMENTAL RULE
 
-> **Antes de qualquer refactoring: a suite de testes deve estar verde.**
-> Sem testes cobrindo o módulo → escrever testes ANTES de refatorar.
-> Refactoring sem testes é reescrita às cegas.
-
----
-
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
-
-```
-1. Ler .hes/state/current.json → verificar feature ativa (não interromper)
-2. Identificar o módulo a refatorar (usuário fornece)
-3. Listar arquivos do módulo: ls src/...{{modulo}}/
-4. Verificar cobertura de testes atual do módulo
-5. Ler .hes/tasks/lessons.md → padrões de erro neste módulo
-6. Se harnessability é o objetivo → avaliar o score atual do módulo
-```
+> **Before any refactoring: the test suite must be green.**
+> Without tests covering the module → write tests BEFORE refactoring.
+> Refactoring without tests is blind rewriting.
 
 ---
 
-## ◈ PASSO 1 — CLASSIFICAR O TIPO
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-Qual é o objetivo principal do refactoring?
-
-  [A] Separação de responsabilidades (Service com lógica de Controller)
-  [B] Eliminar duplicação de código (DRY)
-  [C] Melhorar nomes (variáveis, métodos, classes)
-  [D] Simplificar lógica complexa (CC > 10)
-  [E] Extrair componente reutilizável
-  [F] Melhorar tratamento de exceções
-  [G] Remover código morto
-  [H] Melhorar testabilidade (DI, interfaces) ← melhora harnessability
-  [I] Melhorar harnessability (NOVO em v3.1)
-      → Adicionar DI, clarificar boundaries, habilitar sensors
+1. Read .hes/state/current.json → check active feature (do not interrupt)
+2. Identify the module to refactor (user provides)
+3. List module files: ls src/...{{module}}/
+4. Check current test coverage of the module
+5. Read .hes/tasks/lessons.md → error patterns in this module
+6. If harnessability is the goal → assess current module score
 ```
 
 ---
 
-## ◈ PASSO 2 — GERAR SPEC DE REFACTORING
+## ◈ STEP 1 — CLASSIFY THE TYPE
 
-Criar `.hes/specs/refactor-{{MODULO}}-{{DATA}}/refactor-spec.md`:
+```
+What is the primary objective of the refactoring?
+
+  [A] Separation of responsibilities (Service with Controller logic)
+  [B] Eliminate code duplication (DRY)
+  [C] Improve naming (variables, methods, classes)
+  [D] Simplify complex logic (CC > 10)
+  [E] Extract reusable component
+  [F] Improve exception handling
+  [G] Remove dead code
+  [H] Improve testability (DI, interfaces) ← improves harnessability
+  [I] Improve harnessability (NEW in v3.1)
+      → Add DI, clarify boundaries, enable sensors
+```
+
+---
+
+## ◈ STEP 2 — GENERATE REFACTORING SPEC
+
+Create `.hes/specs/refactor-{{MODULE}}-{{DATE}}/refactor-spec.md`:
 
 ```markdown
-# Spec de Refactoring — {{MODULO}}
+# Refactoring Spec — {{MODULE}}
 
-Data: {{DATA_ATUAL}} | Tipo: {{TIPO_SELECIONADO}}
-
----
-
-## Estado Atual (AS-IS)
-
-### Problemas identificados
-| Problema | Localização | Impacto | Evidência |
-|---------|------------|---------|----------|
-| {{PROBLEMA}} | `src/{{arquivo}}:{{linha}}` | {{IMPACTO}} | {{SINTOMA}} |
-
-### Métricas atuais
-| Métrica | Valor Atual | Meta |
-|---------|------------|------|
-| Complexidade ciclomática | {{N}} | ≤ 10 |
-| Linhas por método | {{N}} | ≤ 20 |
-| Coverage do módulo | {{X}}% | ≥ 80% |
-| Harnessability | Alto/Médio/Baixo | Alto |
-| Boundaries verificáveis por ArchUnit? | Sim/Não | Sim |
+Date: {{CURRENT_DATE}} | Type: {{SELECTED_TYPE}}
 
 ---
 
-## Estado Alvo (TO-BE)
+## Current State (AS-IS)
 
-### O que muda
-| Antes | Depois | Justificativa |
-|-------|--------|--------------|
-| {{ESTRUTURA_ATUAL}} | {{ESTRUTURA_NOVA}} | {{POR_QUE}} |
+### Identified problems
+| Problem | Location | Impact | Evidence |
+|---------|----------|--------|----------|
+| {{PROBLEM}} | `src/{{file}}:{{line}}` | {{IMPACT}} | {{SYMPTOM}} |
 
-### O que NÃO muda
-- Comportamento externo (contratos de API, respostas, status HTTP)
-- Regras de negócio (RN-xx)
-- Schema do banco
-
-### Ganho de harnessability (se Tipo H ou I)
-- Sensor habilitado: {{ArchUnit rule / linter / coverage}}
-- Como: {{DI via construtor / interface extraída / boundary explícito}}
-
-### Plano de execução (passos atômicos)
-1. {{PASSO_1}} → Verificar: {{COMO_CONFIRMAR}}
-2. {{PASSO_2}} → Verificar: {{COMO_CONFIRMAR}}
+### Current metrics
+| Metric | Current Value | Target |
+|--------|--------------|--------|
+| Cyclomatic complexity | {{N}} | <= 10 |
+| Lines per method | {{N}} | <= 20 |
+| Module coverage | {{X}}% | >= 80% |
+| Harnessability | High/Medium/Low | High |
+| ArchUnit-verifiable boundaries? | Yes/No | Yes |
 
 ---
 
-## Critério de Conclusão
-- [ ] Todos os testes existentes passando após cada passo
-- [ ] Nenhum novo comportamento introduzido
-- [ ] Coverage mantido ou melhorado
-- [ ] Harnessability aumentada (se objetivo era esse)
-```
+## Target State (TO-BE)
+
+### What changes
+| Before | After | Justification |
+|--------|-------|--------------|
+| {{CURRENT_STRUCTURE}} | {{NEW_STRUCTURE}} | {{WHY}} |
+
+### What does NOT change
+- External behavior (API contracts, responses, HTTP status)
+- Business rules (RN-xx)
+- Database schema
+
+### Harnessability gain (if Type H or I)
+- Enabled sensor: {{ArchUnit rule / linter / coverage}}
+- How: {{Constructor DI / extracted interface / explicit boundary}}
+
+### Execution plan (atomic steps)
+1. {{STEP_1}} → Verify: {{HOW_TO_CONFIRM}}
+2. {{STEP_2}} → Verify: {{HOW_TO_CONFIRM}}
 
 ---
 
-## ◈ PASSO 3 — PROTOCOLO DE EXECUÇÃO SEGURA
-
-```
-Antes de cada mudança:
-  1. Confirmar: suite verde
-  2. Checkpoint: git add -A && git commit -m "refactor({{modulo}}): checkpoint"
-  3. Executar a mudança mínima
-  4. Rodar sensor: se verde → prosseguir | se vermelho → reverter
-
-Regras:
-  ✅ Um tipo de mudança por vez
-  ✅ Commits pequenos e frequentes
-  ✅ Testes antes, durante e depois
-  ❌ Nunca refatorar + adicionar feature no mesmo commit
-  ❌ Nunca refatorar sem testes cobrindo
+## Completion Criteria
+- [ ] All existing tests passing after each step
+- [ ] No new behavior introduced
+- [ ] Coverage maintained or improved
+- [ ] Harnessability increased (if that was the objective)
 ```
 
 ---
 
-## ◈ PASSO 4 — RECEITAS POR TIPO
-
-### A — Separação de Responsabilidades
+## ◈ STEP 3 — SAFE EXECUTION PROTOCOL
 
 ```
-1. Identificar o trecho fora do lugar
-2. Criar método privado com nome descritivo (sem mover ainda)
-3. Extrair para a classe correta
-4. Atualizar chamadas → rodar testes
-5. Remover o método original
+Before each change:
+  1. Confirm: suite is green
+  2. Checkpoint: git add -A && git commit -m "refactor({{module}}): checkpoint"
+  3. Execute the minimal change
+  4. Run sensor: if green → proceed | if red → revert
+
+Rules:
+  ✅ One type of change at a time
+  ✅ Small, frequent commits
+  ✅ Tests before, during, and after
+  ❌ Never refactor + add feature in the same commit
+  ❌ Never refactor without test coverage
 ```
 
-### B — Eliminar Duplicação (DRY)
+---
+
+## ◈ STEP 4 — RECIPES BY TYPE
+
+### A — Separation of Responsibilities
 
 ```
-1. Identificar os 2+ trechos duplicados
-2. Criar método compartilhado com nome que expressa o conceito
-3. Substituir o primeiro uso → rodar testes
-4. Substituir o segundo → rodar testes
-5. Nunca criar abstração prematura (extrair só com 2+ usos reais)
+1. Identify the misplaced code
+2. Create a private method with descriptive name (without moving yet)
+3. Extract to the correct class
+4. Update calls → run tests
+5. Remove the original method
 ```
 
-### H — Melhorar Testabilidade (melhora harnessability)
+### B — Eliminate Duplication (DRY)
 
 ```
-Objetivo: remover impedimentos para mocking e sensors
-
-Receita:
-1. Identificar dependência que impede mock (new interno, static, singleton)
-2. Extrair interface se não existir
-3. Injetar via construtor (constructor injection)
-4. Atualizar testes para usar mock da interface
-5. Verificar: agora é possível adicionar ArchUnit rule para este componente?
+1. Identify the 2+ duplicated code sections
+2. Create a shared method with a name that expresses the concept
+3. Replace the first usage → run tests
+4. Replace the second usage → run tests
+5. Never create premature abstraction (extract only with 2+ real usages)
 ```
 
-### I — Melhorar Harnessability (NOVO em v3.1)
+### H — Improve Testability (improves harnessability)
 
 ```
-Objetivo: tornar o módulo governável por sensors computacionais
+Objective: remove impediments to mocking and sensors
 
-Receita:
-1. Avaliar harnessability atual (Passo 3 do legacy.md como referência)
-2. Identificar o impedimento principal:
-   → Sem DI → aplicar receita H
-   → Sem package boundaries claros → extrair pacotes
-   → Sem tipagem → adicionar tipos (TypeScript, type hints Python)
-   → Acoplamento circular → detectar e quebrar
+Recipe:
+1. Identify dependency that prevents mocking (internal new, static, singleton)
+2. Extract interface if it does not exist
+3. Inject via constructor (constructor injection)
+4. Update tests to use interface mock
+5. Verify: is it now possible to add an ArchUnit rule for this component?
+```
 
-3. Para acoplamento circular (Java):
+### I — Improve Harnessability (NEW in v3.1)
+
+```
+Objective: make the module governable by computational sensors
+
+Recipe:
+1. Assess current harnessability (refer to Step 3 of legacy.md)
+2. Identify the main impediment:
+   → No DI → apply recipe H
+   → No clear package boundaries → extract packages
+   → No typing → add types (TypeScript, Python type hints)
+   → Circular coupling → detect and break
+
+3. For circular coupling (Java):
    mvn dependency:analyze
-   → Identificar o ciclo: A → B → A
-   → Extrair interface em módulo separado
-   → A e B dependem da interface, não um do outro
+   → Identify the cycle: A → B → A
+   → Extract interface in a separate module
+   → A and B depend on the interface, not on each other
 
-4. Para package boundaries (Java):
-   → Criar pacote com responsabilidade clara
-   → Mover classes para pacotes corretos
-   → Adicionar ArchUnit rule para o novo boundary
-   → Verificar: mvn test -Dtest=ArchitectureTest
+4. For package boundaries (Java):
+   → Create a package with clear responsibility
+   → Move classes to correct packages
+   → Add ArchUnit rule for the new boundary
+   → Verify: mvn test -Dtest=ArchitectureTest
 
-5. Ao final: executar /hes harness para validar ganho de harnessability
+5. At the end: run /hes harness to validate harnessability gain
 ```
 
-### D — Simplificar Lógica Complexa (CC > 10)
+### D — Simplify Complex Logic (CC > 10)
 
 ```
-Receitas:
-  Early return:   if (!condition) throw/return — elimina else
-  Guard clause:   validações no topo, lógica principal sem aninhamento
-  Extração:       bloco 5+ linhas → método com nome descritivo
-  Strategy:       múltiplos if/else por tipo → interface + implementações
-```
-
----
-
-## ◈ PASSO 5 — VERIFICAR GANHO DE HARNESSABILITY
-
-Se refactoring era do tipo H ou I, verificar após conclusão:
-
-```
-[ ] DI via construtor implementada → mocking agora possível?
-[ ] Package boundaries explícitos → ArchUnit rule aplicável?
-[ ] Interface extraída → sensor computacional agora detecta violações?
-[ ] Acoplamento circular removido → dep-cruiser sem circulares?
-[ ] Coverage aumentou ou manteve ≥ 80%?
-
-Se ganho confirmado → /hes harness para atualizar score do projeto
+Recipes:
+  Early return:   if (!condition) throw/return — eliminates else
+  Guard clause:   validations at the top, main logic without nesting
+  Extraction:     5+ line block → method with descriptive name
+  Strategy:       multiple if/else by type → interface + implementations
 ```
 
 ---
 
-## ◈ PASSO 6 — CHECKLIST FINAL
+## ◈ STEP 5 — VERIFY HARNESSABILITY GAIN
+
+If refactoring was type H or I, verify after completion:
 
 ```
-[ ] Todos os testes existentes passando?
-[ ] Coverage mantido ou melhorado?
-[ ] Nenhum comportamento externo alterado?
-[ ] Métricas-alvo atingidas?
-[ ] Commits atômicos com mensagens descritivas?
-[ ] Harnessability melhorada (se objetivo)?
+[ ] Constructor DI implemented → mocking now possible?
+[ ] Explicit package boundaries → ArchUnit rule applicable?
+[ ] Interface extracted → computational sensor now detects violations?
+[ ] Circular coupling removed → dep-cruiser without circularities?
+[ ] Coverage increased or maintained >= 80%?
+
+If gain confirmed → /hes harness to update project score
 ```
 
 ---
 
-## ◈ REGISTRAR EM LESSONS.MD
+## ◈ STEP 6 — FINAL CHECKLIST
+
+```
+[ ] Are all existing tests passing?
+[ ] Is coverage maintained or improved?
+[ ] Has no external behavior changed?
+[ ] Have target metrics been reached?
+[ ] Are commits atomic with descriptive messages?
+[ ] Is harnessability improved (if objective)?
+```
+
+---
+
+## ◈ REGISTER IN LESSONS.MD
 
 ```markdown
-## Refactoring: {{MODULO}} — {{DATA}}
+## Refactoring: {{MODULE}} — {{DATE}}
 
-- Tipo: {{TIPO}}
-- Problema resolvido: {{DESCRICAO}}
-- Técnica: {{TECNICA}}
-- Resultado: {{METRICA_ANTES}} → {{METRICA_DEPOIS}}
-- Ganho de harnessability: {{SIM/NÃO}} — {{DESCRICAO}}
-- Sensor habilitado: {{ArchUnit rule / linter / coverage}}
-- Tempo gasto: {{ESTIMATIVA}}
+- Type: {{TYPE}}
+- Resolved problem: {{DESCRIPTION}}
+- Technique: {{TECHNIQUE}}
+- Result: {{METRIC_BEFORE}} → {{METRIC_AFTER}}
+- Harnessability gain: {{YES/NO}} — {{DESCRIPTION}}
+- Enabled sensor: {{ArchUnit rule / linter / coverage}}
+- Time spent: {{ESTIMATE}}
 ```
 
 ---
 
-▶ PRÓXIMA AÇÃO
+▶ NEXT ACTION
 
 ```
-🔧 Refactoring de {{MODULO}} concluído.
+🔧 Refactoring of {{MODULE}} completed.
 
-  [A] "continuar feature [nome]"
-      → Retorno ao skill-file da feature ativa
+  [A] "continue feature [name]"
+      → Return to active feature's skill-file
 
   [B] "/hes harness"
-      → Diagnóstico do ganho de harnessability após o refactoring
+      → Harnessability gain diagnosis after refactoring
 
-  [C] "refatorar outro módulo: [nome]"
-      → Inicio novo protocolo
+  [C] "refactor another module: [name]"
+      → Start new protocol
 
-  [D] "quero adicionar testes antes de refatorar"
-      → Carrego skills/05-tests.md para escrever testes primeiro
+  [D] "I want to add tests before refactoring"
+      → Load skills/05-tests.md to write tests first
 
-💡 Dica (Fowler): "Greenfield teams can bake harnessability in from day one.
+💡 Tip (Fowler): "Greenfield teams can bake harnessability in from day one.
    Legacy teams face the harder problem."
-   Refactoring de harnessability (Tipo I) é o investimento de maior ROI
-   em projetos legados — cada melhoria habilita sensors que evitam
-   regressões futuras.
+   Harnessability refactoring (Type I) is the highest ROI investment
+   in legacy projects — each improvement enables sensors that prevent
+   future regressions.
 ```

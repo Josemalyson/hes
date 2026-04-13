@@ -1,5 +1,7 @@
 {
-  "version": "3.2.0",
+  "version": "3.3.0",
+  "language_support": ["en", "pt", "es", "fr", "de"],
+  "audience_modes": ["beginner", "expert"],
   "agents": {
     "harness-agent": {
       "description": "Default orchestrator agent — reads SKILL.md, routes phases",

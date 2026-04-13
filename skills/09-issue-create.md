@@ -13,7 +13,7 @@ framework: HES — Harness Engineer Standard v3.2
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
 1. Determine issue type:
@@ -35,7 +35,7 @@ framework: HES — Harness Engineer Standard v3.2
 
 ## ◈ PROTOCOL
 
-### PASSO 1 — DETECT TYPE
+### STEP 1 — DETECT TYPE
 
 ```
 If trigger was /hes bug:
@@ -48,7 +48,7 @@ If trigger was /hes issue or ambiguous:
     [B] Improvement → template = improvement
 ```
 
-### PASSO 2 — COLLECT DIAGNOSTICS
+### STEP 2 — COLLECT DIAGNOSTICS
 
 ```
 Run the following and capture results:
@@ -76,7 +76,7 @@ Run the following and capture results:
 Store all values for template filling.
 ```
 
-### PASSO 3 — GATHER USER INPUT
+### STEP 3 — GATHER USER INPUT
 
 ```
 Ask the user:
@@ -96,7 +96,7 @@ Ask the user:
    d. "Alternatives considered (optional):"
 ```
 
-### PASSO 4 — GENERATE ISSUE BODY
+### STEP 4 — GENERATE ISSUE BODY
 
 ```
 1. Load the appropriate template from .hes/templates/
@@ -115,7 +115,7 @@ Template filling rules:
 - {{RELEVANT_RUNTIME}} → detected runtime or "N/A"
 - {{STATE_FILE_CONTENT}} → full current.json content (for bug reports)
 
-### PASSO 5 — CREATE ISSUE
+### STEP 5 — CREATE ISSUE
 
 ```
 Check if gh CLI is available:
@@ -132,7 +132,7 @@ If gh IS NOT available:
   → Provide the markdown in a code block for easy copying
 ```
 
-### PASSO 6 — LOG EVENT
+### STEP 6 — LOG EVENT
 
 ```
 Append to .hes/state/events.log:
@@ -166,10 +166,10 @@ Append to .hes/state/events.log:
 
 ---
 
-## ◈ FORMAT PRÓXIMA AÇÃO (obrigatório)
+## ◈ NEXT ACTION FORMAT (mandatory)
 
 ```
-▶ PRÓXIMA AÇÃO — ISSUE CREATED
+▶ NEXT ACTION — ISSUE CREATED
 
 Issue type : bug|improvement
 Title      : <title>

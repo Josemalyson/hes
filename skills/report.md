@@ -1,7 +1,7 @@
 # HES Skill — Report: Batch Learning + Harness Improvement
 
-> Skill invocada via: `/hes report`
-> Objetivo: transformar events.log + lessons.md em melhorias concretas do harness.
+> Skill invoked via: `/hes report`
+> Objective: transform events.log + lessons.md into concrete harness improvements.
 >
 > "If you want to improve the harness, give a coding agent access to these traces.
 >  This pattern is how we improved our base harness." — LangChain, 2026
@@ -9,27 +9,27 @@
 > "An issue that happens multiple times should trigger improvement of the harness,
 >  not just correction of the instance." — Fowler, 2026
 >
-> Executar: a cada 3 ciclos DONE (completed_cycles % 3 == 0)
+> Execute: every 3 DONE cycles (completed_cycles % 3 == 0)
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Ler .hes/state/current.json → listar features com estado DONE + completed_cycles
-2. Ler .hes/state/events.log   → histórico completo de transições
-3. Ler .hes/tasks/lessons.md   → consolidar aprendizados
-4. Ler .hes/tasks/backlog.md   → avaliar entregue vs planejado
+1. Read .hes/state/current.json → list features with DONE state + completed_cycles
+2. Read .hes/state/events.log   → complete transition history
+3. Read .hes/tasks/lessons.md   → consolidate learnings
+4. Read .hes/tasks/backlog.md   → evaluate delivered vs planned
 ```
 
 ---
 
-## ◈ PASSO 1 — EXTRAIR MÉTRICAS DOS TRACES (events.log)
+## ◈ STEP 1 — EXTRACT METRICS FROM TRACES (events.log)
 
-Para cada feature com estado DONE:
+For each feature with DONE state:
 
 ```
-Tempo por fase = timestamp(to) - timestamp(from)
+Time per phase = timestamp(to) - timestamp(from)
 
 Feature: {{FEATURE_SLUG}}
   ZERO      → DISCOVERY : {{T}} min
@@ -41,63 +41,63 @@ Feature: {{FEATURE_SLUG}}
   GREEN     → REVIEW    : {{T}} min
   REVIEW    → DONE      : {{T}} min
   ─────────────────────────────────
-  Total: {{T}} min | Iterações de self-refinement: {{total_N}}
+  Total: {{T}} min | Self-refinement iterations: {{total_N}}
 ```
 
-Extrair também por evento:
-- Quantos rollbacks ocorreram? Por qual fase?
-- Quantas iterações de self-refinement por feature?
-- Qual fase tem mais variância de tempo entre features?
+Also extract per event:
+- How many rollbacks occurred? In which phase?
+- How many self-refinement iterations per feature?
+- Which phase has the most time variance between features?
 
 ---
 
-## ◈ PASSO 2 — IDENTIFICAR PADRÕES NAS LESSONS (hot path → offline consolidation)
+## ◈ STEP 2 — IDENTIFY PATTERNS IN LESSONS (hot path → offline consolidation)
 
 ```
-Classificar lições do lessons.md em categorias:
+Classify lessons from lessons.md into categories:
 
-CATEGORIA A — Violação de regra HES
-  → Exemplo: "implementei antes de ter spec aprovada"
-  → Ação: reforçar REGRA-xx no CLAUDE.md e no skill-file correspondente
+CATEGORY A — HES rule violation
+  → Example: "I implemented before having approved spec"
+  → Action: reinforce RULE-xx in CLAUDE.md and corresponding skill-file
 
-CATEGORIA B — Erro técnico recorrente
-  → Exemplo: "import de classe que não existia"
-  → Ação: reforçar checklist anti-alucinação em 06-implementation.md
+CATEGORY B — Recurring technical error
+  → Example: "import of non-existent class"
+  → Action: reinforce anti-hallucination checklist in 06-implementation.md
 
-CATEGORIA C — Gap de guide (feedforward insuficiente)
-  → Exemplo: "agente escolheu lib não catalogada"
-  → Ação: melhorar o contexto carregado no skill-file correspondente
+CATEGORY C — Guide gap (insufficient feedforward)
+  → Example: "agent chose unlisted library"
+  → Action: improve loaded context in corresponding skill-file
 
-CATEGORIA D — Gap de sensor (feedback não detectou)
-  → Exemplo: "violação de boundary passou despercebida"
-  → Ação: propor novo sensor computacional (ArchUnit rule, linter rule)
+CATEGORY D — Sensor gap (feedback did not detect)
+  → Example: "boundary violation went unnoticed"
+  → Action: propose new computational sensor (ArchUnit rule, linter rule)
 
-CATEGORIA E — Processo (fluxo de aprovação, comunicação)
-  → Exemplo: "usuário aprovou spec sem ler as RNs"
-  → Ação: adicionar alerta no PRÓXIMA AÇÃO da spec
+CATEGORY E — Process (approval flow, communication)
+  → Example: "user approved spec without reading RNs"
+  → Action: add alert in spec's NEXT ACTION block
 
-Lições por categoria: A={{N}} B={{N}} C={{N}} D={{N}} E={{N}}
+Lessons per category: A={{N}} B={{N}} C={{N}} D={{N}} E={{N}}
 ```
 
 ---
 
-## ◈ PASSO 3 — GERAR RELATÓRIO
+## ◈ STEP 3 — GENERATE REPORT
 
-Gerar `.hes/tasks/report-{{DATA}}.md`:
+Generate `.hes/tasks/report-{{DATE}}.md`:
 
 ```markdown
-# Relatório de Evolução HES — {{DATA}}
+# HES Evolution Report — {{DATE}}
 
-Projeto: {{NOME_PROJETO}} | HES v3.1
-Período: {{DATA_INICIO}} → {{DATA_FIM}}
-Ciclos analisados: {{N}} (ciclos {{X}} a {{Y}})
+Project: {{PROJECT_NAME}} | HES v3.1
+Period: {{START_DATE}} → {{END_DATE}}
+Analyzed cycles: {{N}} (cycles {{X}} to {{Y}})
 
 ---
 
-## Velocidade por Fase (minutos — média entre ciclos)
+## Velocity per Phase (minutes — average across cycles)
 
-| Fase | {{Feature 1}} | {{Feature 2}} | {{Feature N}} | Média | Tendência |
-|------|--------------|--------------|--------------|-------|----------|
+| Phase | {{Feature 1}} | {{Feature 2}} | {{Feature N}} | Average | Trend |
+|-------|--------------|--------------|--------------|---------|-------|
 | ZERO → DISCOVERY | | | | | ↓/→/↑ |
 | DISCOVERY → SPEC | | | | | |
 | SPEC → DESIGN | | | | | |
@@ -107,180 +107,180 @@ Ciclos analisados: {{N}} (ciclos {{X}} a {{Y}})
 | GREEN → REVIEW | | | | | |
 | **TOTAL** | | | | | |
 
-## Fase mais lenta (gargalo principal)
+## Slowest phase (main bottleneck)
 
-**{{FASE_COM_MAIOR_TEMPO_MEDIO}}** — média: {{T}} min
+**{{PHASE_WITH_HIGHEST_AVG_TIME}}** — average: {{T}} min
 
-Hipótese: {{BASEADO_EM_LESSONS_E_CATEGORIAS}}
-Tipo de gap: Guide (feedforward) / Sensor (feedback) / Processo
+Hypothesis: {{BASED_ON_LESSONS_AND_CATEGORIES}}
+Gap type: Guide (feedforward) / Sensor (feedback) / Process
 
 ---
 
 ## Self-Refinement Analysis
 
-| Feature | Iterações RED→GREEN | Causa das Iterações |
+| Feature | RED→GREEN Iterations | Cause of Iterations |
 |---------|--------------------|--------------------|
-| {{feature}} | {{N}} | {{CATEGORIA_DO_ERRO}} |
+| {{feature}} | {{N}} | {{ERROR_CATEGORY}} |
 
-Média de iterações: {{N}}
-Tendência: {{diminuindo / estável / aumentando}}
-
----
-
-## Lições por Categoria
-
-| Categoria | Ocorrências | Distribuição |
-|-----------|------------|-------------|
-| A — Violação de regra HES | {{N}} | {{%}} |
-| B — Erro técnico recorrente | {{N}} | {{%}} |
-| C — Gap de guide | {{N}} | {{%}} |
-| D — Gap de sensor | {{N}} | {{%}} |
-| E — Processo | {{N}} | {{%}} |
+Average iterations: {{N}}
+Trend: {{decreasing / stable / increasing}}
 
 ---
 
-## Lições Recorrentes → Candidatas ao Skill-File
+## Lessons by Category
 
-| Lição | Ocorrências | Categoria | Skill-file alvo | Ação |
-|-------|------------|-----------|----------------|------|
-| {{LICAO}} | {{N}} | {{CAT}} | skills/{{XX}}.md | Adicionar checklist / Reforçar regra |
-
-> Regra (Fowler + LangChain): lição com N ≥ 2 → melhorar o harness, não só corrigir instâncias.
-
----
-
-## Gaps de Harness Identificados
-
-### Novos sensores computacionais recomendados
-
-| Gap | Tipo | Sensor Proposto | Esforço |
-|-----|------|----------------|---------|
-| {{BOUNDARY_VIOLATION}} | Architecture Fitness | ArchUnit rule | P |
-| {{STYLE_ISSUE}} | Maintainability | Linter rule custom | P |
-
-### Guides a melhorar
-
-| Skill-file | Melhoria | Justificativa (baseada em traces) |
-|-----------|----------|----------------------------------|
-| skills/{{XX}}.md | {{O_QUE_ADICIONAR}} | {{FREQUENCIA_DO_PROBLEMA}} |
+| Category | Occurrences | Distribution |
+|----------|------------|-------------|
+| A — HES rule violation | {{N}} | {{%}} |
+| B — Recurring technical error | {{N}} | {{%}} |
+| C — Guide gap | {{N}} | {{%}} |
+| D — Sensor gap | {{N}} | {{%}} |
+| E — Process | {{N}} | {{%}} |
 
 ---
 
-## Harness Backlog (priorizado por impacto em velocidade)
+## Recurring Lessons → Skill-File Candidates
 
-1. {{MELHORIA_1}} — impacto estimado: {{T}} min/ciclo — Tipo: Guide/Sensor
-2. {{MELHORIA_2}}
-3. {{MELHORIA_3}}
+| Lesson | Occurrences | Category | Target skill-file | Action |
+|--------|------------|----------|-------------------|--------|
+| {{LESSON}} | {{N}} | {{CAT}} | skills/{{XX}}.md | Add checklist / Reinforce rule |
+
+> Rule (Fowler + LangChain): lesson with N >= 2 → improve the harness, not just fix instances.
 
 ---
 
-## Saúde do Processo
+## Identified Harness Gaps
 
-| Indicador | Status | Observação |
-|-----------|--------|-----------|
-| Etapas puladas | 🟢/🔴 | {{N}} vezes |
-| Specs antes do código | 🟢/🔴 | {{N}} violações |
-| Coverage médio | 🟢/🟡 | {{X}}% |
+### Recommended new computational sensors
+
+| Gap | Type | Proposed Sensor | Effort |
+|-----|------|----------------|--------|
+| {{BOUNDARY_VIOLATION}} | Architecture Fitness | ArchUnit rule | S |
+| {{STYLE_ISSUE}} | Maintainability | Custom linter rule | S |
+
+### Guides to improve
+
+| Skill-file | Improvement | Justification (trace-based) |
+|-----------|------------|-----------------------------|
+| skills/{{XX}}.md | {{WHAT_TO_ADD}} | {{PROBLEM_FREQUENCY}} |
+
+---
+
+## Harness Backlog (prioritized by velocity impact)
+
+1. {{IMPROVEMENT_1}} — estimated impact: {{T}} min/cycle — Type: Guide/Sensor
+2. {{IMPROVEMENT_2}}
+3. {{IMPROVEMENT_3}}
+
+---
+
+## Process Health
+
+| Indicator | Status | Observation |
+|-----------|--------|------------|
+| Skipped steps | 🟢/🔴 | {{N}} times |
+| Specs before code | 🟢/🔴 | {{N}} violations |
+| Average coverage | 🟢/🟡 | {{X}}% |
 | Rollbacks | 🟢/🟡 | {{N}} rollbacks |
-| ADRs gerados | ✅ | {{N}} ADRs |
-| Architecture fitness checks | ✅/❌ | configurado/ausente |
+| ADRs generated | ✅ | {{N}} ADRs |
+| Architecture fitness checks | ✅/❌ | configured/absent |
 
 ---
 
-*HES Report | Ciclos {{X}}–{{Y}} | v3.1.0 | {{DATA_ATUAL}}*
-```
-
----
-
-## ◈ PASSO 4 — EXECUTAR MELHORIAS DO HARNESS
-
-Para cada gap identificado em Categoria C (guide) ou D (sensor):
-
-### Melhorar guides inferenciais (skill-files):
-
-```
-Para gaps de Categoria C — Guide insuficiente:
-
-1. Identificar qual skill-file não guiou o agente adequadamente
-2. Propor adição ao skill-file:
-   "Adicionar em skills/{{XX}}.md → seção Anti-Alucinação:
-    [✅ NOVO] Antes de {{ACAO}}, verificar {{CONDICAO}}"
-3. Confirmar com usuário antes de modificar o skill-file
-
-Para gaps de Categoria A — Violação de regra HES:
-1. Identificar qual REGRA-XX foi violada
-2. Propor reforço no CLAUDE.md do projeto:
-   "Adicionar em .claude/CLAUDE.md:
-    ATENÇÃO: Regra-XX violada em {{FEATURE}}. Verificar {{O_QUE}} antes de {{ACAO}}"
-```
-
-### Propor novos sensores computacionais:
-
-```
-Para gaps de Categoria D — Sensor ausente:
-
-Exemplo: violação de module boundary não detectada
-
-Proposta de novo sensor:
-  → ArchUnit rule: "{{NOME_REGRA}}"
-  → Arquivo: src/test/java/.../ArchitectureTest.java
-  → Regra: {{DESCRICAO_DA_REGRA_EM_CODIGO}}
-  → Adicionar em .hes/domains/{{domain}}/fitness/
-
-[A] "aprovar e implementar" → código do sensor gerado
-[B] "implementar depois" → registrado em harness backlog
-[C] "não aplicável" → registrado com justificativa
+*HES Report | Cycles {{X}}–{{Y}} | v3.1.0 | {{CURRENT_DATE}}*
 ```
 
 ---
 
-## ◈ PASSO 5 — ATUALIZAR ESTADO
+## ◈ STEP 4 — EXECUTE HARNESS IMPROVEMENTS
 
-Atualizar `current.json` — `completed_cycles` já foi incrementado no DONE.
+For each gap identified in Category C (guide) or D (sensor):
 
-Registrar em `events.log`:
+### Improve inferential guides (skill-files):
+
+```
+For Category C gaps — Insufficient guide:
+
+1. Identify which skill-file did not guide the agent adequately
+2. Propose addition to the skill-file:
+   "Add to skills/{{XX}}.md → Anti-Hallucination section:
+    [✅ NEW] Before {{ACTION}}, verify {{CONDITION}}"
+3. Confirm with user before modifying the skill-file
+
+For Category A gaps — HES rule violation:
+1. Identify which RULE-XX was violated
+2. Propose reinforcement in project's CLAUDE.md:
+   "Add to .claude/CLAUDE.md:
+    ATTENTION: Rule-XX violated in {{FEATURE}}. Verify {{WHAT}} before {{ACTION}}"
+```
+
+### Propose new computational sensors:
+
+```
+For Category D gaps — Missing sensor:
+
+Example: undetected module boundary violation
+
+Proposed new sensor:
+  → ArchUnit rule: "{{RULE_NAME}}"
+  → File: src/test/java/.../ArchitectureTest.java
+  → Rule: {{RULE_DESCRIPTION_IN_CODE}}
+  → Add to .hes/domains/{{domain}}/fitness/
+
+[A] "approve and implement" → sensor code generated
+[B] "implement later" → registered in harness backlog
+[C] "not applicable" → registered with justification
+```
+
+---
+
+## ◈ STEP 5 — UPDATE STATE
+
+Update `current.json` — `completed_cycles` was already incremented at DONE.
+
+Register in `events.log`:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "global",
   "from": "ACTIVE",
   "to": "REPORT_GENERATED",
   "agent": "hes-v3.1",
   "metadata": {
-    "report_file": ".hes/tasks/report-{{DATA}}.md",
+    "report_file": ".hes/tasks/report-{{DATE}}.md",
     "cycles_analyzed": {{N}},
     "lessons_promoted": {{N}},
     "new_sensors_proposed": {{N}},
     "guides_improved": {{N}},
-    "gargalo_identificado": "{{FASE}}"
+    "identified_bottleneck": "{{PHASE}}"
   }
 }
 ```
 
 ---
 
-▶ PRÓXIMA AÇÃO — APÓS RELATÓRIO
+▶ NEXT ACTION — AFTER REPORT
 
 ```
-📊 Relatório gerado: .hes/tasks/report-{{DATA}}.md
+📊 Report generated: .hes/tasks/report-{{DATE}}.md
 
-Harness Backlog: {{N}} melhorias identificadas
+Harness Backlog: {{N}} improvements identified
 
-  [A] "implementar [melhoria X]"
-      → Executo os passos de melhoria do guide ou sensor
+  [A] "implement [improvement X]"
+      → I'll execute the guide or sensor improvement steps
 
-  [B] "aprovar todas as lições para o skill-file"
-      → Adiciono as lições recorrentes no skill-file correspondente
+  [B] "approve all lessons for skill-file"
+      → I'll add recurring lessons to the corresponding skill-file
 
   [C] "/hes harness"
-      → Diagnóstico detalhado das 3 dimensões de regulação
+      → Detailed diagnosis of the 3 regulation dimensions
 
-  [D] "próxima feature: [nome]"
-      → Inicio Discovery com harness já melhorado
+  [D] "next feature: [name]"
+      → I'll start Discovery with the already improved harness
 
-📄 Skill-file: skills/report.md (você está aqui)
-💡 Dica (LangChain): "Traces são o core de todo loop de aprendizado."
-   events.log + lessons.md = o flywheel de melhoria do HES.
-   A cada ciclo, o harness fica mais forte que o projeto.
+📄 Skill-file: skills/report.md (you are here)
+💡 Tip (LangChain): "Traces are the core of every learning loop."
+   events.log + lessons.md = the HES improvement flywheel.
+   With each cycle, the harness makes the project stronger.
 ```

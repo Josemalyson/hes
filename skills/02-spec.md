@@ -1,94 +1,94 @@
-# HES Skill — 02: Spec (BDD + Contrato de API)
+# HES Skill — 02: Spec (BDD + API Contract)
 
-> Skill carregada quando: feature.estado = SPEC
-> Pré-condição: `01-discovery.md` aprovado pelo usuário.
+> Skill loaded when: feature.state = SPEC
+> Precondition: `01-discovery.md` approved by the user.
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Ler .hes/specs/{{feature}}/01-discovery.md integralmente
-2. Identificar: todas as RN-xx, UC-xx, integrações, critério de aceite
-3. Verificar se existe 02-spec.md (retomada de sessão)
-4. Verificar .hes/tasks/lessons.md para lições sobre especificação
+1. Read .hes/specs/{{feature}}/01-discovery.md in full
+2. Identify: all RN-xx, UC-xx, integrations, acceptance criteria
+3. Check if 02-spec.md exists (session resumption)
+4. Check .hes/tasks/lessons.md for specification lessons
 ```
 
 ---
 
-## ◈ REGRA DE OURO DA SPEC
+## ◈ GOLDEN RULE OF SPEC
 
-> Cada cenário BDD deve ser rastreável a uma RN ou UC do discovery.
-> Cada RN deve ter ao menos 1 cenário BDD que a valide.
-> Mensagens de erro devem ser ESPECÍFICAS — nunca genéricas.
+> Each BDD scenario must be traceable to an RN or UC from discovery.
+> Each RN must have at least 1 BDD scenario that validates it.
+> Error messages must be SPECIFIC — never generic.
 
 ---
 
-## ◈ PASSO 1 — GERAR `.hes/specs/{{FEATURE_SLUG}}/02-spec.md`
+## ◈ STEP 1 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/02-spec.md`
 
 ```markdown
-# Especificação — {{NOME_FEATURE}}
+# Specification — {{FEATURE_NAME}}
 
-Data: {{DATA_ATUAL}} | Versão: 1.0
-Derivado de: 01-discovery.md | Feature: {{FEATURE_SLUG}}
-
----
-
-## Cenários BDD
-
-Feature: {{NOME_FEATURE}}
-  Como {{PERSONA}}
-  Quero {{ACAO}}
-  Para {{RESULTADO_DE_NEGOCIO}}
-
-  # ─── Caminho Feliz ───────────────────────────────────────
-
-  Scenario: {{NOME_CENARIO_PRINCIPAL}}
-    Given {{PRE_CONDICAO_ESPECIFICA}}
-    When {{ACAO_DO_USUARIO_OU_SISTEMA}}
-    Then {{RESULTADO_ESPERADO}}
-    And {{VALIDACAO_ADICIONAL_SE_HOUVER}}
-    # Cobre: UC-01, RN-01
-
-  # ─── Validações de Entrada ────────────────────────────────
-
-  Scenario: campo obrigatório ausente — {{CAMPO}}
-    Given {{PRE_CONDICAO}}
-    When a requisição é enviada sem o campo "{{CAMPO}}"
-    Then o sistema retorna HTTP 400
-    And o corpo contém {"error": "{{CAMPO}} é obrigatório"}
-    # Cobre: RN-0x
-
-  Scenario: formato inválido — {{CAMPO}}
-    Given {{PRE_CONDICAO}}
-    When o campo "{{CAMPO}}" contém "{{VALOR_INVALIDO}}"
-    Then o sistema retorna HTTP 422
-    And o corpo contém {"error": "{{CAMPO}} deve ser {{FORMATO_ESPERADO}}"}
-
-  # ─── Regras de Negócio ────────────────────────────────────
-
-  Scenario: violação de RN-01 — {{NOME_DA_REGRA}}
-    Given {{PRE_CONDICAO_QUE_VIOLA_RN}}
-    When {{ACAO}}
-    Then o sistema retorna HTTP {{STATUS_CODE}}
-    And o corpo contém {"error": "{{MENSAGEM_ESPECIFICA_DA_RN}}"}
-    # Cobre: RN-01
-
-  # ─── Casos de Borda ───────────────────────────────────────
-
-  Scenario: {{CASO_DE_BORDA_IDENTIFICADO_NO_DISCOVERY}}
-    Given {{PRE_CONDICAO}}
-    When {{ACAO}}
-    Then {{RESULTADO}}
-    # Cobre: RN-0x
+Date: {{CURRENT_DATE}} | Version: 1.0
+Derived from: 01-discovery.md | Feature: {{FEATURE_SLUG}}
 
 ---
 
-## Contrato de API
+## BDD Scenarios
 
-### {{METODO_HTTP}} {{ROTA}}
+Feature: {{FEATURE_NAME}}
+  As {{PERSONA}}
+  I want {{ACTION}}
+  So that {{BUSINESS_OUTCOME}}
 
-**Headers obrigatórios:**
+  # ─── Happy Path ────────────────────────────────────────────
+
+  Scenario: {{MAIN_SCENARIO_NAME}}
+    Given {{SPECIFIC_PRECONDITION}}
+    When {{USER_OR_SYSTEM_ACTION}}
+    Then {{EXPECTED_RESULT}}
+    And {{ADDITIONAL_VALIDATION_IF_ANY}}
+    # Covers: UC-01, RN-01
+
+  # ─── Input Validations ─────────────────────────────────────
+
+  Scenario: missing required field — {{FIELD}}
+    Given {{PRECONDITION}}
+    When the request is sent without the "{{FIELD}}" field
+    Then the system returns HTTP 400
+    And the body contains {"error": "{{FIELD}} is required"}
+    # Covers: RN-0x
+
+  Scenario: invalid format — {{FIELD}}
+    Given {{PRECONDITION}}
+    When the "{{FIELD}}" field contains "{{INVALID_VALUE}}"
+    Then the system returns HTTP 422
+    And the body contains {"error": "{{FIELD}} must be {{EXPECTED_FORMAT}}"}
+
+  # ─── Business Rules ────────────────────────────────────────
+
+  Scenario: RN-01 violation — {{RULE_NAME}}
+    Given {{PRECONDITION_THAT_VIOLATES_RN}}
+    When {{ACTION}}
+    Then the system returns HTTP {{STATUS_CODE}}
+    And the body contains {"error": "{{SPECIFIC_RN_ERROR_MESSAGE}}"}
+    # Covers: RN-01
+
+  # ─── Edge Cases ────────────────────────────────────────────
+
+  Scenario: {{EDGE_CASE_IDENTIFIED_IN_DISCOVERY}}
+    Given {{PRECONDITION}}
+    When {{ACTION}}
+    Then {{RESULT}}
+    # Covers: RN-0x
+
+---
+
+## API Contract
+
+### {{HTTP_METHOD}} {{ROUTE}}
+
+**Required headers:**
 ```
 Authorization: Bearer {{TOKEN}}
 Content-Type: application/json
@@ -97,71 +97,71 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "{{campo_1}}": "{{tipo}} — {{descricao}} — {{obrigatorio|opcional}}",
-  "{{campo_2}}": "{{tipo}} — {{descricao}} — {{obrigatorio|opcional}}"
+  "{{field_1}}": "{{type}} — {{description}} — {{required|optional}}",
+  "{{field_2}}": "{{type}} — {{description}} — {{required|optional}}"
 }
 ```
 
 **Response 200/201:**
 ```json
 {
-  "{{campo}}": "{{tipo}} — {{descricao}}"
+  "{{field}}": "{{type}} — {{description}}"
 }
 ```
 
-**Mapa de Erros:**
-| HTTP | Código de Erro | Mensagem ao Cliente | Quando Ocorre |
-|------|---------------|---------------------|---------------|
-| 400  | MISSING_FIELD  | "{{campo}} é obrigatório" | Campo obrigatório ausente |
-| 422  | INVALID_FORMAT | "{{campo}} deve ser {{formato}}" | Formato inválido |
-| 409  | ALREADY_EXISTS | "{{entidade}} já existe" | Duplicidade |
-| 404  | NOT_FOUND      | "{{entidade}} não encontrada" | Recurso inexistente |
-| 403  | FORBIDDEN      | "Sem permissão para {{acao}}" | Autorização negada |
-| 500  | INTERNAL_ERROR | "Erro interno. Contate o suporte." | Exceção não tratada |
+**Error Map:**
+| HTTP | Error Code | Message to Client | When It Occurs |
+|------|-----------|-------------------|----------------|
+| 400  | MISSING_FIELD  | "{{field}} is required" | Required field missing |
+| 422  | INVALID_FORMAT | "{{field}} must be {{format}}" | Invalid format |
+| 409  | ALREADY_EXISTS | "{{entity}} already exists" | Duplicate |
+| 404  | NOT_FOUND      | "{{entity}} not found" | Resource does not exist |
+| 403  | FORBIDDEN      | "No permission to {{action}}" | Authorization denied |
+| 500  | INTERNAL_ERROR | "Internal error. Contact support." | Unhandled exception |
 
 ---
 
-## Modelo de Domínio
+## Domain Model
 
-### Entidade: {{NOME_ENTIDADE}}
-| Campo | Tipo | Obrigatório | Regra de Validação | RN |
-|-------|------|------------|-------------------|-----|
-| id | UUID | Sim | Auto-gerado | — |
-| {{campo}} | {{tipo}} | {{sim/não}} | {{regra}} | RN-0x |
-| created_at | ISO 8601 | Sim | Auto-gerado | — |
-| updated_at | ISO 8601 | Sim | Auto-gerado | — |
-
----
-
-## Rastreabilidade: Cenários × Regras de Negócio
-
-| Regra de Negócio | Cenário(s) que cobrem | Status |
-|------------------|----------------------|--------|
-| RN-01 — {{REGRA}} | Scenario: {{nome}} | ✅ Coberto |
-| RN-02 — {{REGRA}} | Scenario: {{nome}} | ✅ Coberto |
-
-> Regras sem cobertura = spec incompleta. Não avançar sem cobertura 100%.
+### Entity: {{ENTITY_NAME}}
+| Field | Type | Required | Validation Rule | RN |
+|-------|------|----------|-----------------|-----|
+| id | UUID | Yes | Auto-generated | — |
+| {{field}} | {{type}} | {{yes/no}} | {{rule}} | RN-0x |
+| created_at | ISO 8601 | Yes | Auto-generated | — |
+| updated_at | ISO 8601 | Yes | Auto-generated | — |
 
 ---
 
-## Aprovação
-- [ ] Todos os UC e RN do discovery têm cobertura de cenário?
-- [ ] Mensagens de erro são específicas (não genéricas)?
-- [ ] Contrato de API cobre todos os campos da entidade?
-- [ ] Aprovado pelo usuário para avançar à Etapa 3 (DESIGN)
+## Traceability: Scenarios x Business Rules
+
+| Business Rule | Scenario(s) that cover | Status |
+|---------------|----------------------|--------|
+| RN-01 — {{RULE}} | Scenario: {{name}} | ✅ Covered |
+| RN-02 — {{RULE}} | Scenario: {{name}} | ✅ Covered |
+
+> Rules without coverage = incomplete spec. Do not advance without 100% coverage.
+
+---
+
+## Approval
+- [ ] Do all UC and RN from discovery have scenario coverage?
+- [ ] Are error messages specific (not generic)?
+- [ ] Does the API contract cover all entity fields?
+- [ ] Approved by user to advance to Step 3 (DESIGN)
 ```
 
 ---
 
-## ◈ PASSO 2 — ATUALIZAR ESTADO
+## ◈ STEP 2 — UPDATE STATE
 
-### `.hes/state/current.json`: alterar `"{{FEATURE}}": "SPEC"`
+### `.hes/state/current.json`: change `"{{FEATURE}}": "SPEC"`
 
 ### `.hes/state/events.log`:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE_SLUG}}",
   "from": "DISCOVERY",
   "to": "SPEC",
@@ -176,26 +176,26 @@ Content-Type: application/json
 
 ---
 
-▶ PRÓXIMA AÇÃO — APROVAÇÃO DA SPEC
+▶ NEXT ACTION — SPEC APPROVAL
 
 ```
-📐 Spec gerada: .hes/specs/{{FEATURE_SLUG}}/02-spec.md
+📐 Spec generated: .hes/specs/{{FEATURE_SLUG}}/02-spec.md
 
-Valide especialmente:
-  • Cada RN do discovery tem ao menos 1 cenário BDD?
-  • As mensagens de erro são específicas (não "Erro inválido")?
-  • O contrato de API cobre todos os campos da entidade?
+Validate especially:
+  • Does each RN from discovery have at least 1 BDD scenario?
+  • Are error messages specific (not "Invalid error")?
+  • Does the API contract cover all entity fields?
 
-  [A] "aprovar spec"
-      → Gero o Design e o ADR (skills/03-design.md)
+  [A] "approve spec"
+      → I'll generate the Design and ADR (skills/03-design.md)
 
-  [B] "ajustar [o quê]"
-      → Corrijo e reapresento
+  [B] "adjust [what]"
+      → I'll fix and present again
 
-  [C] "faltou o cenário de [situação]"
-      → Adiciono e reapresento com rastreabilidade atualizada
+  [C] "missing scenario for [situation]"
+      → I'll add it and present with updated traceability
 
-📄 Skill-file próximo: skills/03-design.md
-💡 Dica: as mensagens de erro da spec viram strings literais nos testes.
-   Qualquer mudança depois do RED exige reescrever os testes.
+📄 Next skill-file: skills/03-design.md
+💡 Tip: error messages from the spec become literal strings in tests.
+   Any change after RED requires rewriting the tests.
 ```

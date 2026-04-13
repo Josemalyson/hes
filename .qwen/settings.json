@@ -3,7 +3,8 @@
     "allow": [
       "Bash(python3 *)",
       "Bash(test *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Read(//home/josemalyson/Projects/**)"
     ]
   },
   "$version": 3

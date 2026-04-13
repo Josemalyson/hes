@@ -1,64 +1,64 @@
 # HES Skill — 00: Bootstrap
 
-> Skill carregada quando: estado global = ZERO (novo projeto) ou HARNESS_INSTALADO (sem feature ativa).
-> Execute este arquivo integralmente antes de qualquer ação.
+> Skill loaded when: global state = ZERO (new project) or HARNESS_INSTALLED (no active feature).
+> Execute this file in full before any action.
 
 ---
 
-## ◈ CONTEXTO ESPERADO
+## ◈ EXPECTED CONTEXT
 
-Este skill é invocado quando:
-- `.hes/state/current.json` não existe (projeto novo)
-- Projeto existe mas sem estrutura HES
-- Harness instalado mas sem feature ativa definida
+This skill is invoked when:
+- `.hes/state/current.json` does not exist (new project)
+- Project exists but without HES structure
+- Harness installed but without an active feature defined
 
 ---
 
-## ◈ PASSO 1 — COLETAR INFORMAÇÕES (máximo 4 perguntas)
+## ◈ STEP 1 — COLLECT INFORMATION (maximum 4 questions)
 
 ```
-🚀 HES Bootstrap v3.2 — vou configurar o harness do projeto.
+🚀 HES Bootstrap v3.2 — I'll configure the project harness.
 
-Preciso de 4 informações:
+I need 4 pieces of information:
 
-1. Nome do projeto (ex: livehome, payment-service): [GERAR AUTOMATICAMENTE]
-2. Stack principal (ex: Java 17 + Spring Boot / Node + NestJS / Python + FastAPI): [GERAR AUTOMATICAMENTE]
-3. Este é um projeto novo ou você quer integrar código existente? [GERAR AUTOMATICAMENTE]
-4. O sistema possui domínios DDD definidos? Se sim, liste-os (ex: billing, auth, catalog — ou "não" se for monolito simples): [GERAR AUTOMATICAMENTE]
+1. Project name (e.g., livehome, payment-service): [AUTO-GENERATE]
+2. Primary stack (e.g., Java 17 + Spring Boot / Node + NestJS / Python + FastAPI): [AUTO-GENERATE]
+3. Is this a new project or do you want to integrate existing code? [AUTO-GENERATE]
+4. Does the system have defined DDD domains? If so, list them (e.g., billing, auth, catalog — or "no" if it's a simple monolith): [AUTO-GENERATE]
 ```
 
-Tentar gerar as respostas automaticamente, se não conseguir aguardar resposta.
-Com as respostas, executar os passos abaixo.
+Try to auto-generate the answers; if unable, wait for user response.
+With the answers, execute the steps below.
 
 ---
 
-## ◈ PASSO 1.5 — VALIDAR ESTRUTURA DE SETUP
+## ◈ STEP 1.5 — VALIDATE SETUP STRUCTURE
 
-> Antes de gerar qualquer diretório, verifique se os arquivos HES foram copiados corretamente.
-> Este passo é executado APÓS o usuário copiar os arquivos e ANTES de gerar a estrutura.
+> Before generating any directory, verify that HES files were copied correctly.
+> This step runs AFTER the user copies the files and BEFORE generating the structure.
 
-### 0. Verificação Prévia — Diretório Oculto
+### 0. Pre-check — Hidden Directory
 
-**Antes do checklist principal, verifique se não há um diretório oculto `.skills/`:**
+**Before the main checklist, check if there is a hidden `.skills/` directory:**
 
 ```bash
-# Se .skills/ existe mas skills/ não existe:
+# If .skills/ exists but skills/ does not:
 if [ -d ".skills" ] && [ ! -d "skills" ]; then
-  echo "⚠ Atenção: pasta '.skills/' (oculta) detectada."
-  echo "   A pasta correta é 'skills/' (sem o ponto)."
-  echo "   Renomeie: mv .skills skills"
+  echo "⚠ Attention: hidden '.skills/' folder detected."
+  echo "   The correct folder is 'skills/' (without the dot)."
+  echo "   Rename it: mv .skills skills"
 fi
 ```
 
-### 1. Checklist de Validação
+### 1. Validation Checklist
 
-Execute as verificações abaixo (use `ls`, `test -f`, `test -d` ou equivalente):
+Run the checks below (use `ls`, `test -f`, `test -d` or equivalent):
 
 ```
-📋 Validando estrutura de arquivos HES v3.2...
+📋 Validating HES file structure v3.2...
 
-  [ ] SKILL.md existe na raiz do projeto
-  [ ] Diretório skills/ existe (VISÍVEL, não .skills/)
+  [ ] SKILL.md exists at project root
+  [ ] Directory skills/ exists (VISIBLE, not .skills/)
   [ ] skills/00-bootstrap.md
   [ ] skills/01-discovery.md
   [ ] skills/02-spec.md
@@ -74,53 +74,53 @@ Execute as verificações abaixo (use `ls`, `test -f`, `test -d` ou equivalente)
   [ ] skills/harness-health.md
 ```
 
-**Se algum arquivo estiver faltando**, exiba erro claro:
+**If any file is missing**, display a clear error:
 
 ```
-🚨 Estrutura HES INCOMPLETA — os seguintes arquivos não foram encontrados:
+🚨 HES structure INCOMPLETE — the following files were not found:
 
   ❌ skills/02-spec.md
   ❌ skills/05-tests.md
 
-Ações possíveis:
-  1. Recopie a pasta skills/ do repositório HES original
-  2. Verifique se o caminho de destino está correto (deve ser skills/, não .skills/)
-  3. Execute este bootstrap novamente após corrigir
+Possible actions:
+  1. Recopy the skills/ folder from the original HES repository
+  2. Verify the destination path is correct (must be skills/, not .skills/)
+  3. Run this bootstrap again after fixing
 ```
 
-### 2. Tipo de Instalação
+### 2. Installation Type
 
-Se a estrutura estiver válida, pergunte ao usuário:
+If the structure is valid, ask the user:
 
 ```
-📦 Tipo de Instalação — como o HES será usado?
+📦 Installation Type — how will HES be used?
 
-  [A] Local (este projeto apenas)
-      → Arquivos ficam no projeto, versionados com git
-      → Ideal: projeto isolado, cada projeto tem sua versão
+  [A] Local (this project only)
+      → Files stay in the project, versioned with git
+      → Ideal: isolated project, each project has its own version
 
-  [B] Global (compartilhado entre projetos)
-      → Arquivos em ~/.hes/skills/ com symlinks nos projetos
-      → Ideal: múltiplos projetos, atualização centralizada
-      → Comando:
-        # Copiar para localização global
+  [B] Global (shared across projects)
+      → Files in ~/.hes/skills/ with symlinks in projects
+      → Ideal: multiple projects, centralized updates
+      → Command:
+        # Copy to global location
         cp -r skills/ ~/.hes/skills/
 
-        # Remover cópia local e criar symlink
+        # Remove local copy and create symlink
         rm -rf skills/
         ln -s ~/.hes/skills/ ./skills
 ```
 
-- Se **[A] Local**: registre `"installation_type": "local"` e siga para Passo 2.
-- Se **[B] Global**: execute a cópia e criação do symlink, registre `"installation_type": "global"`, e siga para Passo 2.
+- If **[A] Local**: register `"installation_type": "local"` and proceed to Step 2.
+- If **[B] Global**: perform the copy and symlink creation, register `"installation_type": "global"`, then proceed to Step 2.
 
-### 3. Gerar Relatório de Validação
+### 3. Generate Validation Report
 
-Salve o resultado em `.hes/state/setup-validation.json`:
+Save the result to `.hes/state/setup-validation.json`:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "installation_type": "local|global",
   "structure_valid": true|false,
   "files_expected": ["SKILL.md", "skills/00-bootstrap.md", "skills/01-discovery.md", "skills/02-spec.md", "skills/03-design.md", "skills/04-data.md", "skills/05-tests.md", "skills/06-implementation.md", "skills/07-review.md", "skills/legacy.md", "skills/error-recovery.md", "skills/refactor.md", "skills/report.md", "skills/harness-health.md"],
@@ -129,16 +129,16 @@ Salve o resultado em `.hes/state/setup-validation.json`:
 }
 ```
 
-- `files_expected`: lista completa de arquivos que deveriam existir
-- `files_missing`: lista de arquivos não encontrados (vazia se todos presentes)
-- `issues`: lista de problemas adicionais (ex: `"skills/ é diretório oculto (.skills/), deveria ser visível"`)
-- `structure_valid`: `true` apenas se `files_missing` estiver vazio
+- `files_expected`: full list of files that should exist
+- `files_missing`: list of files not found (empty if all present)
+- `issues`: list of additional issues (e.g., `"skills/ is hidden (.skills/), should be visible"`)
+- `structure_valid`: `true` only if `files_missing` is empty
 
 ---
 
-## ◈ PASSO 1.5.1 — IDE AUTO-DETECTION (NOVO em v3.2)
+## ◈ STEP 1.5.1 — IDE AUTO-DETECTION (NEW in v3.2)
 
-> Detectar o ambiente de IDE e gerar configuração específica automaticamente.
+> Detect the IDE environment and generate specific configuration automatically.
 
 ### Detection Order
 
@@ -152,7 +152,7 @@ Salve o resultado em `.hes/state/setup-validation.json`:
    - .windsurf/ → Windsurf
 
 2. If multiple detected → ask user:
-   "Detected: {{lista_de_IDEs}}. Which is your primary IDE?"
+   "Detected: {{list_of_IDEs}}. Which is your primary IDE?"
 
 3. If none detected → ask user:
    "What IDE/editor are you using?"
@@ -166,22 +166,22 @@ Salve o resultado em `.hes/state/setup-validation.json`:
 mkdir -p .claude
 ```
 
-Generate `.claude/CLAUDE.md` with updated HES v3.2 content (update version references in the existing PASSO 5 content to v3.2).
+Generate `.claude/CLAUDE.md` with updated HES v3.2 content (update version references in the existing STEP 5 content to v3.2).
 
 **Cursor detected (or selected):**
 Generate `.cursorrules`:
 ```
 # HES — Harness Engineer Standard v3.2
 
-Ao receber /hes ou qualquer comando de engenharia:
-1. Ler SKILL.md na raiz do projeto
-2. Ler .hes/state/current.json e .hes/agents/registry.json
-3. Identificar agente correto via registry para a fase atual
-4. Carregar APENAS o contexto definido no registry
-5. Seguir o skill-file do agente sem desvios
-6. NUNCA pular etapas — phase lock é obrigatório
-7. Orquestrador NUNCA implementa — apenas roteia
-8. Sempre terminar com o bloco PRÓXIMA AÇÃO
+When receiving /hes or any engineering command:
+1. Read SKILL.md at the project root
+2. Read .hes/state/current.json and .hes/agents/registry.json
+3. Identify the correct agent via registry for the current phase
+4. Load ONLY the context defined in the registry
+5. Follow the agent's skill-file without deviations
+6. NEVER skip steps — phase lock is mandatory
+7. Orchestrator NEVER implements — only routes
+8. Always end with the NEXT ACTION block
 ```
 
 **VS Code detected (or selected):**
@@ -210,26 +210,26 @@ Generate `AGENTS.md`:
 ```markdown
 # HES — Harness Engineer Standard v3.2
 
-Ao iniciar qualquer sessão:
-1. Ler SKILL.md na raiz do projeto
-2. Ler .hes/state/current.json para identificar estado
-3. Ler .hes/agents/registry.json para identificar agente
-4. Carregar skill-file do agente correspondente
-5. Seguir instruções do skill-file sem desvios
-6. NUNCA pular etapas
-7. Orquestrador NUNCA implementa — apenas roteia
-8. Sempre terminar com o bloco PRÓXIMA AÇÃO
+When starting any session:
+1. Read SKILL.md at the project root
+2. Read .hes/state/current.json to identify state
+3. Read .hes/agents/registry.json to identify agent
+4. Load the corresponding agent's skill-file
+5. Follow the skill-file instructions without deviations
+6. NEVER skip steps
+7. Orchestrator NEVER implements — only routes
+8. Always end with the NEXT ACTION block
 ```
 
 ### Register IDE in current.json
 
-Add `"ide": "{{detected_ide}}"` to the current.json schema in PASSO 3.
+Add `"ide": "{{detected_ide}}"` to the current.json schema in STEP 3.
 
 ---
 
-## ◈ PASSO 1.6 — AGENT REGISTRY INIT (NOVO em v3.2)
+## ◈ STEP 1.6 — AGENT REGISTRY INIT (NEW in v3.2)
 
-> Gerar o arquivo de registro de agentes.
+> Generate the agent registry file.
 
 ```bash
 mkdir -p .hes/agents
@@ -251,9 +251,9 @@ If version < 3.2.0, prompt for upgrade.
 
 ---
 
-## ◈ PASSO 1.7 — SESSION MANAGER INIT (NOVO em v3.2)
+## ◈ STEP 1.7 — SESSION MANAGER INIT (NEW in v3.2)
 
-> Inicializar o session manager e arquivo de checkpoint.
+> Initialize the session manager and checkpoint file.
 
 1. Verify `skills/session-manager.md` exists. If not:
 ```
@@ -285,10 +285,10 @@ Save to `.hes/state/session-checkpoint.json`.
 
 ---
 
-## ◈ PASSO 2 — GERAR ESTRUTURA DE DIRETÓRIOS
+## ◈ STEP 2 — GENERATE DIRECTORY STRUCTURE
 
 ```bash
-# Estrutura base HES
+# HES base structure
 mkdir -p .claude/commands
 mkdir -p .hes/state
 mkdir -p .hes/specs
@@ -297,48 +297,48 @@ mkdir -p .hes/tasks
 mkdir -p .hes/inventory
 mkdir -p scripts/hooks
 
-# Se houver domínios DDD
-for domain in {{DOMINIOS_INFORMADOS}}; do
+# If DDD domains exist
+for domain in {{PROVIDED_DOMAINS}}; do
   mkdir -p .hes/domains/$domain/decisions
-  mkdir -p .hes/domains/$domain/fitness   # ← NOVO v3.2: sensors computacionais por domínio
+  mkdir -p .hes/domains/$domain/fitness   # ← NEW v3.2: computational sensors per domain
 done
 ```
 
-A pasta `fitness/` é onde ficam os sensors computacionais de architecture fitness
-(ArchUnit rules, dep-cruiser config, import-linter rules) — gerados em Passo 9.
+The `fitness/` folder is where architecture fitness computational sensors live
+(ArchUnit rules, dep-cruiser config, import-linter rules) — generated in Step 9.
 
 ---
 
-## ◈ PASSO 3 — GERAR `.hes/state/current.json`
+## ◈ STEP 3 — GENERATE `.hes/state/current.json`
 
 ```json
 {
-  "project": "{{NOME_PROJETO}}",
+  "project": "{{PROJECT_NAME}}",
   "stack": "{{STACK}}",
   "active_feature": null,
   "features": {},
-  "domains": [{{DOMINIOS_OU_ARRAY_VAZIO}}],
+  "domains": [{{DOMAINS_OR_EMPTY_ARRAY}}],
   "dependency_graph": {},
   "harness_version": "3.2.0",
   "completed_cycles": 0,
-  "last_updated": "{{DATA_ATUAL_ISO}}"
+  "last_updated": "{{CURRENT_ISO_DATE}}"
 }
 ```
 
 ---
 
-## ◈ PASSO 4 — GERAR `.hes/state/events.log`
+## ◈ STEP 4 — GENERATE `.hes/state/events.log`
 
 ```json
 [
   {
-    "timestamp": "{{DATA_ATUAL_ISO}}",
+    "timestamp": "{{CURRENT_ISO_DATE}}",
     "feature": "global",
     "from": "NONE",
-    "to": "HARNESS_INSTALADO",
+    "to": "HARNESS_INSTALLED",
     "agent": "hes-v3.2",
     "metadata": {
-      "project": "{{NOME_PROJETO}}",
+      "project": "{{PROJECT_NAME}}",
       "stack": "{{STACK}}",
       "harness_version": "3.2.0"
     }
@@ -348,125 +348,125 @@ A pasta `fitness/` é onde ficam os sensors computacionais de architecture fitne
 
 ---
 
-## ◈ PASSO 5 — GERAR `.claude/CLAUDE.md`
+## ◈ STEP 5 — GENERATE `.claude/CLAUDE.md`
 
 ```markdown
-# Identidade do Agente — {{NOME_PROJETO}}
+# Agent Identity — {{PROJECT_NAME}}
 
-## Missão
-Você é um Harness Engineer (HES v3.2) para o projeto {{NOME_PROJETO}}.
-Sua função é conduzir o pipeline SDD+TDD de 7 etapas de forma determinística.
+## Mission
+You are a Harness Engineer (HES v3.2) for the project {{PROJECT_NAME}}.
+Your role is to conduct the 7-step SDD+TDD pipeline deterministically.
 
-NUNCA escreva código antes de completar as Etapas 1–4 aprovadas.
-SEMPRE leia SKILL.md no início de cada sessão.
-SEMPRE leia .hes/state/current.json para identificar o estado atual.
-SEMPRE termine qualquer ação com o bloco PRÓXIMA AÇÃO.
+NEVER write code before completing approved Steps 1–4.
+ALWAYS read SKILL.md at the start of each session.
+ALWAYS read .hes/state/current.json to identify the current state.
+ALWAYS end any action with the NEXT ACTION block.
 
 ## Stack
 {{STACK}}
 
-## Regras Invioláveis
-1. Ler SKILL.md antes de qualquer ação
-2. Seguir as 7 etapas em ordem — sem pular
-3. Consultar specs/ antes de implementar qualquer coisa
-4. Registrar decisões em .hes/decisions/ como ADRs
-5. Atualizar lessons.md após qualquer erro ou aprendizado
-6. Nunca assumir regras de negócio — sempre perguntar
-7. Issue recorrente (N ≥ 2) → melhorar o harness, não só corrigir a instância
+## Inviolable Rules
+1. Read SKILL.md before any action
+2. Follow the 7 steps in order — no skipping
+3. Consult specs/ before implementing anything
+4. Record decisions in .hes/decisions/ as ADRs
+5. Update lessons.md after any error or learning
+6. Never assume business rules — always ask
+7. Recurring issue (N >= 2) → improve the harness, not just fix the instance
 
-## Taxonomia do Harness (Fowler, 2026)
+## Harness Taxonomy (Fowler, 2026)
 Guides (feedforward): SKILL.md, skill-files, specs, CLAUDE.md, domain context
 Sensors (feedback):   git hooks, build, coverage, linters, ArchUnit/dep-cruiser
-Dimensões: Maintainability | Architecture Fitness | Behaviour
+Dimensions: Maintainability | Architecture Fitness | Behaviour
 
-## Skill-files disponíveis
-- SKILL.md                    → orquestrador (ler sempre primeiro)
-- skills/00-bootstrap.md      → configuração inicial
-- skills/01-discovery.md      → entendimento do problema
-- skills/02-spec.md           → cenários BDD + contratos de API
-- skills/03-design.md         → arquitetura + ADR + fitness functions
+## Available Skill-files
+- SKILL.md                    → orchestrator (always read first)
+- skills/00-bootstrap.md      → initial configuration
+- skills/01-discovery.md      → problem understanding
+- skills/02-spec.md           → BDD scenarios + API contracts
+- skills/03-design.md         → architecture + ADR + fitness functions
 - skills/04-data.md           → schema + migrations
-- skills/05-tests.md          → testes antes do código (RED) + ArchUnit
-- skills/06-implementation.md → implementação mínima (GREEN)
-- skills/07-review.md         → 5 dimensões de revisão + DONE
-- skills/legacy.md            → inventário + harnessability assessment
-- skills/error-recovery.md    → diagnóstico e resolução de erros
-- skills/refactor.md          → refactoring seguro por tipo
-- skills/report.md            → batch learning sobre events.log
-- skills/harness-health.md    → diagnóstico das 3 dimensões de regulação
+- skills/05-tests.md          → tests before code (RED) + ArchUnit
+- skills/06-implementation.md → minimal implementation (GREEN)
+- skills/07-review.md         → 5-dimension review + DONE
+- skills/legacy.md            → inventory + harnessability assessment
+- skills/error-recovery.md    → error diagnosis and resolution
+- skills/refactor.md          → safe refactoring by type
+- skills/report.md            → batch learning from events.log
+- skills/harness-health.md    → 3-dimension regulation diagnosis
 
-## Estado Atual
-Ver: .hes/state/current.json
+## Current State
+See: .hes/state/current.json
 ```
 
 ---
 
-## ◈ PASSO 6 — GERAR `.hes/tasks/lessons.md`
+## ◈ STEP 6 — GENERATE `.hes/tasks/lessons.md`
 
 ```markdown
-# Lessons Learned — {{NOME_PROJETO}}
+# Lessons Learned — {{PROJECT_NAME}}
 
-> Atualizado após cada sessão (hot path) e consolidado via /hes report (offline).
-> Lições que aparecem 2× são promovidas ao skill-file correspondente.
-> Issue recorrente → melhorar o harness, não só a instância (Fowler, 2026).
+> Updated after each session (hot path) and consolidated via /hes report (offline).
+> Lessons that appear 2x are promoted to the corresponding skill-file.
+> Recurring issue → improve the harness, not just the instance (Fowler, 2026).
 
-## Categorias
-A — Violação de regra HES
-B — Erro técnico recorrente
-C — Gap de guide (feedforward insuficiente)
-D — Gap de sensor (feedback não detectou)
-E — Processo (fluxo de aprovação, comunicação)
+## Categories
+A — HES rule violation
+B — Recurring technical error
+C — Guide gap (insufficient feedforward)
+D — Sensor gap (feedback did not detect)
+E — Process (approval flow, communication)
 
-## Lições Consolidadas (promovidas ao SKILL.md ou skill-file)
-_nenhuma ainda_
+## Consolidated Lessons (promoted to SKILL.md or skill-file)
+_none yet_
 
 ---
 ```
 
 ---
 
-## ◈ PASSO 7 — GERAR `.hes/tasks/backlog.md`
+## ◈ STEP 7 — GENERATE `.hes/tasks/backlog.md`
 
 ```markdown
-# Backlog — {{NOME_PROJETO}}
+# Backlog — {{PROJECT_NAME}}
 
-## 🔴 Alta Prioridade
-_adicionar via /hes start [nome-da-feature]_
+## 🔴 High Priority
+_add via /hes start [feature-name]_
 
-## 🟡 Média Prioridade
+## 🟡 Medium Priority
 
-## 🟢 Baixa Prioridade
+## 🟢 Low Priority
 
-## ✅ Concluídas
+## ✅ Completed
 ```
 
 ---
 
-## ◈ PASSO 8 — GERAR DOMÍNIOS (se informados)
+## ◈ STEP 8 — GENERATE DOMAINS (if provided)
 
-Para cada domínio em `{{DOMINIOS_INFORMADOS}}`:
+For each domain in `{{PROVIDED_DOMAINS}}`:
 
 ### `.hes/domains/{{domain}}/context.md`
 
 ```markdown
 # Bounded Context — {{DOMAIN}}
 
-Domínio: {{DOMAIN}} | Projeto: {{NOME_PROJETO}}
+Domain: {{DOMAIN}} | Project: {{PROJECT_NAME}}
 
-## Linguagem Ubíqua
-| Termo | Definição no domínio | Diferença de outros domínios |
-|-------|---------------------|------------------------------|
-| _a preencher_ | | |
+## Ubiquitous Language
+| Term | Definition in domain | Difference from other domains |
+|------|---------------------|-------------------------------|
+| _to fill_ | | |
 
-## Responsabilidades do Domínio
-_o que pertence a este contexto_
+## Domain Responsibilities
+_what belongs to this context_
 
-## Limites Explícitos
-_o que NÃO pertence a este contexto_
+## Explicit Boundaries
+_what does NOT belong to this context_
 
-## Integrações com Outros Domínios
-| Domínio | Tipo de Integração | Protocolo |
-|---------|-------------------|-----------|
+## Integrations with Other Domains
+| Domain | Integration Type | Protocol |
+|--------|-----------------|----------|
 | | | |
 ```
 
@@ -475,39 +475,39 @@ _o que NÃO pertence a este contexto_
 ```markdown
 # Fitness Functions — {{DOMAIN}}
 
-Sensors computacionais de architecture fitness para o domínio {{DOMAIN}}.
-Referência: Fowler (2026) — Architecture Fitness Harness.
+Computational architecture fitness sensors for the {{DOMAIN}} domain.
+Reference: Fowler (2026) — Architecture Fitness Harness.
 
-## Sensors instalados
-_a preencher após configuração em Passo 9_
+## Installed sensors
+_to fill after setup in Step 9_
 
-## Regras de boundary definidas
-_a preencher após configuração_
+## Defined boundary rules
+_to fill after setup_
 
-## Como executar
-_a preencher após configuração_
+## How to run
+_to fill after setup_
 ```
 
 ---
 
-## ◈ PASSO 9 — CONFIGURAR ARCHITECTURE FITNESS SENSORS (NOVO em v3.2)
+## ◈ STEP 9 — CONFIGURE ARCHITECTURE FITNESS SENSORS (NEW in v3.2)
 
 > "Feedforward and feedback controls are currently scattered across delivery steps.
 >  Building the outer harness is an ongoing engineering practice." — Fowler, 2026
 
-Perguntar ao usuário:
+Ask the user:
 
 ```
-🏗 Configurar sensors de Architecture Fitness?
-   (detecta automaticamente violações de module boundaries)
+🏗 Configure Architecture Fitness sensors?
+   (automatically detects module boundary violations)
 
-  [A] "sim, configurar agora" → executo setup para {{STACK}}
-  [B] "depois" → registro em harness backlog e sigo
+  [A] "yes, configure now" → run setup for {{STACK}}
+  [B] "later" → register in harness backlog and proceed
 ```
 
-**Se Stack = Java / Spring Boot:**
+**If Stack = Java / Spring Boot:**
 
-Gerar `src/test/java/{{BASE_PACKAGE}}/architecture/ArchitectureTest.java`:
+Generate `src/test/java/{{BASE_PACKAGE}}/architecture/ArchitectureTest.java`:
 
 ```java
 package {{BASE_PACKAGE}}.architecture;
@@ -523,42 +523,42 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 @AnalyzeClasses(packages = "{{BASE_PACKAGE}}")
 class ArchitectureTest {
 
-    // ─── Regras de Layered Architecture ──────────────────────────
+    // ─── Layered Architecture Rules ──────────────────────────
 
     @ArchTest
-    static final ArchRule controllers_nao_dependem_de_repositories =
+    static final ArchRule controllers_do_not_depend_on_repositories =
         noClasses()
             .that().resideInAPackage("..controller..")
             .should().dependOnClassesThat()
             .resideInAPackage("..repository..")
-            .because("Controller não deve acessar dados — viola SRP e HES REGRA-01");
+            .because("Controller must not access data — violates SRP and HES RULE-01");
 
     @ArchTest
-    static final ArchRule services_nao_dependem_de_controllers =
+    static final ArchRule services_do_not_depend_on_controllers =
         noClasses()
             .that().resideInAPackage("..service..")
             .should().dependOnClassesThat()
             .resideInAPackage("..controller..")
-            .because("Service não deve conhecer a camada HTTP");
+            .because("Service must not know about the HTTP layer");
 
     @ArchTest
-    static final ArchRule repositories_nao_dependem_de_services =
+    static final ArchRule repositories_do_not_depend_on_services =
         noClasses()
             .that().resideInAPackage("..repository..")
             .should().dependOnClassesThat()
             .resideInAPackage("..service..")
-            .because("Repository não deve ter lógica de negócio");
+            .because("Repository must not contain business logic");
 
-    // ─── Regras de Nomenclatura ───────────────────────────────────
+    // ─── Naming Rules ───────────────────────────────────────────
 
     @ArchTest
-    static final ArchRule controllers_devem_ter_sufixo =
+    static final ArchRule controllers_must_have_suffix =
         classes()
             .that().resideInAPackage("..controller..")
             .should().haveSimpleNameEndingWith("Controller");
 
     @ArchTest
-    static final ArchRule services_devem_ter_sufixo =
+    static final ArchRule services_must_have_suffix =
         classes()
             .that().resideInAPackage("..service..")
             .and().areNotInterfaces()
@@ -567,7 +567,7 @@ class ArchitectureTest {
 }
 ```
 
-Adicionar dependência no `pom.xml`:
+Add dependency to `pom.xml`:
 
 ```xml
 <!-- Architecture Fitness Sensor — HES v3.2 -->
@@ -579,39 +579,39 @@ Adicionar dependência no `pom.xml`:
 </dependency>
 ```
 
-Registrar em `.hes/domains/{{domain}}/fitness/README.md`:
+Register in `.hes/domains/{{domain}}/fitness/README.md`:
 
 ```markdown
-## Sensors instalados
-- ArchUnit 1.3.0 (sensor computacional)
+## Installed sensors
+- ArchUnit 1.3.0 (computational sensor)
 
-## Regras de boundary
-- Controller → Service → Repository (unidirecional)
-- Nomenclatura de sufixos obrigatória
+## Boundary rules
+- Controller → Service → Repository (unidirectional)
+- Suffix naming mandatory
 
-## Como executar
+## How to run
 mvn test -Dtest=ArchitectureTest
 ```
 
-**Se Stack = Node.js / NestJS / TypeScript:**
+**If Stack = Node.js / NestJS / TypeScript:**
 
 ```bash
 npm install --save-dev dependency-cruiser
 npx depcruise --init
 
-# Adicionar em package.json:
+# Add to package.json:
 # "check:arch": "depcruise --validate src"
 # "check:arch:ci": "depcruise --validate --output-type err-long src"
 ```
 
-Configurar `.dependency-cruiser.js` com regras de boundary entre módulos.
+Configure `.dependency-cruiser.js` with boundary rules between modules.
 
-**Se Stack = Python / FastAPI:**
+**If Stack = Python / FastAPI:**
 
 ```bash
 pip install import-linter --break-system-packages
 
-# Criar .importlinter com contratos de boundary:
+# Create .importlinter with boundary contracts:
 # [contract: layers]
 # type = layers
 # layers =
@@ -622,22 +622,22 @@ pip install import-linter --break-system-packages
 
 ---
 
-## ◈ PASSO 10 — GERAR GIT HOOKS
+## ◈ STEP 10 — GENERATE GIT HOOKS
 
-### `scripts/hooks/safety_validator.py` (pre-commit — sensor computacional)
+### `scripts/hooks/safety_validator.py` (pre-commit — computational sensor)
 
 ```python
 #!/usr/bin/env python3
 """HES Safety Validator v3.2 — pre-commit hook
-Sensor computacional: bloqueia secrets, SQL destrutivo e pendências."""
+Computational sensor: blocks secrets, destructive SQL, and pending tasks."""
 import subprocess, sys, re
 
 BLOCKED_PATTERNS = [
-    (r'(?i)(password|secret|api_key|token)\s*=\s*["\'][^"\']{4,}', 'Secret hardcoded detectado'),
-    (r'(?i)DROP\s+TABLE', 'DROP TABLE sem aprovação explícita (HES REGRA-04)'),
-    (r'(?i)DELETE\s+FROM\s+\w+\s*;', 'DELETE sem cláusula WHERE'),
-    (r'(?i)TRUNCATE\s+TABLE', 'TRUNCATE sem aprovação explícita (HES REGRA-04)'),
-    (r'\bTODO\b|\bFIXME\b|\bHACK\b', 'Pendência não resolvida no código'),
+    (r'(?i)(password|secret|api_key|token)\s*=\s*["\'][^"\']{4,}', 'Hardcoded secret detected'),
+    (r'(?i)DROP\s+TABLE', 'DROP TABLE without explicit approval (HES RULE-04)'),
+    (r'(?i)DELETE\s+FROM\s+\w+\s*;', 'DELETE without WHERE clause'),
+    (r'(?i)TRUNCATE\s+TABLE', 'TRUNCATE without explicit approval (HES RULE-04)'),
+    (r'\bTODO\b|\bFIXME\b|\bHACK\b', 'Unresolved pending task in code'),
 ]
 SKIP_EXTENSIONS = {'.lock', '.sum', '.mod', '.png', '.jpg', '.svg', '.ico'}
 
@@ -669,29 +669,29 @@ for f in get_staged_files():
     violations.extend(check_file(f))
 
 if violations:
-    print('\n🚨 HES Safety Validator v3.2 — COMMIT BLOQUEADO\n')
+    print('\n🚨 HES Safety Validator v3.2 — COMMIT BLOCKED\n')
     for v in violations:
         print(v)
-    print('\nCorrija os problemas acima antes de commitar.')
-    print('Override (não recomendado): git commit --no-verify\n')
+    print('\nFix the issues above before committing.')
+    print('Override (not recommended): git commit --no-verify\n')
     sys.exit(1)
 
 print('✅ HES Safety Validator v3.2 — OK')
 ```
 
-### `scripts/hooks/sdd_commit_checker.py` (commit-msg — sensor computacional)
+### `scripts/hooks/sdd_commit_checker.py` (commit-msg — computational sensor)
 
 ```python
 #!/usr/bin/env python3
 """HES SDD Commit Checker v3.2 — commit-msg hook
-Sensor computacional: valida Conventional Commits e estágio HES."""
+Computational sensor: validates Conventional Commits and HES stage."""
 import sys, re
 
 VALID_TYPES = [
     'feat', 'fix', 'docs', 'test', 'refactor',
     'chore', 'spec', 'design', 'data', 'discovery', 'review',
-    'harness',   # ← NOVO v3.2: commits de melhoria do harness
-    'fitness',   # ← NOVO v3.2: commits de fitness functions
+    'harness',   # ← NEW v3.2: harness improvement commits
+    'fitness',   # ← NEW v3.2: fitness function commits
 ]
 PATTERN = re.compile(
     r'^(' + '|'.join(VALID_TYPES) + r')(\(\w[\w-]*\))?!?: .{10,}$'
@@ -704,12 +704,12 @@ with open(msg_file) as f:
 first_line = msg.split('\n')[0]
 
 if not PATTERN.match(first_line):
-    print('\n🚨 HES Commit Checker v3.2 — Mensagem inválida\n')
-    print(f'  Recebido : {first_line}')
-    print(f'  Esperado : <type>(<scope>): <descrição com 10+ chars>')
-    print(f'  Tipos    : {", ".join(VALID_TYPES)}')
-    print(f'  Exemplos : feat(pagamento): implementar endpoint PIX')
-    print(f'             harness(arch): adicionar regras ArchUnit para camada de serviço\n')
+    print('\n🚨 HES Commit Checker v3.2 — Invalid message\n')
+    print(f'  Received : {first_line}')
+    print(f'  Expected : <type>(<scope>): <description with 10+ chars>')
+    print(f'  Types    : {", ".join(VALID_TYPES)}')
+    print(f'  Examples : feat(payment): implement PIX endpoint')
+    print(f'             harness(arch): add ArchUnit rules for service layer\n')
     sys.exit(1)
 
 print('✅ HES Commit Checker v3.2 — OK')
@@ -720,74 +720,74 @@ print('✅ HES Commit Checker v3.2 — OK')
 ```bash
 #!/usr/bin/env bash
 set -e
-echo "🔧 Instalando HES Git Hooks v3.2..."
+echo "🔧 Installing HES Git Hooks v3.2..."
 HOOKS_DIR="$(git rev-parse --git-dir)/hooks"
 SCRIPTS_DIR="$(git rev-parse --show-toplevel)/scripts/hooks"
 ln -sf "$SCRIPTS_DIR/safety_validator.py"   "$HOOKS_DIR/pre-commit"
 ln -sf "$SCRIPTS_DIR/sdd_commit_checker.py" "$HOOKS_DIR/commit-msg"
 chmod +x "$SCRIPTS_DIR"/*.py
-echo "✅ Hooks instalados (sensors computacionais HES v3.2):"
+echo "✅ Hooks installed (HES v3.2 computational sensors):"
 echo "   pre-commit  → safety_validator.py"
 echo "   commit-msg  → sdd_commit_checker.py"
 echo ""
-echo "Teste: git commit --allow-empty -m 'harness: validar hooks HES v3.2'"
+echo "Test: git commit --allow-empty -m 'harness: validate HES v3.2 hooks'"
 ```
 
 ---
 
-## ◈ PASSO 11 — EXIBIR RESUMO DO BOOTSTRAP (v3.2)
+## ◈ STEP 11 — DISPLAY BOOTSTRAP SUMMARY (v3.2)
 
 ```
-✅ HES Bootstrap v3.2 Concluído — {{NOME_PROJETO}}
+✅ HES Bootstrap v3.2 Completed — {{PROJECT_NAME}}
 
-Guides instalados (feedforward):
-  .claude/CLAUDE.md (ou equivalente)   ← identidade do agente
-  .hes/state/current.json              ← estado do projeto (v3.2 schema)
-  .hes/state/events.log                ← log de transições (traces)
-  .hes/state/session-checkpoint.json   ← checkpoint de sessão (NOVO v3.2)
-  .hes/agents/registry.json            ← registro de agentes (NOVO v3.2)
-  .hes/tasks/lessons.md                ← memória de aprendizado
-  .hes/tasks/backlog.md                ← backlog de features
-  {{.hes/domains/*/context.md}}        ← bounded contexts (se domínios)
-  {{.hes/domains/*/fitness/}}          ← sensors de architecture fitness
+Guides installed (feedforward):
+  .claude/CLAUDE.md (or equivalent)   ← agent identity
+  .hes/state/current.json              ← project state (v3.2 schema)
+  .hes/state/events.log                ← transition log (traces)
+  .hes/state/session-checkpoint.json   ← session checkpoint (NEW v3.2)
+  .hes/agents/registry.json            ← agent registry (NEW v3.2)
+  .hes/tasks/lessons.md                ← learning memory
+  .hes/tasks/backlog.md                ← feature backlog
+  {{.hes/domains/*/context.md}}        ← bounded contexts (if domains)
+  {{.hes/domains/*/fitness/}}          ← architecture fitness sensors
 
-Agents registrados:
+Agents registered:
   {{N}} phase agents + {{N}} system agents + {{N}} sub-agents
 
-Sensors instalados (feedback):
-  scripts/hooks/safety_validator.py    ← pre-commit (computacional)
-  scripts/hooks/sdd_commit_checker.py  ← commit-msg (computacional)
-  {{src/.../ArchitectureTest.java}}    ← ArchUnit (se configurado)
+Sensors installed (feedback):
+  scripts/hooks/safety_validator.py    ← pre-commit (computational)
+  scripts/hooks/sdd_commit_checker.py  ← commit-msg (computational)
+  {{src/.../ArchitectureTest.java}}    ← ArchUnit (if configured)
 
-IDE detectada: {{IDE}} → config gerada: {{CONFIG_FILE}}
+IDE detected: {{IDE}} → config generated: {{CONFIG_FILE}}
 Session manager: skills/session-manager.md ✅
 Agent delegation: skills/agent-delegation.md ✅
 
-Para ativar os git hooks:
+To activate git hooks:
   bash scripts/hooks/install.sh
 ```
 
 ---
 
-▶ PRÓXIMA AÇÃO — DISCOVERY
+▶ NEXT ACTION — DISCOVERY
 
 ```
-O harness está instalado. Qual é a primeira feature que você quer desenvolver?
+The harness is installed. What is the first feature you want to develop?
 
-  [A] "quero implementar [nome da feature]"
-      → Inicio Discovery (skills/01-discovery.md)
+  [A] "I want to implement [feature name]"
+      → Start Discovery (skills/01-discovery.md)
 
-  [B] "quero ver o backlog antes"
-      → Mostro .hes/tasks/backlog.md
+  [B] "I want to see the backlog first"
+      → Show .hes/tasks/backlog.md
 
-  [C] "o projeto tem código existente para analisar"
-      → Carrego skills/legacy.md para inventário + harnessability assessment
+  [C] "the project has existing code to analyze"
+      → Load skills/legacy.md for inventory + harnessability assessment
 
   [D] "/hes harness"
-      → Diagnóstico da cobertura inicial do harness recém-instalado
+      → Initial harness coverage diagnosis
 
-📄 Skill-file próximo: skills/01-discovery.md
-💡 Dica: o Discovery captura as Regras de Negócio (RN-xx).
-   Tudo não capturado aqui gera retrabalho nas etapas seguintes.
-   É o guide inferencial mais importante do behaviour harness.
+📄 Next skill-file: skills/01-discovery.md
+💡 Tip: Discovery captures Business Rules (RN-xx).
+   Anything not captured here causes rework in subsequent steps.
+   It is the most important inferential guide in the behaviour harness.
 ```

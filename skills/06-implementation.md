@@ -1,178 +1,178 @@
-# HES Skill — 06: Implementation (Fase GREEN — TDD)
+# HES Skill — 06: Implementation (GREEN Phase — TDD)
 
-> Skill carregada quando: feature.estado = GREEN
-> Pré-condição: testes escritos (RED) e confirmados falhando pelo motivo certo.
+> Skill loaded when: feature.state = GREEN
+> Pre-condition: tests written (RED) and confirmed failing for the right reason.
 >
-> Papel no harness: **Execução guiada pelo Behaviour + Maintainability Harness**
-> O código produzido aqui é regulado pelos sensors: testes (behaviour),
-> linter (maintainability) e ArchUnit/dep-cruiser (architecture fitness).
-> "Keep quality left" — os sensors rodam durante e após cada mudança, não só no final.
+> Role in the harness: **Execution guided by Behaviour + Maintainability Harness**
+> The code produced here is regulated by sensors: tests (behaviour),
+> linter (maintainability) and ArchUnit/dep-cruiser (architecture fitness).
+> "Keep quality left" — sensors run during and after each change, not only at the end.
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Ler .hes/specs/{{feature}}/03-design.md → componentes a implementar
-2. Ler .hes/specs/{{feature}}/02-spec.md   → regras de negócio (RN-xx)
-3. Ler .hes/specs/{{feature}}/04-data.md   → DTOs e schema
-4. Para CADA arquivo que será modificado → lê-lo integralmente primeiro
-5. Verificar pom.xml / package.json → confirmar dependências
+1. Read .hes/specs/{{feature}}/03-design.md → components to implement
+2. Read .hes/specs/{{feature}}/02-spec.md   → business rules (BR-xx)
+3. Read .hes/specs/{{feature}}/04-data.md   → DTOs and schema
+4. For EACH file to be modified → read it fully first
+5. Verify pom.xml / package.json → confirm dependencies
 ```
 
 ---
 
-## ◈ ANTI-ALUCINAÇÃO — OBRIGATÓRIO ANTES DE QUALQUER CÓDIGO
+## ◈ ANTI-HALLUCINATION — MANDATORY BEFORE ANY CODE
 
 ```
-[ ] Listei todas as classes/interfaces que serão criadas ou modificadas?
-[ ] Para cada import: a classe existe no projeto? (não importar o que não existe)
-[ ] Verifiquei pom.xml / package.json — as dependências estão lá?
-[ ] Li o arquivo existente que será modificado (se aplicável)?
-[ ] A implementação está limitada ao escopo da spec aprovada?
+[ ] Have I listed all classes/interfaces to be created or modified?
+[ ] For each import: does the class exist in the project? (do not import what does not exist)
+[ ] Did I check pom.xml / package.json — are the dependencies there?
+[ ] Did I read the existing file to be modified (if applicable)?
+[ ] Is the implementation limited to the approved spec scope?
 ```
 
-Se qualquer item estiver incerto → verificar antes de continuar.
+If any item is uncertain → verify before continuing.
 
 ---
 
-## ◈ PRINCÍPIO DO GREEN: MÍNIMO VIÁVEL
+## ◈ GREEN PRINCIPLE: MINIMUM VIABLE
 
-> Implemente APENAS o mínimo para os testes passarem.
-> Sem otimizações prematuras. Sem features extras. Sem "já que estou aqui".
-> Código elegante é refactoring — não é Green.
+> Implement ONLY the minimum for tests to pass.
+> No premature optimizations. No extra features. No "since I'm here already".
+> Elegant code is refactoring — it is not Green.
 
 ---
 
-## ◈ PASSO 1 — ORDEM DE IMPLEMENTAÇÃO
+## ◈ STEP 1 — IMPLEMENTATION ORDER
 
-Implementar de dentro para fora (dependências primeiro):
+Implement from inside out (dependencies first):
 
 ```
-1. Exception classes        (sem dependências)
-2. Entidade / Model         (sem dependências)
-3. Repository interface     (define o contrato)
+1. Exception classes          (no dependencies)
+2. Entity / Model             (no dependencies)
+3. Repository interface       (defines the contract)
 4. DTOs (Request / Response)
-5. Mapper (DTO ↔ Entidade)
-6. Repository implementation (acesso a dados)
-7. Service / UseCase        (regra de negócio)
-8. Controller / Router      (entrada HTTP)
+5. Mapper (DTO ↔ Entity)
+6. Repository implementation  (data access)
+7. Service / UseCase          (business rules)
+8. Controller / Router        (HTTP entry point)
 ```
 
 ---
 
-## ◈ PASSO 2 — REGRAS POR CAMADA
+## ◈ STEP 2 — LAYER RULES
 
 ### Controller / Router
 
 ```
-✅ Recebe request → valida → delega ao Service → retorna response
-✅ Status HTTP = exatamente os definidos no 02-spec.md
-✅ Sem lógica de negócio
-❌ Sem acesso direto ao Repository
+✅ Receives request → validates → delegates to Service → returns response
+✅ HTTP Status = exactly as defined in 02-spec.md
+✅ No business logic
+❌ No direct access to Repository
 ```
 
 ### Service / UseCase
 
 ```
-✅ Implementa RN-xx com mensagens EXATAS da spec
-✅ Lança exceções de domínio tipadas
-✅ Sem conhecimento de HTTP
-❌ Sem SQL direto
+✅ Implements BR-xx with EXACT messages from spec
+✅ Throws typed domain exceptions
+✅ No HTTP awareness
+❌ No direct SQL
 ```
 
 ### Repository
 
 ```
-✅ SQL parametrizado (zero concatenação de string)
-✅ Sem lógica de negócio
-❌ Sem chamadas a outros Services
+✅ Parameterized SQL (zero string concatenation)
+✅ No business logic
+❌ No calls to other Services
 ```
 
 ---
 
-## ◈ PASSO 3 — SENSOR LOOP (Fowler: "keep quality left")
+## ◈ STEP 3 — SENSOR LOOP (Fowler: "keep quality left")
 
-Após cada componente implementado, rodar os sensors disponíveis:
+After each implemented component, run available sensors:
 
 ```bash
-# Sensor mais rápido primeiro (computacional)
+# Fastest sensor first (computational)
 # Java
-mvn compile                     # type check — segundos
-mvn test -Dtest={{NomeService}}Test   # testes unitários do componente
+mvn compile                          # type check — seconds
+mvn test -Dtest={{NomeService}}Test  # unit tests for the component
 
 # Node
-npx tsc --noEmit                # type check
-npx jest {{nome-service}}.test  # testes do componente
+npx tsc --noEmit                     # type check
+npx jest {{nome-service}}.test       # component tests
 
 # Python
-mypy src/                       # type check
-pytest tests/unit/{{feature}}/  # testes unitários
+mypy src/                            # type check
+pytest tests/unit/{{feature}}/       # unit tests
 ```
 
-**Não aguardar a suite completa para descobrir erros de compilação.**
-Sensors rápidos rodam a cada componente — sensors lentos (integração, ArchUnit) rodam ao final.
+**Do not wait for the full suite to discover compilation errors.**
+Fast sensors run after each component — slow sensors (integration, ArchUnit) run at the end.
 
 ---
 
-## ◈ PASSO 4 — SELF-REFINEMENT LOOP (máx. 5 tentativas)
+## ◈ STEP 4 — SELF-REFINEMENT LOOP (max. 5 attempts)
 
 ```
-Tentativa {{N}}/5:
+Attempt {{N}}/5:
 
-1. Executar suite de testes
-2. Analisar falhas:
-   → Erro de compilação?      → Corrigir import/tipo
-   → Assertion falhou?        → Verificar lógica vs spec (NÃO mudar o teste)
-   → Exceção inesperada?      → Analisar stack trace completo
-3. Fazer a correção mínima
-4. Rodar sensor correspondente
-5. Repetir
+1. Run test suite
+2. Analyze failures:
+   → Compilation error?      → Fix import/type
+   → Assertion failed?       → Verify logic vs spec (DO NOT change the test)
+   → Unexpected exception?   → Analyze full stack trace
+3. Make the minimal correction
+4. Run the corresponding sensor
+5. Repeat
 
-Após 5 tentativas sem passar:
-  → Registrar em lessons.md (Categoria B — erro técnico recorrente)
-  → Apresentar análise ao usuário
-  → Carregar skills/error-recovery.md
+After 5 unsuccessful attempts:
+  → Record in lessons.md (Category B — recurring technical error)
+  → Present analysis to user
+  → Load skills/error-recovery.md
 ```
 
-**Regra de ouro:** Nunca ajustar o teste para fazer o código passar.
-Se o teste falha e o código parece correto → o código está errado.
+**Golden rule:** Never adjust the test to make code pass.
+If the test fails and the code seems correct → the code is wrong.
 
 ---
 
-## ◈ PASSO 5 — CHECKLIST DE IMPLEMENTAÇÃO
+## ◈ STEP 5 — IMPLEMENTATION CHECKLIST
 
 ```
-[ ] Controller implementado (status HTTP corretos da spec)
-[ ] Service com todas as RN-xx implementadas
-[ ] Repository com queries parametrizadas
-[ ] Mapper DTO ↔ Entidade funcionando
-[ ] Exceções com mensagens EXATAS do 02-spec.md
-[ ] Nenhum TODO / FIXME / HACK no código
-[ ] Nenhum número mágico (constantes nomeadas)
-[ ] Nenhum dado sensível logado
-[ ] Logs estruturados com contexto (feature, operação, IDs)
-[ ] Build verde: TODOS os testes passando
-[ ] Coverage ≥ 80% no módulo novo
-[ ] Linter sem erros (se configurado)
-[ ] ArchUnit passando (se configurado)
+[ ] Controller implemented (correct HTTP status from spec)
+[ ] Service with all BR-xx implemented
+[ ] Repository with parameterized queries
+[ ] DTO ↔ Entity Mapper working
+[ ] Exceptions with EXACT messages from 02-spec.md
+[ ] No TODO / FIXME / HACK in code
+[ ] No magic numbers (named constants)
+[ ] No sensitive data logged
+[ ] Structured logs with context (feature, operation, IDs)
+[ ] Green build: ALL tests passing
+[ ] Coverage ≥ 80% on new module
+[ ] Linter without errors (if configured)
+[ ] ArchUnit passing (if configured)
 ```
 
 ---
 
-## ◈ PASSO 6 — VALIDAÇÃO FINAL
+## ◈ STEP 6 — FINAL VALIDATION
 
 ```bash
-# Java — suite completa + coverage + architecture fitness
+# Java — full suite + coverage + architecture fitness
 mvn clean test jacoco:report
 # → BUILD SUCCESS
-# → target/site/jacoco/index.html: verificar coverage ≥ 80%
-# → ArchitectureTest: verificar que boundaries não foram violados
+# → target/site/jacoco/index.html: verify coverage ≥ 80%
+# → ArchitectureTest: verify boundaries were not violated
 
 # Node.js
 npm test -- --coverage
 # → All tests passed | Coverage ≥ 80%
-# npm run check:arch (se dep-cruiser configurado)
+# npm run check:arch (if dep-cruiser configured)
 
 # Python
 pytest --cov=src --cov-report=term-missing -v
@@ -181,7 +181,7 @@ pytest --cov=src --cov-report=term-missing -v
 
 ---
 
-## ◈ PASSO 7 — ATUALIZAR ESTADO
+## ◈ STEP 7 — UPDATE STATE
 
 ### `.hes/state/current.json`: `"{{FEATURE}}": "GREEN"`
 
@@ -189,7 +189,7 @@ pytest --cov=src --cov-report=term-missing -v
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE_SLUG}}",
   "from": "RED",
   "to": "GREEN",
@@ -206,28 +206,28 @@ pytest --cov=src --cov-report=term-missing -v
 
 ---
 
-▶ PRÓXIMA AÇÃO — REVIEW
+▶ NEXT ACTION — REVIEW
 
 ```
-🟢 Implementação concluída?
+🟢 Implementation completed?
 
-Confirme antes de avançar:
-  1. Build verde (todos os testes passando)?
+Confirm before proceeding:
+  1. Green build (all tests passing)?
   2. Coverage ≥ 80%?
-  3. Nenhum TODO/FIXME?
-  4. ArchUnit passando (se configurado)?
+  3. No TODO/FIXME?
+  4. ArchUnit passing (if configured)?
 
-  [A] "build verde, coverage ok"
-      → Inicio o Review estruturado (skills/07-review.md)
+  [A] "green build, coverage ok"
+      → Starting structured review (skills/07-review.md)
 
-  [B] "teste X falhando: [erro]"
-      → Self-refinement tentativa {{N}} — analiso o problema
+  [B] "test X failing: [error]"
+      → Self-refinement attempt {{N}} — analyzing the issue
 
-  [C] "coverage em {{X}}%"
-      → Avaliamos se é aceitável ou adicionamos testes para os gaps
+  [C] "coverage at {{X}}%"
+      → Evaluate if acceptable or add tests for gaps
 
-📄 Skill-file próximo: skills/07-review.md
-💡 Dica: coverage mede quantidade de linhas executadas, não qualidade.
-   Um teste sem assertions não protege nada.
-   Prefira testes que falham quando a lógica está errada (sensor efetivo).
+📄 Next skill file: skills/07-review.md
+💡 Tip: coverage measures quantity of lines executed, not quality.
+   A test without assertions protects nothing.
+   Prefer tests that fail when logic is wrong (effective sensor).
 ```

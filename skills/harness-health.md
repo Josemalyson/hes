@@ -1,314 +1,314 @@
 # HES Skill — Harness Health
 
-> Skill invocada via: `/hes harness`
-> Objetivo: diagnosticar a cobertura do harness nas 3 dimensões de regulação (Fowler, 2026).
-> Quando usar: quando o time percebe degradação de qualidade, aumento de retrabalho,
-> ou simplesmente ao iniciar um novo ciclo de melhoria do harness.
+> Skill invoked via: `/hes harness`
+> Objective: diagnose harness coverage across the 3 regulation dimensions (Fowler, 2026).
+> When to use: when the team perceives quality degradation, increased rework,
+> or simply when starting a new harness improvement cycle.
 
 ---
 
-## ◈ MODELO DE REFERÊNCIA (Fowler, 2026)
+## ◈ REFERENCE MODEL (Fowler, 2026)
 
-Um harness bem construído combina:
+A well-built harness combines:
 
 ```
 GUIDES (feedforward)          SENSORS (feedback)
-  Inferencial                   Inferencial
+  Inferential                   Inferential
     → Skill-files                 → Self-refinement loop
     → Specs (discovery/spec)      → Review checklist (07-review.md)
     → CLAUDE.md / domain context  → AI code review
-  Computacional                 Computacional
-    → Manifesto de deps (pom.xml)  → Git hooks (pre-commit, commit-msg)
+  Computational                 Computational
+    → Dependency manifest (pom.xml) → Git hooks (pre-commit, commit-msg)
     → Bootstrap templates          → Build + coverage report
     → Codemods                     → Linters, ArchUnit, dep-cruiser
 
-DIMENSÕES DE REGULAÇÃO:
-  Maintainability   → qualidade interna do código
+REGULATION DIMENSIONS:
+  Maintainability   → internal code quality
   Architecture Fit  → fitness functions, module boundaries, drift
-  Behaviour         → specs BDD + suite de testes como sensor primário
+  Behaviour         → BDD specs + test suite as primary sensor
 ```
 
 ---
 
-## ◈ PASSO 1 — INVENTARIAR GUIDES EXISTENTES
+## ◈ STEP 1 — INVENTORY EXISTING GUIDES
 
 ```
-Inferencial:
-  [ ] SKILL.md existe e está atualizado (version = {{VERSAO_ATUAL}})
-  [ ] skills/00-bootstrap.md ~ skills/07-review.md todos presentes
-  [ ] .claude/CLAUDE.md instrui o agente a ler SKILL.md primeiro
-  [ ] .hes/domains/*/context.md existe para cada domínio declarado
-  [ ] Specs aprovadas existem para todas as features DONE (.hes/specs/*/02-spec.md)
-  [ ] ADRs gerados para decisões arquiteturais (.hes/decisions/ADR-*.md)
+Inferential:
+  [ ] SKILL.md exists and is up to date (version = {{CURRENT_VERSION}})
+  [ ] skills/00-bootstrap.md ~ skills/07-review.md all present
+  [ ] .claude/CLAUDE.md instructs the agent to read SKILL.md first
+  [ ] .hes/domains/*/context.md exists for each declared domain
+  [ ] Approved specs exist for all DONE features (.hes/specs/*/02-spec.md)
+  [ ] ADRs generated for architectural decisions (.hes/decisions/ADR-*.md)
 
-Computacional:
-  [ ] pom.xml / package.json / pyproject.toml presente e versionado
-  [ ] scripts/hooks/install.sh presente
-  [ ] Fitness functions definidas em .hes/domains/*/fitness/ (se domínios existem)
+Computational:
+  [ ] pom.xml / package.json / pyproject.toml present and versioned
+  [ ] scripts/hooks/install.sh present
+  [ ] Fitness functions defined in .hes/domains/*/fitness/ (if domains exist)
 
-Agent Registry Coverage (NOVO em v3.2):
+Agent Registry Coverage (NEW in v3.2):
   [ ] .hes/agents/registry.json exists and is valid JSON
   [ ] All agents in registry have corresponding skill-files
   [ ] All custom agents have skill-files in skills/custom/
   [ ] Registry version matches SKILL.md version
 ```
 
-**Score de Guides:** {{N_OK}} / {{N_TOTAL}}
+**Guide Score:** {{N_OK}} / {{N_TOTAL}}
 
 ---
 
-## ◈ PASSO 2 — INVENTARIAR SENSORS EXISTENTES
+## ◈ STEP 2 — INVENTORY EXISTING SENSORS
 
 ```
-Inferencial:
-  [ ] Self-refinement loop documentado em 05-tests.md e 06-implementation.md
-  [ ] Review checklist em 07-review.md cobre as 5 dimensões (spec, qualidade, segurança, obs, arquitetura)
-  [ ] Lessons.md atualizado com lições das últimas sessões
+Inferential:
+  [ ] Self-refinement loop documented in 05-tests.md and 06-implementation.md
+  [ ] Review checklist in 07-review.md covers 5 dimensions (spec, quality, safety, observations, architecture)
+  [ ] Lessons.md updated with lessons from recent sessions
 
-Computacional — Corretude:
-  [ ] pre-commit hook (safety_validator.py) instalado e funcionando
-  [ ] commit-msg hook (sdd_commit_checker.py) instalado e funcionando
-  [ ] Suite de testes com coverage ≥ 80% (verificar no último build)
+Computational — Correctness:
+  [ ] pre-commit hook (safety_validator.py) installed and working
+  [ ] commit-msg hook (sdd_commit_checker.py) installed and working
+  [ ] Test suite with coverage >= 80% (check latest build)
 
-Computacional — Qualidade (NOVO em v3.1):
-  [ ] Linter configurado (Checkstyle/PMD/ESLint/flake8/ruff)
-  [ ] Complexity check configurado (cyclomatic complexity ≤ 10 por método)
-  [ ] Dependency scanner ativo (OWASP dep-check / npm audit / safety)
-  [ ] Dead code detector configurado (opcional mas recomendado)
+Computational — Quality (NEW in v3.1):
+  [ ] Linter configured (Checkstyle/PMD/ESLint/flake8/ruff)
+  [ ] Complexity check configured (cyclomatic complexity <= 10 per method)
+  [ ] Dependency scanner active (OWASP dep-check / npm audit / safety)
+  [ ] Dead code detector configured (optional but recommended)
 
-Computacional — Architecture Fitness (NOVO em v3.1):
-  [ ] ArchUnit (Java) / dep-cruiser (Node) / import-linter (Python) configurado
-  [ ] Regras de módulo definidas (ex: Controller não depende de Repository)
-  [ ] Pipeline CI tem etapa de architecture check
+Computational — Architecture Fitness (NEW in v3.1):
+  [ ] ArchUnit (Java) / dep-cruiser (Node) / import-linter (Python) configured
+  [ ] Module rules defined (e.g., Controller does not depend on Repository)
+  [ ] CI pipeline has architecture check step
 
-Agent Sensors (NOVO em v3.2):
+Agent Sensors (NEW in v3.2):
   [ ] Sub-agents defined in registry (test-runner, linter, arch-check)
   [ ] Phase lock enforcement active (session-manager)
   [ ] Context bloat detection active (session-manager heuristics)
   [ ] Checkpoint save/restore functional (session-manager)
 ```
 
-**Score de Sensors:** {{N_OK}} / {{N_TOTAL}}
+**Sensor Score:** {{N_OK}} / {{N_TOTAL}}
 
 ---
 
-## ◈ PASSO 3 — AVALIAR AS 3 DIMENSÕES DE REGULAÇÃO
+## ◈ STEP 3 — EVALUATE THE 3 REGULATION DIMENSIONS
 
-### Dimensão 1 — Maintainability Harness
-
-```
-Objetivo: garantir qualidade interna do código gerado pelo agente.
-
-Guides ativos:
-  [✅/❌] CLAUDE.md com regras de qualidade (sem número mágico, SRP, etc.)
-  [✅/❌] Skill-files com anti-alucinação checklist
-
-Sensors ativos:
-  [✅/❌] Coverage ≥ 80% (sensor computacional)
-  [✅/❌] Linter com regras de estilo (computacional)
-  [✅/❌] Complexity check (computacional)
-  [✅/❌] Review checklist — Dimensão "Qualidade do Código" (inferencial)
-
-Gaps identificados:
-  → {{LISTA_DE_GAPS_OU_NENHUM}}
-
-Diagnóstico: 🟢 Coberto / 🟡 Parcial / 🔴 Descoberto
-```
-
-### Dimensão 2 — Architecture Fitness Harness
+### Dimension 1 — Maintainability Harness
 
 ```
-Objetivo: garantir que o agente não viola boundaries arquiteturais com o tempo.
+Objective: ensure internal quality of code generated by the agent.
 
-Guides ativos:
-  [✅/❌] ADRs documentando decisões de arquitetura
-  [✅/❌] Domain context.md com bounded contexts definidos
-  [✅/❌] Design (03-design.md) com fluxo e responsabilidades explícitos
+Active guides:
+  [✅/❌] CLAUDE.md with quality rules (no magic numbers, SRP, etc.)
+  [✅/❌] Skill-files with anti-hallucination checklist
 
-Sensors ativos:
-  [✅/❌] ArchUnit / dep-cruiser / import-linter (computacional — NOVO)
-  [✅/❌] Review checklist — Dimensão "Design e Arquitetura" (inferencial)
+Active sensors:
+  [✅/❌] Coverage >= 80% (computational sensor)
+  [✅/❌] Linter with style rules (computational)
+  [✅/❌] Complexity check (computational)
+  [✅/❌] Review checklist — "Code Quality" dimension (inferential)
+
+Identified gaps:
+  → {{LIST_OF_GAPS_OR_NONE}}
+
+Diagnosis: 🟢 Covered / 🟡 Partial / 🔴 Uncovered
+```
+
+### Dimension 2 — Architecture Fitness Harness
+
+```
+Objective: ensure the agent does not violate architectural boundaries over time.
+
+Active guides:
+  [✅/❌] ADRs documenting architectural decisions
+  [✅/❌] Domain context.md with defined bounded contexts
+  [✅/❌] Design (03-design.md) with explicit flow and responsibilities
+
+Active sensors:
+  [✅/❌] ArchUnit / dep-cruiser / import-linter (computational — NEW)
+  [✅/❌] Review checklist — "Design and Architecture" dimension (inferential)
   [✅/❌] Drift detection via /hes report (offline)
 
-Gaps identificados:
-  → {{LISTA_DE_GAPS_OU_NENHUM}}
+Identified gaps:
+  → {{LIST_OF_GAPS_OR_NONE}}
 
-Diagnóstico: 🟢 / 🟡 / 🔴
+Diagnosis: 🟢 / 🟡 / 🔴
 
-Se 🔴 → propor configuração de fitness function para o projeto
+If 🔴 → propose fitness function configuration for the project
 ```
 
-### Dimensão 3 — Behaviour Harness
+### Dimension 3 — Behaviour Harness
 
 ```
-Objetivo: garantir que o código faz o que a spec diz que deveria fazer.
+Objective: ensure the code does what the spec says it should do.
 
-Guides ativos:
-  [✅/❌] Discovery (01) com RN explícitas
-  [✅/❌] Spec (02) com cenários BDD e rastreabilidade RN → cenário
-  [✅/❌] Cobertura de cenários: cada RN tem ≥ 1 cenário?
+Active guides:
+  [✅/❌] Discovery (01) with explicit RNs
+  [✅/❌] Spec (02) with BDD scenarios and RN → scenario traceability
+  [✅/❌] Scenario coverage: does each RN have >= 1 scenario?
 
-Sensors ativos:
-  [✅/❌] Suite de testes unitários cobrindo regras de negócio (computacional)
-  [✅/❌] Suite de testes de integração cobrindo fluxo HTTP → DB (computacional)
-  [✅/❌] Mensagens de erro nos testes = mensagens na spec (rastreabilidade)
+Active sensors:
+  [✅/❌] Unit test suite covering business rules (computational)
+  [✅/❌] Integration test suite covering HTTP → DB flow (computational)
+  [✅/❌] Error messages in tests = messages in spec (traceability)
 
-Gaps identificados:
-  → {{LISTA_DE_GAPS_OU_NENHUM}}
+Identified gaps:
+  → {{LIST_OF_GAPS_OR_NONE}}
 
-ATENÇÃO (Fowler, 2026): "Esta é a dimensão mais difícil.
-Cobertura de testes mede quantidade, não qualidade.
-Tests gerados pelo agente não substituem a validação humana do comportamento."
+ATTENTION (Fowler, 2026): "This is the hardest dimension.
+Test coverage measures quantity, not quality.
+Tests generated by the agent do not replace human validation of behavior."
 
-Diagnóstico: 🟢 / 🟡 / 🔴
+Diagnosis: 🟢 / 🟡 / 🔴
 ```
 
-### Dimensão 4 — Agent Delegation Harness (NOVO em v3.2)
+### Dimension 4 — Agent Delegation Harness (NEW in v3.2)
 
 ```
-Objetivo: garantir que o orquestrador delega corretamente e agentes executam com contexto focado.
+Objective: ensure the orchestrator delegates correctly and agents execute with focused context.
 
-Guides ativos:
-  [✅/❌] SKILL.md com routing-only orchestrator (≤300 lines)
-  [✅/❌] skills/agent-delegation.md com dispatch protocol
-  [✅/❌] skills/agent-registry.md com schema documentation
+Active guides:
+  [✅/❌] SKILL.md with routing-only orchestrator (<=300 lines)
+  [✅/❌] skills/agent-delegation.md with dispatch protocol
+  [✅/❌] skills/agent-registry.md with schema documentation
 
-Sensors ativos:
-  [✅/❌] Registry JSON válido e consistente
-  [✅/❌] Todos os agents têm skill-files correspondentes
-  [✅/❌] Phase lock enforcement funcionando
-  [✅/❌] Session checkpoint save/restore funcional
+Active sensors:
+  [✅/❌] Registry JSON valid and consistent
+  [✅/❌] All agents have corresponding skill-files
+  [✅/❌] Phase lock enforcement working
+  [✅/❌] Session checkpoint save/restore functional
 
-Gaps identificados:
-  → {{LISTA_DE_GAPS_OU_NENHUM}}
+Identified gaps:
+  → {{LIST_OF_GAPS_OR_NONE}}
 
-Diagnóstico: 🟢 / 🟡 / 🔴
+Diagnosis: 🟢 / 🟡 / 🔴
 ```
 
 ---
 
-## ◈ PASSO 4 — GERAR RELATÓRIO DE SAÚDE
+## ◈ STEP 4 — GENERATE HEALTH REPORT
 
 ```markdown
-# Harness Health Report — {{NOME_PROJETO}}
+# Harness Health Report — {{PROJECT_NAME}}
 
-Data: {{DATA_ATUAL}} | HES v3.1
+Date: {{CURRENT_DATE}} | HES v3.1
 
 ## Scores
 
-| Dimensão | Score | Diagnóstico |
-|---------|-------|------------|
+| Dimension | Score | Diagnosis |
+|-----------|-------|-----------|
 | Guides (total) | {{N}}/{{N}} | 🟢/🟡/🔴 |
 | Sensors (total) | {{N}}/{{N}} | 🟢/🟡/🔴 |
 | Maintainability | {{N}}/{{N}} | 🟢/🟡/🔴 |
 | Architecture Fit | {{N}}/{{N}} | 🟢/🟡/🔴 |
 | Behaviour | {{N}}/{{N}} | 🟢/🟡/🔴 |
-| Agent Delegation (NOVO) | {{N}}/{{N}} | 🟢/🟡/🔴 |
+| Agent Delegation (NEW) | {{N}}/{{N}} | 🟢/🟡/🔴 |
 
-## Gaps Prioritários
+## Priority Gaps
 
-### 🔴 Crítico (sensor ausente — risco de regressão silenciosa)
-1. {{GAP}} → Ação: {{COMO_RESOLVER}}
+### 🔴 Critical (missing sensor — risk of silent regression)
+1. {{GAP}} → Action: {{HOW_TO_RESOLVE}}
 
-### 🟡 Atenção (guide incompleto — agente sem guia suficiente)
-1. {{GAP}} → Ação: {{COMO_RESOLVER}}
+### 🟡 Attention (incomplete guide — agent lacks sufficient guidance)
+1. {{GAP}} → Action: {{HOW_TO_RESOLVE}}
 
-## Próximas melhorias recomendadas (em ordem de impacto)
+## Recommended next improvements (in impact order)
 
-1. {{MELHORIA_1}} — Dimensão: {{QUAL}} — Esforço: {{P/M/G}}
-2. {{MELHORIA_2}}
-3. {{MELHORIA_3}}
+1. {{IMPROVEMENT_1}} — Dimension: {{WHICH}} — Effort: {{S/M/L}}
+2. {{IMPROVEMENT_2}}
+3. {{IMPROVEMENT_3}}
 ```
 
 ---
 
-## ◈ PASSO 5 — PROPOSTAS DE MELHORIA ESPECÍFICAS
+## ◈ STEP 5 — SPECIFIC IMPROVEMENT PROPOSALS
 
-### Se Architecture Fitness Harness está descoberto (Java/Spring Boot):
+### If Architecture Fitness Harness is uncovered (Java/Spring Boot):
 
 ```
-Proposta: adicionar ArchUnit ao projeto
+Proposal: add ArchUnit to the project
 
-1. Adicionar dependência em pom.xml:
+1. Add dependency to pom.xml:
    <dependency>
      <groupId>com.tngtech.archunit</groupId>
      <artifactId>archunit-junit5</artifactId>
-     <version>{{VERSAO_ESTAVEL}}</version>
+     <version>{{STABLE_VERSION}}</version>
      <scope>test</scope>
    </dependency>
 
-2. Criar: src/test/java/.../ArchitectureTest.java
+2. Create: src/test/java/.../ArchitectureTest.java
 
    @AnalyzeClasses(packages = "{{BASE_PACKAGE}}")
    class ArchitectureTest {
 
      @ArchTest
-     static final ArchRule controllers_nao_dependem_de_repositories =
+     static final ArchRule controllers_do_not_depend_on_repositories =
        noClasses().that().resideInAPackage("..controller..")
          .should().dependOnClassesThat()
          .resideInAPackage("..repository..")
-         .because("Controller não deve acessar dados diretamente — viola SRP");
+         .because("Controller must not access data directly — violates SRP");
 
      @ArchTest
-     static final ArchRule services_nao_dependem_de_controllers =
+     static final ArchRule services_do_not_depend_on_controllers =
        noClasses().that().resideInAPackage("..service..")
          .should().dependOnClassesThat()
          .resideInAPackage("..controller..");
    }
 
-3. Adicionar em .hes/domains/{{domain}}/fitness/archunit-rules.md
+3. Add to .hes/domains/{{domain}}/fitness/archunit-rules.md
 ```
 
-### Se Architecture Fitness Harness está descoberto (Node.js):
+### If Architecture Fitness Harness is uncovered (Node.js):
 
 ```
-Proposta: adicionar dep-cruiser
+Proposal: add dep-cruiser
 
 1. npm install --save-dev dependency-cruiser
 2. npx depcruise --init
-3. Configurar .dependency-cruiser.js com regras de module boundaries
-4. Adicionar ao package.json:
+3. Configure .dependency-cruiser.js with module boundary rules
+4. Add to package.json:
    "check:arch": "depcruise --validate src"
-5. Adicionar em scripts/hooks/ como sensor de CI
+5. Add to scripts/hooks/ as CI sensor
 ```
 
-### Se Behaviour Harness tem gaps de rastreabilidade:
+### If Behaviour Harness has traceability gaps:
 
 ```
-Proposta: adicionar rastreabilidade RN → Teste
+Proposal: add RN → Test traceability
 
-Em cada arquivo de teste, adicionar comentário:
-  // @covers RN-01: {{NOME_DA_REGRA}}
-  // @scenario {{NOME_DO_CENARIO_BDD}}
+In each test file, add comment:
+  // @covers RN-01: {{RULE_NAME}}
+  // @scenario {{BDD_SCENARIO_NAME}}
 
-Isso permite auditoria: toda RN da spec deve ter ao menos 1 @covers
+This enables auditing: every RN from the spec must have at least 1 @covers
 ```
 
-### Se Continuous Drift está ausente:
+### If Continuous Drift is absent:
 
 ```
-Proposta: adicionar sensor de drift contínuo ao pipeline CI
+Proposal: add continuous drift sensor to CI pipeline
 
-Opções (escolher 1):
-  Java: SonarQube com quality gate no PR
-  Node: CodeClimate ou SonarCloud
-  Python: Ruff + radon para complexidade
+Options (choose 1):
+  Java: SonarQube with quality gate on PR
+  Node: CodeClimate or SonarCloud
+  Python: Ruff + radon for complexity
 
-Configurar threshold:
-  - Complexity: rejeitar se CC > 10
-  - Coverage: rejeitar se < 80%
-  - Duplicação: avisar se > 5%
+Configure threshold:
+  - Complexity: reject if CC > 10
+  - Coverage: reject if < 80%
+  - Duplication: warn if > 5%
 ```
 
 ---
 
-## ◈ ATUALIZAR ESTADO
+## ◈ UPDATE STATE
 
-Registrar em events.log:
+Register in events.log:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "global",
   "from": "ACTIVE",
   "to": "HARNESS_HEALTH_CHECKED",
@@ -316,9 +316,9 @@ Registrar em events.log:
   "metadata": {
     "guides_score": "{{N}}/{{N}}",
     "sensors_score": "{{N}}/{{N}}",
-    "maintainability": "{{VERDE/AMARELO/VERMELHO}}",
-    "architecture_fitness": "{{VERDE/AMARELO/VERMELHO}}",
-    "behaviour": "{{VERDE/AMARELO/VERMELHO}}",
+    "maintainability": "{{GREEN/YELLOW/RED}}",
+    "architecture_fitness": "{{GREEN/YELLOW/RED}}",
+    "behaviour": "{{GREEN/YELLOW/RED}}",
     "gaps_found": {{N}}
   }
 }
@@ -326,25 +326,25 @@ Registrar em events.log:
 
 ---
 
-▶ PRÓXIMA AÇÃO — APÓS DIAGNÓSTICO
+▶ NEXT ACTION — AFTER DIAGNOSIS
 
 ```
-🔍 Harness health avaliado.
+🔍 Harness health evaluated.
 
-  [A] "implementar [melhoria X]"
-      → Executo os passos de configuração para aquela melhoria
+  [A] "implement [improvement X]"
+      → I'll execute the configuration steps for that improvement
 
-  [B] "gerar o relatório completo em arquivo"
-      → Salvo em .hes/tasks/harness-health-{{DATA}}.md
+  [B] "generate the full report as a file"
+      → Save to .hes/tasks/harness-health-{{DATE}}.md
 
-  [C] "continuar feature [nome]"
-      → Retorno ao skill-file da feature ativa
+  [C] "continue feature [name]"
+      → Return to active feature's skill-file
 
   [D] "/hes report"
-      → Relatório de ciclos + lições para fechar o loop de aprendizado
+      → Cycle report + lessons to close the learning loop
 
-📄 Skill-file: skills/harness-health.md (você está aqui)
-💡 Dica (Fowler): "Building this outer harness is emerging as an ongoing
+📄 Skill-file: skills/harness-health.md (you are here)
+💡 Tip (Fowler): "Building this outer harness is emerging as an ongoing
    engineering practice, not a one-time configuration."
-   O harness nunca está "pronto" — ele evolui com o projeto.
+   The harness is never "done" — it evolves with the project.
 ```

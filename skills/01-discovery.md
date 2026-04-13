@@ -1,116 +1,116 @@
 # HES Skill — 01: Discovery
 
-> Skill carregada quando: feature.estado = DISCOVERY
-> Pré-condição: `.hes/state/current.json` existe com active_feature definida.
+> Skill loaded when: feature.state = DISCOVERY
+> Precondition: `.hes/state/current.json` exists with active_feature defined.
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Ler .hes/state/current.json → obter active_feature
-2. Verificar se existe .hes/domains/{{domain}}/context.md → se sim, ler
-3. Verificar se existe .hes/tasks/lessons.md → checar lições relevantes
-4. Verificar se existe .hes/specs/{{feature}}/01-discovery.md
-   → Se existe: retomar e apresentar ao usuário para revisão
-   → Se não existe: iniciar discovery do zero
-```
-
----
-
-## ◈ PASSO 1 — IDENTIFICAR FEATURE
-
-Se chamado via `/hes start <feature>`:
-- Extrair o nome da feature do comando
-- Criar slug: `{{nome-em-kebab-case}}`
-- Criar diretório: `.hes/specs/{{feature-slug}}/`
-
-Se chamado sem nome de feature:
-```
-Qual é a feature que você quer desenvolver?
-(Ex: autenticação JWT, endpoint de pagamento PIX, módulo de relatórios)
+1. Read .hes/state/current.json → get active_feature
+2. Check if .hes/domains/{{domain}}/context.md exists → if yes, read it
+3. Check if .hes/tasks/lessons.md exists → check for relevant lessons
+4. Check if .hes/specs/{{feature}}/01-discovery.md exists
+   → If exists: resume and present to user for review
+   → If does not exist: start discovery from scratch
 ```
 
 ---
 
-## ◈ PASSO 2 — PERGUNTAS DE DISCOVERY (máximo 6)
+## ◈ STEP 1 — IDENTIFY FEATURE
 
+If called via `/hes start <feature>`:
+- Extract the feature name from the command
+- Create slug: `{{name-in-kebab-case}}`
+- Create directory: `.hes/specs/{{feature-slug}}/`
+
+If called without a feature name:
 ```
-🔍 Discovery — {{NOME_FEATURE}}
-
-Para especificar corretamente, preciso entender:
-
-1. Quem usa esta feature? (persona/papel do usuário)
-2. Qual problema ela resolve? (em 1–2 frases, linguagem de negócio)
-3. Quais são as regras de negócio não-óbvias?
-   (restrições, limites, exceções, casos especiais)
-4. O que define "sucesso" para esta feature?
-   (critério de aceite em linguagem de negócio)
-5. Existem integrações externas envolvidas?
-   (APIs de terceiros, sistemas legados, filas, eventos)
-6. Há restrições técnicas ou de prazo que devo saber?
+What is the feature you want to develop?
+(e.g., JWT authentication, PIX payment endpoint, reporting module)
 ```
-
-**Anti-alucinação:** Não assuma nenhuma regra de negócio.
-Se a resposta for ambígua, peça esclarecimento antes de prosseguir.
 
 ---
 
-## ◈ PASSO 3 — GERAR `.hes/specs/{{FEATURE_SLUG}}/01-discovery.md`
+## ◈ STEP 2 — DISCOVERY QUESTIONS (maximum 6)
+
+```
+🔍 Discovery — {{FEATURE_NAME}}
+
+To specify correctly, I need to understand:
+
+1. Who uses this feature? (user persona/role)
+2. What problem does it solve? (in 1-2 sentences, business language)
+3. What are the non-obvious business rules?
+   (constraints, limits, exceptions, special cases)
+4. What defines "success" for this feature?
+   (acceptance criteria in business language)
+5. Are there external integrations involved?
+   (third-party APIs, legacy systems, queues, events)
+6. Are there technical or deadline constraints I should know about?
+```
+
+**Anti-hallucination:** Do not assume any business rules.
+If the answer is ambiguous, ask for clarification before proceeding.
+
+---
+
+## ◈ STEP 3 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/01-discovery.md`
 
 ```markdown
-# Discovery — {{NOME_FEATURE}}
+# Discovery — {{FEATURE_NAME}}
 
-Data: {{DATA_ATUAL}} | Versão: 1.0 | Status: RASCUNHO
-Feature: {{FEATURE_SLUG}} | Domínio: {{DOMINIO_SE_APLICAVEL}}
+Date: {{CURRENT_DATE}} | Version: 1.0 | Status: DRAFT
+Feature: {{FEATURE_SLUG}} | Domain: {{DOMAIN_IF_APPLICABLE}}
 
 ---
 
-## Contexto
-{{PROBLEMA_EM_LINGUAGEM_DE_NEGOCIO}}
+## Context
+{{PROBLEM_IN_BUSINESS_LANGUAGE}}
 
 ## Stakeholders
-| Persona | Papel | Interesse Principal |
-|---------|-------|-------------------|
-| {{PERSONA_1}} | {{PAPEL}} | {{INTERESSE}} |
+| Persona | Role | Primary Interest |
+|---------|------|-----------------|
+| {{PERSONA_1}} | {{ROLE}} | {{INTEREST}} |
 
-## Casos de Uso
-| ID   | Nome | Ator | Ação | Resultado Esperado |
-|------|------|------|------|--------------------|
-| UC-01 | {{NOME_CASO_DE_USO}} | {{PERSONA}} | {{ACAO}} | {{RESULTADO}} |
+## Use Cases
+| ID   | Name | Actor | Action | Expected Result |
+|------|------|-------|--------|-----------------|
+| UC-01 | {{USE_CASE_NAME}} | {{PERSONA}} | {{ACTION}} | {{RESULT}} |
 
-## Regras de Negócio
-| ID    | Regra | Fonte | Verificável? |
-|-------|-------|-------|-------------|
-| RN-01 | {{REGRA_EXPLICITA}} | Usuário | Sim |
+## Business Rules
+| ID    | Rule | Source | Verifiable? |
+|-------|------|--------|-------------|
+| RN-01 | {{EXPLICIT_RULE}} | User | Yes |
 
-> ⚠️ Toda regra vem do usuário. Nunca inventar regras de negócio.
+> ⚠️ Every rule comes from the user. Never invent business rules.
 
-## Integrações Externas
-| Sistema | Protocolo | Direção | Contrato Formal? |
-|---------|-----------|---------|----------------|
-| {{SISTEMA}} | REST/gRPC/Event | Entrada/Saída | Sim/Não |
+## External Integrations
+| System | Protocol | Direction | Formal Contract? |
+|--------|----------|-----------|-----------------|
+| {{SYSTEM}} | REST/gRPC/Event | Inbound/Outbound | Yes/No |
 
-## Restrições
-- Técnicas: {{RESTRICOES_TECNICAS_OU_NENHUMA}}
-- Negócio: {{RESTRICOES_NEGOCIO_OU_NENHUMA}}
-- Prazo: {{PRAZO_SE_INFORMADO}}
+## Constraints
+- Technical: {{TECHNICAL_CONSTRAINTS_OR_NONE}}
+- Business: {{BUSINESS_CONSTRAINTS_OR_NONE}}
+- Deadline: {{DEADLINE_IF_PROVIDED}}
 
-## Critério de Aceite de Negócio
-{{O_QUE_DEFINE_SUCESSO_EM_LINGUAGEM_DE_NEGOCIO}}
+## Business Acceptance Criteria
+{{WHAT_DEFINES_SUCCESS_IN_BUSINESS_LANGUAGE}}
 
-## Perguntas em Aberto
-- [ ] {{PERGUNTA_SE_HOUVER — ou "Nenhuma" se tudo foi esclarecido}}
+## Open Questions
+- [ ] {{OPEN_QUESTION — or "None" if everything was clarified}}
 
-## Aprovação
-- [ ] Aprovado pelo usuário para avançar à Etapa 2 (SPEC)
+## Approval
+- [ ] Approved by user to advance to Step 2 (SPEC)
 ```
 
 ---
 
-## ◈ PASSO 4 — ATUALIZAR ESTADO
+## ◈ STEP 4 — UPDATE STATE
 
-### Atualizar `.hes/state/current.json`:
+### Update `.hes/state/current.json`:
 
 ```json
 {
@@ -119,15 +119,15 @@ Feature: {{FEATURE_SLUG}} | Domínio: {{DOMINIO_SE_APLICAVEL}}
   "features": {
     "{{FEATURE_SLUG}}": "DISCOVERY"
   },
-  "last_updated": "{{DATA_ATUAL_ISO}}"
+  "last_updated": "{{CURRENT_ISO_DATE}}"
 }
 ```
 
-### Registrar evento em `.hes/state/events.log`:
+### Register event in `.hes/state/events.log`:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE_SLUG}}",
   "from": "ZERO",
   "to": "DISCOVERY",
@@ -140,23 +140,23 @@ Feature: {{FEATURE_SLUG}} | Domínio: {{DOMINIO_SE_APLICAVEL}}
 
 ---
 
-▶ PRÓXIMA AÇÃO — APROVAÇÃO DO DISCOVERY
+▶ NEXT ACTION — DISCOVERY APPROVAL
 
 ```
-📋 Discovery gerado: .hes/specs/{{FEATURE_SLUG}}/01-discovery.md
+📋 Discovery generated: .hes/specs/{{FEATURE_SLUG}}/01-discovery.md
 
-Revise o documento e:
+Review the document and:
 
-  [A] "aprovar discovery" ou "ok"
-      → Gero a SPEC com cenários BDD (skills/02-spec.md)
+  [A] "approve discovery" or "ok"
+      → I'll generate the SPEC with BDD scenarios (skills/02-spec.md)
 
-  [B] "ajustar [o quê]"
-      → Corrijo e reapresento para aprovação
+  [B] "adjust [what]"
+      → I'll fix and present again for approval
 
-  [C] "tenho mais uma regra de negócio: [regra]"
-      → Incorporo e reapresento
+  [C] "I have one more business rule: [rule]"
+      → I'll incorporate and present again
 
-📄 Skill-file próximo: skills/02-spec.md
-💡 Dica: preste atenção especial nas Regras de Negócio (RN-xx).
-   Cada RN não capturada aqui vai exigir retrabalho na spec e nos testes.
+📄 Next skill-file: skills/02-spec.md
+💡 Tip: pay special attention to Business Rules (RN-xx).
+   Each uncaptured RN here will require rework in the spec and tests.
 ```

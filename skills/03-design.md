@@ -1,210 +1,210 @@
 # HES Skill — 03: Design + ADR
 
-> Skill carregada quando: feature.estado = DESIGN
-> Pré-condição: `02-spec.md` aprovado pelo usuário.
+> Skill loaded when: feature.state = DESIGN
+> Precondition: `02-spec.md` approved by the user.
 >
-> Papel no harness: **Guide Inferencial (Architecture Fitness + Maintainability)**
-> O design define os limites que os sensors computacionais irão verificar.
-> Toda decisão de design determina a harnessability do módulo.
+> Role in harness: **Inferential Guide (Architecture Fitness + Maintainability)**
+> The design defines boundaries that computational sensors will verify.
+> Every design decision determines the module's harnessability.
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Ler .hes/specs/{{feature}}/02-spec.md integralmente
-2. Ler .hes/state/current.json → domínio da feature
-3. Se domínio existe → ler .hes/domains/{{domain}}/context.md
-4. Se domínio existe → ler .hes/domains/{{domain}}/fitness/ (regras ativas)
-5. Verificar src/ para manter consistência de padrões existentes:
-   - Estrutura de pacotes atual
-   - Padrões arquiteturais já adotados (Controller → Service → Repository)
-   - Convenções de nomenclatura
-6. Verificar pom.xml / package.json → libs disponíveis
+1. Read .hes/specs/{{feature}}/02-spec.md in full
+2. Read .hes/state/current.json → feature domain
+3. If domain exists → read .hes/domains/{{domain}}/context.md
+4. If domain exists → read .hes/domains/{{domain}}/fitness/ (active rules)
+5. Check src/ to maintain consistency with existing patterns:
+   - Current package structure
+   - Already adopted architectural patterns (Controller → Service → Repository)
+   - Naming conventions
+6. Check pom.xml / package.json → available libraries
 ```
 
-**Anti-alucinação:** Nunca propor padrão ou biblioteca que não existe no projeto.
-Sempre citar o arquivo `src/` de referência ao propor algo.
+**Anti-hallucination:** Never propose a pattern or library that does not exist in the project.
+Always cite the reference `src/` file when proposing something.
 
 ---
 
-## ◈ PASSO 1 — GERAR `.hes/specs/{{FEATURE_SLUG}}/03-design.md`
+## ◈ STEP 1 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/03-design.md`
 
 ```markdown
-# Design — {{NOME_FEATURE}}
+# Design — {{FEATURE_NAME}}
 
-Data: {{DATA_ATUAL}} | Versão: 1.0
-Derivado de: 02-spec.md | Feature: {{FEATURE_SLUG}}
+Date: {{CURRENT_DATE}} | Version: 1.0
+Derived from: 02-spec.md | Feature: {{FEATURE_SLUG}}
 
 ---
 
-## Componentes
+## Components
 
-| Componente | Tipo | Responsabilidade | Arquivo |
-|-----------|------|-----------------|---------|
-| {{NomeController}} | Controller | Receber request, validar entrada, delegar ao Service | `src/.../{{Arquivo}}` |
-| {{NomeService}} | Service/UseCase | Regras de negócio (RN-xx), orquestração | `src/.../{{Arquivo}}` |
-| {{NomeRepository}} | Repository | Acesso a dados — sem lógica de negócio | `src/.../{{Arquivo}}` |
-| {{NomeRequestDTO}} | DTO (in) | Contrato de entrada, validações de campo | `src/.../{{Arquivo}}` |
-| {{NomeResponseDTO}} | DTO (out) | Contrato de saída | `src/.../{{Arquivo}}` |
-| {{NomeMapper}} | Mapper | Conversão DTO ↔ Entidade | `src/.../{{Arquivo}}` |
-| {{NomeException}} | Exception | Exceções de domínio com mensagem da spec | `src/.../{{Arquivo}}` |
+| Component | Type | Responsibility | File |
+|-----------|------|----------------|------|
+| {{NameController}} | Controller | Receive request, validate input, delegate to Service | `src/.../{{File}}` |
+| {{NameService}} | Service/UseCase | Business rules (RN-xx), orchestration | `src/.../{{File}}` |
+| {{NameRepository}} | Repository | Data access — no business logic | `src/.../{{File}}` |
+| {{NameRequestDTO}} | DTO (in) | Input contract, field validations | `src/.../{{File}}` |
+| {{NameResponseDTO}} | DTO (out) | Output contract | `src/.../{{File}}` |
+| {{NameMapper}} | Mapper | DTO <-> Entity conversion | `src/.../{{File}}` |
+| {{NameException}} | Exception | Domain exceptions with spec messages | `src/.../{{File}}` |
 
-## Fluxo de Execução
+## Execution Flow
 
 ```
 HTTP Request
-    │
-    ▼
-{{NomeController}}          [package: controller]
-    │ valida {{NomeRequestDTO}}
-    │ delega ao service
-    ▼
-{{NomeService}}             [package: service]
-    │ aplica RN-01: {{regra}}
-    │ aplica RN-02: {{regra}}
-    │ lança {{NomeException}} se violação
-    ▼
-{{NomeRepository}}          [package: repository]
-    │ query parametrizada — sem lógica de negócio
-    ▼
+    |
+    v
+{{NameController}}          [package: controller]
+    | validates {{NameRequestDTO}}
+    | delegates to service
+    v
+{{NameService}}             [package: service]
+    | applies RN-01: {{rule}}
+    | applies RN-02: {{rule}}
+    | throws {{NameException}} if violation
+    v
+{{NameRepository}}          [package: repository]
+    | parameterized query — no business logic
+    v
   Database
-    ▲ retorna entidade
-{{NomeMapper}}
-    │ converte entidade → {{NomeResponseDTO}}
-    ▼
+    ^ returns entity
+{{NameMapper}}
+    | converts entity → {{NameResponseDTO}}
+    v
 HTTP Response ({{STATUS_CODE}})
 ```
 
-## Padrões Utilizados
+## Patterns Used
 
-| Padrão | Justificativa | Referência no Projeto |
-|--------|--------------|----------------------|
-| Repository | Separação de concerns, testabilidade | `src/.../ExistingRepo.java` |
-| DTO/Mapper | Desacoplar domínio da API | `src/.../ExistingDTO.java` |
-| {{OUTRO}} | {{JUSTIFICATIVA}} | `src/...` |
+| Pattern | Justification | Project Reference |
+|---------|--------------|-------------------|
+| Repository | Separation of concerns, testability | `src/.../ExistingRepo.java` |
+| DTO/Mapper | Decouple domain from API | `src/.../ExistingDTO.java` |
+| {{OTHER}} | {{JUSTIFICATION}} | `src/...` |
 
-## Impacto em Módulos Existentes
+## Impact on Existing Modules
 
-| Módulo/Arquivo | Tipo de Impacto | Ação Necessária |
-|----------------|----------------|----------------|
-| {{modulo}} | Adição / Modificação / Sem impacto | {{o que fazer}} |
+| Module/File | Impact Type | Required Action |
+|-------------|-------------|-----------------|
+| {{module}} | Addition / Modification / No impact | {{what to do}} |
 
-## Harnessability do Design (NOVO em v3.1)
+## Design Harnessability (NEW in v3.1)
 
 > "Technology decisions and architecture choices determine how governable
 >  the codebase will be." — Fowler, 2026
 
-| Decisão de Design | Harnessability | Motivo |
-|-------------------|---------------|--------|
-| Package boundaries claros (controller/service/repository) | ✅ Alta | ArchUnit pode verificar automaticamente |
-| DI via construtor (não new interno) | ✅ Alta | Mocking facilitado nos testes unitários |
-| Exceções de domínio tipadas | ✅ Alta | Sensor de test pode verificar tipo + mensagem |
-| {{OUTRA_DECISAO}} | ✅/⚠️ | {{MOTIVO}} |
+| Design Decision | Harnessability | Reason |
+|-----------------|---------------|--------|
+| Clear package boundaries (controller/service/repository) | ✅ High | ArchUnit can verify automatically |
+| Constructor DI (no internal new) | ✅ High | Mocking facilitated in unit tests |
+| Typed domain exceptions | ✅ High | Test sensor can verify type + message |
+| {{OTHER_DECISION}} | ✅/⚠️ | {{REASON}} |
 
-## Sensors que Verificam Este Design
+## Sensors That Verify This Design
 
-| Sensor | O que verifica | Quando roda |
-|--------|---------------|------------|
-| ArchUnit (se configurado) | Package boundaries, dependências unidirecionais | `mvn test` |
-| Self-refinement loop | Implementação segue o fluxo definido aqui | Durante GREEN |
-| Review Dimensão 5 | Design vs implementação | Fase REVIEW |
+| Sensor | What it verifies | When it runs |
+|--------|-----------------|-------------|
+| ArchUnit (if configured) | Package boundaries, unidirectional dependencies | `mvn test` |
+| Self-refinement loop | Implementation follows the flow defined here | During GREEN |
+| Review Dimension 5 | Design vs implementation | REVIEW phase |
 
-## Decisão Arquitetural
-Ver: `.hes/decisions/ADR-{{NNN}}.md`
+## Architectural Decision
+See: `.hes/decisions/ADR-{{NNN}}.md`
 
-## Aprovação
-- [ ] Componentes seguem padrões existentes no projeto?
-- [ ] Fluxo cobre todos os cenários da spec?
-- [ ] Decisões de design maximizam harnessability?
-- [ ] Impacto em módulos existentes está mapeado?
-- [ ] Aprovado para avançar à Etapa 4 (DATA)
+## Approval
+- [ ] Do components follow existing project patterns?
+- [ ] Does the flow cover all spec scenarios?
+- [ ] Do design decisions maximize harnessability?
+- [ ] Is impact on existing modules mapped?
+- [ ] Approved to advance to Step 4 (DATA)
 ```
 
 ---
 
-## ◈ PASSO 2 — GERAR ADR
+## ◈ STEP 2 — GENERATE ADR
 
-Determinar próximo número de ADR:
+Determine next ADR number:
 ```bash
 ls .hes/decisions/ADR-*.md 2>/dev/null | wc -l
-# Próximo = count + 1, formato 3 dígitos: ADR-001
+# Next = count + 1, 3-digit format: ADR-001
 ```
 
-Gerar `.hes/decisions/ADR-{{NNN}}.md`:
+Generate `.hes/decisions/ADR-{{NNN}}.md`:
 
 ```markdown
-# ADR-{{NNN}} — {{TITULO_DA_DECISAO}}
+# ADR-{{NNN}} — {{DECISION_TITLE}}
 
-Data: {{DATA_ATUAL}} | Status: Accepted | Feature: {{FEATURE_SLUG}}
-Domínio: {{DOMINIO_SE_APLICAVEL}}
+Date: {{CURRENT_DATE}} | Status: Accepted | Feature: {{FEATURE_SLUG}}
+Domain: {{DOMAIN_IF_APPLICABLE}}
 
 ---
 
-## Contexto
+## Context
 
-{{QUAL_PROBLEMA_PRECISAVA_SER_DECIDIDO}}
-{{POR_QUE_ESTA_DECISAO_ERA_NECESSARIA_AGORA}}
+{{WHAT_PROBLEM_NEEDED_TO_BE_DECIDED}}
+{{WHY_THIS_DECISION_WAS_NEEDED_NOW}}
 
-## Força Motivadora
+## Motivating Force
 
-- {{DRIVER_1}} — ex: volume de leituras exige separação de queries
-- {{DRIVER_2}} — ex: necessidade de auditoria de mudanças
+- {{DRIVER_1}} — e.g., read volume requires query separation
+- {{DRIVER_2}} — e.g., need for change auditing
 
-## Impacto na Harnessability (NOVO em v3.1)
+## Impact on Harnessability (NEW in v3.1)
 
-A decisão escolhida {{aumenta / mantém / reduz}} a harnessability porque:
-- {{MOTIVO_DE_HARNESSABILITY}}
-- Sensor impactado: {{ArchUnit rule / linter / coverage}} — {{como}}
+The chosen decision {{increases / maintains / reduces}} harnessability because:
+- {{HARNESSABILITY_REASON}}
+- Impacted sensor: {{ArchUnit rule / linter / coverage}} — {{how}}
 
-## Opções Consideradas
+## Options Considered
 
-### Opção A: {{NOME}}
-- Prós: {{VANTAGENS}}
-- Contras: {{DESVANTAGENS}}
-- Harnessability: Alta / Média / Baixa
+### Option A: {{NAME}}
+- Pros: {{ADVANTAGES}}
+- Cons: {{DISADVANTAGES}}
+- Harnessability: High / Medium / Low
 
-### Opção B: {{NOME}}
-- Prós: {{VANTAGENS}}
-- Contras: {{DESVANTAGENS}}
-- Harnessability: Alta / Média / Baixa
+### Option B: {{NAME}}
+- Pros: {{ADVANTAGES}}
+- Cons: {{DISADVANTAGES}}
+- Harnessability: High / Medium / Low
 
-## Decisão
+## Decision
 
-**Escolhida: Opção {{X}} — {{NOME}}**
-{{JUSTIFICATIVA_DIRETA}}
+**Chosen: Option {{X}} — {{NAME}}**
+{{DIRECT_JUSTIFICATION}}
 
-## Consequências
+## Consequences
 
-**Positivas:**
-- {{GANHO_1}}
+**Positive:**
+- {{GAIN_1}}
 
-**Trade-offs aceitos:**
-- {{CUSTO_ACEITAVEL}}
+**Accepted trade-offs:**
+- {{ACCEPTED_COST}}
 
-**Riscos e Mitigações:**
-- {{RISCO}} → Mitigação: {{COMO}}
+**Risks and Mitigations:**
+- {{RISK}} → Mitigation: {{HOW}}
 
-## Revisar se
+## Review if
 
-{{TRIGGER — ex: "volume exceder X/s" ou "novo domínio precisar de isolamento"}}
+{{TRIGGER — e.g., "volume exceeds X/s" or "new domain needs isolation"}}
 ```
 
 ---
 
-## ◈ PASSO 3 — ATUALIZAR FITNESS/ (se domínio tem ArchUnit)
+## ◈ STEP 3 — UPDATE FITNESS/ (if domain has ArchUnit)
 
-Se `.hes/domains/{{domain}}/fitness/` existe e a feature introduz novo boundary:
+If `.hes/domains/{{domain}}/fitness/` exists and the feature introduces a new boundary:
 
 ```
-Verificar se o fluxo de execução define novos boundaries que devem ser capturados:
-→ Nova regra de ArchUnit? → Adicionar em ArchitectureTest.java
-→ Documentar em .hes/domains/{{domain}}/fitness/README.md
+Check if the execution flow defines new boundaries to be captured:
+→ New ArchUnit rule? → Add to ArchitectureTest.java
+→ Document in .hes/domains/{{domain}}/fitness/README.md
 ```
 
 ---
 
-## ◈ PASSO 4 — ATUALIZAR ESTADO
+## ◈ STEP 4 — UPDATE STATE
 
 ### `.hes/state/current.json`: `"{{FEATURE}}": "DESIGN"`
 
@@ -212,14 +212,14 @@ Verificar se o fluxo de execução define novos boundaries que devem ser captura
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE_SLUG}}",
   "from": "SPEC",
   "to": "DESIGN",
   "agent": "hes-v3.1",
   "metadata": {
     "artifacts": ["03-design.md", "ADR-{{NNN}}.md"],
-    "harnessability": "{{ALTA/MEDIA/BAIXA}}",
+    "harnessability": "{{HIGH/MEDIUM/LOW}}",
     "archunit_updated": {{true/false}}
   }
 }
@@ -227,30 +227,30 @@ Verificar se o fluxo de execução define novos boundaries que devem ser captura
 
 ---
 
-▶ PRÓXIMA AÇÃO — APROVAÇÃO DO DESIGN
+▶ NEXT ACTION — DESIGN APPROVAL
 
 ```
-🏗  Design gerado:
+🏗  Design generated:
     .hes/specs/{{FEATURE_SLUG}}/03-design.md
     .hes/decisions/ADR-{{NNN}}.md
 
-Valide antes de aprovar:
-  • Os componentes usam padrões já existentes no projeto?
-  • O ADR explica por que as alternativas foram rejeitadas?
-  • O fluxo de execução cobre todos os cenários BDD da spec?
-  • As decisões de design maximizam harnessability?
+Validate before approving:
+  • Do components use patterns already existing in the project?
+  • Does the ADR explain why alternatives were rejected?
+  • Does the execution flow cover all BDD scenarios from the spec?
+  • Do design decisions maximize harnessability?
 
-  [A] "aprovar design"
-      → Gero schema e migrations (skills/04-data.md)
+  [A] "approve design"
+      → I'll generate schema and migrations (skills/04-data.md)
 
-  [B] "ajustar [o quê]"
-      → Corrijo design e/ou ADR
+  [B] "adjust [what]"
+      → I'll fix design and/or ADR
 
-  [C] "prefiro Opção B do ADR"
-      → Atualizo a decisão e ajusto o design
+  [C] "I prefer Option B from the ADR"
+      → I'll update the decision and adjust the design
 
-📄 Skill-file próximo: skills/04-data.md
-💡 Dica (Fowler): "Technology decisions determine how governable the codebase will be."
-   DI via construtor, package boundaries claros e exceções tipadas são as 3 decisões
-   que mais impactam a harnessability de um serviço Java/Spring Boot.
+📄 Next skill-file: skills/04-data.md
+💡 Tip (Fowler): "Technology decisions determine how governable the codebase will be."
+   Constructor DI, clear package boundaries, and typed exceptions are the 3 decisions
+   that most impact the harnessability of a Java/Spring Boot service.
 ```

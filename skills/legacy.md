@@ -1,7 +1,7 @@
-# HES Skill — Legacy: Inventário + Harnessability Assessment
+# HES Skill — Legacy: Inventory + Harnessability Assessment
 
-> Skill carregada quando: estado global = LEGACY
-> (projeto com `src/` existente mas sem estrutura `.hes/`)
+> Skill loaded when: global state = LEGACY
+> (project with existing `src/` but no `.hes/` structure)
 >
 > "Legacy teams, especially with applications that have accrued a lot of technical debt,
 >  face the harder problem: the harness is most needed where it is hardest to build."
@@ -9,263 +9,263 @@
 
 ---
 
-## ◈ PROTOCOLO
+## ◈ PROTOCOL
 
 ```
-1. Anunciar o protocolo de inventário
-2. Coletar informações do projeto
-3. Avaliar harnessability (NOVO em v3.1)
-4. Gerar inventário arquitetural
-5. Gerar mapa de tech debt
-6. Executar bootstrap (skills/00-bootstrap.md — passos 2 em diante)
-7. Retornar para skills/01-discovery.md com contexto do inventário
-```
-
----
-
-## ◈ PASSO 1 — ANUNCIAR
-
-```
-🔍 HES detectou um projeto existente sem harness instalado.
-
-Antes de qualquer modificação, vou:
-  1. Inventariar o que existe
-  2. Avaliar a harnessability do projeto
-  3. Instalar o harness com guias e sensores adequados ao nível de maturidade
-
-Isso protege o projeto de mudanças inconsistentes com o estado atual.
+1. Announce the inventory protocol
+2. Collect project information
+3. Assess harnessability (NEW in v3.1)
+4. Generate architectural inventory
+5. Generate tech debt map
+6. Execute bootstrap (skills/00-bootstrap.md — step 2 onwards)
+7. Return to skills/01-discovery.md with inventory context
 ```
 
 ---
 
-## ◈ PASSO 2 — COLETAR INFORMAÇÕES (máximo 5 perguntas)
+## ◈ STEP 1 — ANNOUNCE
 
 ```
-Preciso entender o projeto existente:
+🔍 HES detected an existing project without harness installed.
 
-1. Nome e propósito principal do projeto:
-2. Stack principal? (linguagem, framework, banco, versões)
-3. Quantos anos de existência (aproximadamente)?
-4. Existe suite de testes? Se sim: cobertura estimada e framework?
-5. Qual problema ou feature motivou você a chamar o HES agora?
+Before any modification, I will:
+  1. Inventory what exists
+  2. Assess project harnessability
+  3. Install the harness with guides and sensors appropriate to the maturity level
+
+This protects the project from inconsistent changes relative to its current state.
 ```
 
 ---
 
-## ◈ PASSO 3 — HARNESSABILITY ASSESSMENT (NOVO em v3.1)
+## ◈ STEP 2 — COLLECT INFORMATION (maximum 5 questions)
+
+```
+I need to understand the existing project:
+
+1. Project name and main purpose:
+2. Main stack? (language, framework, database, versions)
+3. How many years old (approximately)?
+4. Is there a test suite? If yes: estimated coverage and framework?
+5. What problem or feature motivated you to call HES now?
+```
+
+---
+
+## ◈ STEP 3 — HARNESSABILITY ASSESSMENT (NEW in v3.1)
 
 > "Not every codebase is equally amenable to harnessing." — Fowler, 2026
 > "Greenfield teams can bake harnessability in from day one.
 >  Legacy teams face the harder problem." — Fowler, 2026
 
-Avaliar o projeto nos seguintes eixos:
+Assess the project on the following axes:
 
-### 3a — Linguagem e Tipagem
-
-```
-[ ] Linguagem fortemente tipada? (Java, TypeScript, Kotlin, Go, C#)
-    → Sim: type checker disponível como sensor computacional gratuito
-    → Não: sensores de qualidade dependem mais de linters (menos confiáveis)
-
-[ ] Framework com convenções fortes? (Spring Boot, NestJS, Django)
-    → Sim: módulo boundaries mais fáceis de definir e verificar
-    → Não: harnessability mais baixa — boundaries precisam ser explicitados
-```
-
-### 3b — Modularidade
+### 3a — Language and Typing
 
 ```
-[ ] O código tem package/módulo boundaries claros?
-    → Sim: ArchUnit/dep-cruiser podem verificar automaticamente
-    → Não: alto risco de regressão arquitetural silenciosa
+[ ] Is the language strongly typed? (Java, TypeScript, Kotlin, Go, C#)
+    → Yes: type checker available as free computational sensor
+    → No: quality sensors depend more on linters (less reliable)
 
-[ ] Existe separação clara de responsabilidades (Controller/Service/Repo)?
-    → Sim: fitness functions de camada são imediatamente aplicáveis
-    → Não: refactoring de estrutura necessário antes de harnessing efetivo
+[ ] Framework with strong conventions? (Spring Boot, NestJS, Django)
+    → Yes: module boundaries easier to define and verify
+    → No: lower harnessability — boundaries need to be made explicit
+```
 
-[ ] Há acoplamento circular entre módulos?
+### 3b — Modularity
+
+```
+[ ] Does the code have clear package/module boundaries?
+    → Yes: ArchUnit/dep-cruiser can verify automatically
+    → No: high risk of silent architectural regression
+
+[ ] Is there a clear separation of concerns (Controller/Service/Repo)?
+    → Yes: layer fitness functions are immediately applicable
+    → No: structural refactoring needed before effective harnessing
+
+[ ] Is there circular coupling between modules?
     → Execute: mvn dependency:analyze / npx madge --circular src/
-    → Sim → risco alto, priorizar como tech debt crítico
+    → Yes → high risk, prioritize as critical tech debt
 ```
 
-### 3c — Testabilidade
+### 3c — Testability
 
 ```
-[ ] O código tem injeção de dependência (DI)?
-    → Sim: mocking facilitado, testes unitários viáveis
-    → Não: difícil testar em isolamento — custo de testes alto
+[ ] Does the code have dependency injection (DI)?
+    → Yes: mocking facilitated, unit tests viable
+    → No: hard to test in isolation — high test cost
 
-[ ] Existe suite de testes funcionando?
-    → Sim: cobertura atual? framework?
-    → Não: qualquer mudança é cega — prioridade máxima antes de features
+[ ] Is there a working test suite?
+    → Yes: current coverage? framework?
+    → No: any change is blind — maximum priority before features
 
-[ ] Há objetos estáticos / singletons que dificultam testes?
-    → Sim → harnessability baixa nessa área
+[ ] Are there static objects / singletons that make testing difficult?
+    → Yes → low harnessability in that area
 ```
 
-### 3d — Score de Harnessability
+### 3d — Harnessability Score
 
 ```
-Alto   → Tipagem forte + boundaries claros + DI + testes existentes
-         → Harness completo pode ser instalado imediatamente
+High   → Strong typing + clear boundaries + DI + existing tests
+         → Full harness can be installed immediately
 
-Médio  → Algumas características presentes mas não todas
-         → Instalar harness incremental, começar pelos sensores mais simples
+Medium → Some characteristics present but not all
+         → Install harness incrementally, start with simplest sensors
 
-Baixo  → Sem tipagem forte OU sem testes OU acoplamento circular
-         → Priorizar refactoring de harnessability ANTES de features novas
-         → Instalar apenas git hooks e specs como primeiro passo
+Low    → No strong typing OR no tests OR circular coupling
+         → Prioritize harnessability refactoring BEFORE new features
+         → Install only git hooks and specs as first step
 ```
 
 ---
 
-## ◈ PASSO 4 — GERAR `.hes/inventory/architecture.md`
+## ◈ STEP 4 — GENERATE `.hes/inventory/architecture.md`
 
 ```markdown
-# Inventário Arquitetural — {{NOME_PROJETO}}
+# Architectural Inventory — {{PROJECT_NAME}}
 
-Data: {{DATA_ATUAL}} | Analista: HES Auto-Discovery
+Date: {{CURRENT_DATE}} | Analyst: HES Auto-Discovery
 
 ---
 
-## Visão Geral
+## Overview
 
-| Atributo | Valor |
+| Attribute | Value |
 |---------|-------|
-| Tipo | Monolito / Microsserviço / Modular Monolith |
-| Linguagem | {{LINGUAGEM}} + {{VERSAO}} |
-| Framework | {{FRAMEWORK}} + {{VERSAO}} |
-| Banco | {{BANCO}} |
-| Idade estimada | {{ANOS}} anos |
+| Type | Monolith / Microservice / Modular Monolith |
+| Language | {{LANGUAGE}} + {{VERSION}} |
+| Framework | {{FRAMEWORK}} + {{VERSION}} |
+| Database | {{DATABASE}} |
+| Estimated age | {{YEARS}} years |
 
 ## Harnessability Score (v3.1)
 
-| Eixo | Score | Observação |
+| Axis | Score | Notes |
 |------|-------|-----------|
-| Tipagem | Alto/Médio/Baixo | |
-| Modularidade | Alto/Médio/Baixo | |
-| Testabilidade | Alto/Médio/Baixo | |
-| **Score Geral** | **Alto/Médio/Baixo** | |
+| Typing | High/Medium/Low | |
+| Modularity | High/Medium/Low | |
+| Testability | High/Medium/Low | |
+| **Overall Score** | **High/Medium/Low** | |
 
-## Pontos de Entrada
+## Entry Points
 
-| Tipo | Arquivo | Rota/Endpoint | Autenticação |
+| Type | File | Route/Endpoint | Authentication |
 |------|---------|--------------|-------------|
-| _a preencher_ | | | |
+| _to fill_ | | | |
 
-> Execute para identificar:
+> Execute to identify:
 > Java:   `grep -r "@RestController\|@Controller" src/ --include="*.java" -l`
 > Node:   `grep -r "router\.\|app\.\(get\|post\|put\|delete\)" src/ -l`
 > Python: `grep -r "@app.route\|@router" src/ -l`
 
-## Dependências Críticas
+## Critical Dependencies
 
-| Dependência | Versão Atual | Observação |
+| Dependency | Current Version | Notes |
 |-------------|-------------|-----------|
-| _a preencher_ | | |
+| _to fill_ | | |
 
-## Cobertura de Testes
+## Test Coverage
 
-| Métrica | Valor |
+| Metric | Value |
 |---------|-------|
-| Coverage estimado | {{X}}% |
-| Framework de testes | |
-| Testes unitários | Sim / Não |
-| Testes de integração | Sim / Não |
+| Estimated coverage | {{X}}% |
+| Test framework | |
+| Unit tests | Yes / No |
+| Integration tests | Yes / No |
 
-## Módulos / Pacotes
+## Modules / Packages
 
-| Módulo | Responsabilidade | Saúde | Harnessável? |
+| Module | Responsibility | Health | Harnessable? |
 |--------|-----------------|-------|-------------|
-| | | 🟢/🟡/🔴 | Sim/Não |
+| | | 🟢/🟡/🔴 | Yes/No |
 
-## Acoplamento Circular
+## Circular Coupling
 
-[ ] Verificar: `mvn dependency:analyze` ou `npx madge --circular src/`
-Resultado: {{NENHUM / LISTA_DE_CICLOS}}
+[ ] Verify: `mvn dependency:analyze` or `npx madge --circular src/`
+Result: {{NONE / LIST_OF_CYCLES}}
 
-## Riscos Identificados
+## Identified Risks
 
-- [ ] _a preencher após análise_
+- [ ] _to fill after analysis_
 ```
 
 ---
 
-## ◈ PASSO 5 — GERAR `.hes/inventory/tech-debt.md`
+## ◈ STEP 5 — GENERATE `.hes/inventory/tech-debt.md`
 
 ```markdown
-# Tech Debt — {{NOME_PROJETO}}
+# Tech Debt — {{PROJECT_NAME}}
 
-Data: {{DATA_ATUAL}}
-
----
-
-## 🔴 CRÍTICO — bloqueia entrega ou causa risco em produção
-
-| Débito | Localização | Impacto | Esforço | Estratégia |
-|--------|------------|---------|---------|-----------|
-| | | | P/M/G | Hotfix/Refactor/Rewrite |
-
-## 🟡 ALTO — degrada qualidade, dificulta manutenção
-
-| Débito | Localização | Impacto | Esforço | Estratégia |
-|--------|------------|---------|---------|-----------|
-
-## 🟢 MÉDIO — melhoria desejável sem urgência
-
-| Débito | Localização | Impacto | Esforço | Estratégia |
-|--------|------------|---------|---------|-----------|
+Date: {{CURRENT_DATE}}
 
 ---
 
-## Decisão de Estratégia por Módulo
+## 🔴 CRITICAL — blocks delivery or causes risk in production
 
-| Módulo | Coverage | Harnessability | Estratégia Recomendada |
+| Debt | Location | Impact | Effort | Strategy |
+|--------|------------|---------|---------|-----------|
+| | | | S/M/L | Hotfix/Refactor/Rewrite |
+
+## 🟡 HIGH — degrades quality, complicates maintenance
+
+| Debt | Location | Impact | Effort | Strategy |
+|--------|------------|---------|---------|-----------|
+
+## 🟢 MEDIUM — desirable improvement without urgency
+
+| Debt | Location | Impact | Effort | Strategy |
+|--------|------------|---------|---------|-----------|
+
+---
+
+## Module Strategy Decision
+
+| Module | Coverage | Harnessability | Recommended Strategy |
 |--------|----------|---------------|----------------------|
-| | | Alto/Médio/Baixo | Harnessing imediato / Refactor primeiro / Rewrite |
+| | | High/Medium/Low | Immediate harnessing / Refactor first / Rewrite |
 ```
 
 ---
 
-## ◈ PASSO 6 — INSTALAR HARNESS PROPORCIONAL AO SCORE
+## ◈ STEP 6 — INSTALL HARNESSES PROPORTIONAL TO SCORE
 
 ```
-Harnessability ALTO:
-  → Executar bootstrap completo (skills/00-bootstrap.md)
-  → Propor ArchUnit/dep-cruiser imediatamente (architecture fitness)
-  → Instalar coverage target ≥ 80%
+Harnessability HIGH:
+  → Execute full bootstrap (skills/00-bootstrap.md)
+  → Propose ArchUnit/dep-cruiser immediately (architecture fitness)
+  → Install coverage target ≥ 80%
 
-Harnessability MÉDIO:
-  → Executar bootstrap (git hooks + specs)
-  → Adiar ArchUnit até módulo principal ter boundaries claros
-  → Instalar linter + coverage target ≥ 60% (evoluir para 80%)
+Harnessability MEDIUM:
+  → Execute bootstrap (git hooks + specs)
+  → Defer ArchUnit until main module has clear boundaries
+  → Install linter + coverage target ≥ 60% (evolve to 80%)
 
-Harnessability BAIXO:
-  → Instalar APENAS git hooks (safety_validator + commit_checker)
-  → Criar specs para a feature motivadora ANTES de qualquer código
-  → Planejar sprint de harnessability antes de features novas
-  → Nota em CLAUDE.md: "Codebase com harnessability baixa — revisar manualmente antes de implementar"
+Harnessability LOW:
+  → Install ONLY git hooks (safety_validator + commit_checker)
+  → Create specs for the motivating feature BEFORE any code
+  → Plan harnessability sprint before new features
+  → Note in CLAUDE.md: "Codebase with low harnessability — review manually before implementing"
 ```
 
 ---
 
-▶ PRÓXIMA AÇÃO
+▶ NEXT ACTION
 
 ```
-🔍 Inventário + Harnessability Assessment concluídos.
+🔍 Inventory + Harnessability Assessment completed.
 
-Score: {{ALTO/MÉDIO/BAIXO}} → Harness {{COMPLETO/INCREMENTAL/MÍNIMO}}
+Score: {{HIGH/MEDIUM/LOW}} → Harness {{FULL/INCREMENTAL/MINIMAL}}
 
-  [A] "instalar o harness e iniciar discovery de [feature]"
-      → Executo bootstrap proporcional ao score e inicio Discovery
+  [A] "install the harness and start discovery of [feature]"
+      → Execute bootstrap proportional to score and start Discovery
 
-  [B] "quero ver o tech debt antes de decidir"
-      → Mostro .hes/inventory/tech-debt.md e discutimos prioridades
+  [B] "I want to see the tech debt before deciding"
+      → Show .hes/inventory/tech-debt.md and discuss priorities
 
-  [C] "preciso melhorar a harnessability primeiro"
-      → Carrego skills/refactor.md para protocolo de harnessability
+  [C] "I need to improve harnessability first"
+      → Load skills/refactor.md for harnessability protocol
 
-📄 Skill-file próximo: skills/01-discovery.md
-💡 Dica (Fowler): harnessability baixa não impede harness — apenas muda o ponto de partida.
-   Comece pelos sensores mais simples (git hooks + specs) e evolua incrementalmente.
+📄 Next skill file: skills/01-discovery.md
+💡 Tip (Fowler): low harnessability does not prevent harness — it only changes the starting point.
+   Start with the simplest sensors (git hooks + specs) and evolve incrementally.
 ```

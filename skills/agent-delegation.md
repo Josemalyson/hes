@@ -1,24 +1,24 @@
 # HES Skill — Agent Delegation
 
-> Skill invocada pelo orquestrador (SKILL.md) quando precisa delegar para agentes especializados.
-> Objetivo: padrão de delegação multi-agent, sub-agent spawning, dispatch protocol.
-> Referência: HES v3.2 Agent Registry (.hes/agents/registry.json)
+> Skill invoked by the orchestrator (SKILL.md) when delegating to specialized agents.
+> Objective: multi-agent delegation pattern, sub-agent spawning, dispatch protocol.
+> Reference: HES v3.2 Agent Registry (.hes/agents/registry.json)
 
 ---
 
-## ◈ MODELO DE DELEGAÇÃO
+## ◈ DELEGATION MODEL
 
-O orquestrador (harness-agent) NUNCA implementa — apenas dispatch, valida e avança estado.
+The orchestrator (harness-agent) NEVER implements — only dispatches, validates, and advances state.
 
 ```
-ORQUESTRADOR (SKILL.md)
-  → Lê current.json
-  → Consulta registry.json
-  → Identifica agente da fase atual
-  → Carrega contexto necessário
-  → Delega para skill-file do agente
-  → Valida critérios de DONE
-  → Avança estado + log evento
+ORCHESTRATOR (SKILL.md)
+  → Reads current.json
+  → Queries registry.json
+  → Identifies agent for current phase
+  → Loads required context
+  → Delegates to agent's skill-file
+  → Validates DONE criteria
+  → Advances state + logs event
 ```
 
 ---
@@ -26,52 +26,52 @@ ORQUESTRADOR (SKILL.md)
 ## ◈ DISPATCH PROTOCOL
 
 ```
-PASSO 1 — LER ESTADO
+STEP 1 — READ STATE
   → .hes/state/current.json
-  → Identificar: active_feature, features[feature], session.phase_lock
+  → Identify: active_feature, features[feature], session.phase_lock
 
-PASSO 2 — CONSULTAR REGISTRO
+STEP 2 — QUERY REGISTRY
   → .hes/agents/registry.json
-  → Encontrar agente onde: agents[X].phase == current_phase
-     OU agents[X].type == "system" (para comandos como /hes report)
+  → Find agent where: agents[X].phase == current_phase
+     OR agents[X].type == "system" (for commands like /hes report)
 
-PASSO 3 — IDENTIFICAR AGENTE
-  → Se feature = DISCOVERY → discovery-agent
-  → Se feature = SPEC     → spec-agent
-  → Se feature = DESIGN   → design-agent
-  → Se feature = DATA     → data-agent
-  → Se feature = RED      → test-agent
-  → Se feature = GREEN    → impl-agent
-  → Se feature = REVIEW   → review-agent
-  → Se comando sistema   → session-manager | report-agent | etc.
-  → Se não encontrado    → usar harness-agent (fallback) + warning
+STEP 3 — IDENTIFY AGENT
+  → If feature = DISCOVERY → discovery-agent
+  → If feature = SPEC     → spec-agent
+  → If feature = DESIGN   → design-agent
+  → If feature = DATA     → data-agent
+  → If feature = RED      → test-agent
+  → If feature = GREEN    → impl-agent
+  → If feature = REVIEW   → review-agent
+  → If system command   → session-manager | report-agent | etc.
+  → If not found        → use harness-agent (fallback) + warning
 
-PASSO 4 — CARREGAR CONTEXTO
-  → Carregar APENAS os arquivos em agents[X].context_load
-  → NÃO carregar skill-files de outras fases
+STEP 4 — LOAD CONTEXT
+  → Load ONLY the files in agents[X].context_load
+  → Do NOT load skill-files from other phases
 
-PASSO 5 — DELEGAR
-  → Carregar skill-file correspondente
-  → Seguir instruções do skill-file
-  → NÃO tomar ações além do que o skill-file especifica
+STEP 5 — DELEGATE
+  → Load corresponding skill-file
+  → Follow skill-file instructions
+  → Do NOT take actions beyond what the skill-file specifies
 
-PASSO 6 — VALIDAR
-  → Verificar critérios de DONE da fase
-  → Se NÃO satisfeito → permanecer na fase atual
+STEP 6 — VALIDATE
+  → Check phase DONE criteria
+  → If NOT satisfied → remain in current phase
 
-PASSO 7 — AVANÇAR
-  → Atualizar current.json: features[feature] = next_phase
-  → Registrar evento em events.log
-  → Anunciar próxima fase + próximo agente
+STEP 7 — ADVANCE
+  → Update current.json: features[feature] = next_phase
+  → Register event in events.log
+  → Announce next phase + next agent
 ```
 
 ---
 
 ## ◈ SUB-AGENT SPAWNING
 
-Sub-agents são agentes filhos executados dentro do contexto de um agente pai.
+Sub-agents are child agents executed within the context of a parent agent.
 
-### Sub-Agent Registry (em registry.json)
+### Sub-Agent Registry (in registry.json)
 
 ```json
 {
@@ -98,27 +98,27 @@ Sub-agents são agentes filhos executados dentro do contexto de um agente pai.
 ### Sub-Agent Execution Protocol
 
 ```
-Quando impl-agent gera código:
+When impl-agent generates code:
 
 1. Spawn test-runner:
-   → Executar testes da feature
-   → Se falha → loop de correção (máx 3 iterações)
-   → Se passa → prosseguir
+   → Run feature tests
+   → If failure → correction loop (max 3 iterations)
+   → If passes → proceed
 
 2. Spawn linter:
-   → Rodar linter no código gerado
-   → Se violação → corrigir automaticamente
-   → Se limpo → prosseguir
+   → Run linter on generated code
+   → If violation → fix automatically
+   → If clean → proceed
 
 3. Spawn arch-check:
-   → Validar boundaries arquiteturais
-   → Se violação → BLOCKED + explicar violação
-   → Se ok → prosseguir para commit
+   → Validate architectural boundaries
+   → If violation → BLOCKED + explain violation
+   → If ok → proceed to commit
 
-REGRAS:
-- Sub-agents rodam SEQUENCIALMENTE (não concorrente)
-- Máximo 3 iterações de self-refinement por sub-agent
-- Se falhar após 3 tentativas → escalonar para usuário
+RULES:
+- Sub-agents run SEQUENTIALLY (not concurrently)
+- Maximum 3 self-refinement iterations per sub-agent
+- If fails after 3 attempts → escalate to user
 ```
 
 ### Sub-Agent Failure Escalation
@@ -139,15 +139,15 @@ Options:
 
 ## ◈ MULTI-FEATURE PARALLEL SUPPORT
 
-Features diferentes podem ter agentes diferentes ativos simultaneamente via `/hes switch`:
+Different features can have different agents active simultaneously via `/hes switch`:
 
 ```json
 {
   "active_feature": "payment",
   "features": {
-    "payment": "GREEN",    ← impl-agent ativo
+    "payment": "GREEN",    ← impl-agent active
     "auth": "DONE",
-    "billing": "SPEC"      ← spec-agent ativo (quando switchado)
+    "billing": "SPEC"      ← spec-agent active (when switched)
   }
 }
 ```
@@ -155,45 +155,45 @@ Features diferentes podem ter agentes diferentes ativos simultaneamente via `/he
 ### `/hes switch <feature>` Protocol
 
 ```
-1. Salvar checkpoint da feature atual (opcional mas recomendado)
-2. Atualizar current.json: active_feature = <feature>
-3. Verificar dependências em dependency_graph
-   → Se dependência não-DONE → warning + suger mudar para dependência
-4. Carregar agente da nova fase
-5. Anunciar: "Switched to {{feature}}. Phase: {{phase}}. Agent: {{agent}}"
+1. Save checkpoint of current feature (optional but recommended)
+2. Update current.json: active_feature = <feature>
+3. Check dependencies in dependency_graph
+   → If dependency not DONE → warning + suggest switching to dependency
+4. Load agent for new phase
+5. Announce: "Switched to {{feature}}. Phase: {{phase}}. Agent: {{agent}}"
 ```
 
 ---
 
 ## ◈ CUSTOM AGENTS
 
-Usuários podem estender o sistema com agentes customizados.
+Users can extend the system with custom agents.
 
 ### Registry Entry
 
-Adicionar em `.hes/agents/registry.json`:
+Add to `.hes/agents/registry.json`:
 
 ```json
 {
   "custom_agents": {
-    "meu-agente": {
-      "description": "Descrição do que o agente faz",
+    "my-agent": {
+      "description": "Description of what the agent does",
       "type": "custom",
-      "triggers": ["/hes run meu-agente", "evento automático"],
-      "context_load": ["skills/custom/meu-agente.md"],
-      "output": ".hes/tasks/meu-agente-output.md"
+      "triggers": ["/hes run my-agent", "automatic event"],
+      "context_load": ["skills/custom/my-agent.md"],
+      "output": ".hes/tasks/my-agent-output.md"
     }
   }
 }
 ```
 
-### Criação de Custom Agent
+### Creating a Custom Agent
 
-1. Adicionar entrada em `custom_agents` no registry
-2. Criar `skills/custom/<agent-name>.md` com definição do comportamento
-3. Disparar via `/hes run <agent-name>` ou dispatch automático do agente pai
+1. Add entry in `custom_agents` in the registry
+2. Create `skills/custom/<agent-name>.md` with behavior definition
+3. Trigger via `/hes run <agent-name>` or automatic dispatch from parent agent
 
-### Exemplo: Graphify Agent
+### Example: Graphify Agent
 
 ```json
 {
@@ -244,24 +244,24 @@ Status: File not found
 
 ---
 
-▶ PRÓXIMA AÇÃO — DELEGAÇÃO CONCLUÍDA
+▶ NEXT ACTION — DELEGATION COMPLETED
 
 ```
 Agent delegation handled.
 
-  [A] "delegar para próximo agente"
-      → Executar DISPATCH PROTOCOL → avançar para próxima fase
+  [A] "delegate to next agent"
+      → Execute DISPATCH PROTOCOL → advance to next phase
 
-  [B] "spawn sub-agent {{nome}}"
-      → Executar Sub-Agent Execution Protocol
+  [B] "spawn sub-agent {{name}}"
+      → Execute Sub-Agent Execution Protocol
 
-  [C] "switch para feature {{nome}}"
-      → Executar /hes switch protocol
+  [C] "switch to feature {{name}}"
+      → Execute /hes switch protocol
 
-  [D] "adicionar custom agent"
-      → Seguir Custom Agents creation flow
+  [D] "add custom agent"
+      → Follow Custom Agents creation flow
 
-📄 Skill-file: skills/agent-delegation.md (você está aqui)
-💡 Dica: cada agente carrega APENAS seu contexto necessário.
-   Isso mantém a sessão limpa e focada na tarefa atual.
+📄 Skill-file: skills/agent-delegation.md (you are here)
+💡 Tip: each agent loads ONLY its required context.
+   This keeps the session clean and focused on the current task.
 ```

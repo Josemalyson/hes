@@ -1,105 +1,105 @@
 # HES Skill — 04: Data Layer (Schema + Migrations)
 
-> Skill carregada quando: feature.estado = DATA
-> Pré-condição: `03-design.md` e `ADR-{{NNN}}.md` aprovados pelo usuário.
+> Skill loaded when: feature.state = DATA
+> Precondition: `03-design.md` and `ADR-{{NNN}}.md` approved by the user.
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Ler .hes/specs/{{feature}}/02-spec.md → modelo de domínio (campos, tipos, regras)
-2. Ler .hes/specs/{{feature}}/03-design.md → componentes e entidades
-3. Verificar schema existente no banco:
-   - Flyway: src/main/resources/db/migration/ → última versão V?
+1. Read .hes/specs/{{feature}}/02-spec.md → domain model (fields, types, rules)
+2. Read .hes/specs/{{feature}}/03-design.md → components and entities
+3. Check existing database schema:
+   - Flyway: src/main/resources/db/migration/ → latest version V?
    - Liquibase: src/main/resources/db/changelog/
    - Prisma: prisma/schema.prisma
    - Alembic: alembic/versions/
-4. Verificar convenções de nomenclatura já usadas nas migrations existentes
+4. Check naming conventions already used in existing migrations
 ```
 
-**Anti-alucinação:**
-- Migrations são SEMPRE aditivas em produção
-- Nunca DROP sem aprovação explícita do usuário (REGRA-04)
-- Verificar a versão mais alta de migration antes de numerar a nova
+**Anti-hallucination:**
+- Migrations are ALWAYS additive in production
+- Never DROP without explicit user approval (RULE-04)
+- Check the highest migration version before numbering the new one
 
 ---
 
-## ◈ PASSO 1 — GERAR `.hes/specs/{{FEATURE_SLUG}}/04-data.md`
+## ◈ STEP 1 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/04-data.md`
 
 ```markdown
-# Data Layer — {{NOME_FEATURE}}
+# Data Layer — {{FEATURE_NAME}}
 
-Data: {{DATA_ATUAL}} | Versão: 1.0
-Derivado de: 03-design.md | Feature: {{FEATURE_SLUG}}
+Date: {{CURRENT_DATE}} | Version: 1.0
+Derived from: 03-design.md | Feature: {{FEATURE_SLUG}}
 
 ---
 
 ## Schema
 
-### Tabela: `{{nome_tabela}}`
+### Table: `{{table_name}}`
 
-| Coluna | Tipo SQL | Nulo? | Default | Constraint | Comentário |
-|--------|----------|-------|---------|-----------|------------|
-| id | UUID | NOT NULL | gen_random_uuid() | PK | Identificador único |
-| {{coluna_1}} | {{tipo}} | {{NOT NULL / NULL}} | {{default ou —}} | {{FK / UNIQUE / CHECK}} | {{regra — ex: RN-01}} |
-| {{coluna_2}} | {{tipo}} | {{NOT NULL / NULL}} | — | — | |
-| created_at | TIMESTAMPTZ | NOT NULL | NOW() | — | Auditoria |
-| updated_at | TIMESTAMPTZ | NOT NULL | NOW() | — | Auditoria |
-| deleted_at | TIMESTAMPTZ | NULL | — | — | Soft delete (se aplicável) |
+| Column | SQL Type | Nullable? | Default | Constraint | Comment |
+|--------|----------|-----------|---------|-----------|---------|
+| id | UUID | NOT NULL | gen_random_uuid() | PK | Unique identifier |
+| {{column_1}} | {{type}} | {{NOT NULL / NULL}} | {{default or —}} | {{FK / UNIQUE / CHECK}} | {{rule — e.g., RN-01}} |
+| {{column_2}} | {{type}} | {{NOT NULL / NULL}} | — | — | |
+| created_at | TIMESTAMPTZ | NOT NULL | NOW() | — | Audit |
+| updated_at | TIMESTAMPTZ | NOT NULL | NOW() | — | Audit |
+| deleted_at | TIMESTAMPTZ | NULL | — | — | Soft delete (if applicable) |
 
-### Índices
+### Indexes
 
-| Nome do Índice | Colunas | Tipo | Justificativa |
-|---------------|---------|------|--------------|
-| `idx_{{tabela}}_{{coluna}}` | {{coluna}} | BTREE | Filtro frequente por {{coluna}} |
-| `idx_{{tabela}}_{{col1}}_{{col2}}` | {{col1}}, {{col2}} | BTREE | Query de {{UC-01}} |
+| Index Name | Columns | Type | Justification |
+|------------|---------|------|---------------|
+| `idx_{{table}}_{{column}}` | {{column}} | BTREE | Frequent filter by {{column}} |
+| `idx_{{table}}_{{col1}}_{{col2}}` | {{col1}}, {{col2}} | BTREE | Query from {{UC-01}} |
 
-### Relacionamentos
+### Relationships
 
-| Tabela Origem | Tabela Destino | Tipo | Coluna FK | On Delete |
-|--------------|---------------|------|-----------|-----------|
-| {{tabela}} | {{tabela_ref}} | N:1 | {{coluna_fk}} | RESTRICT / CASCADE / SET NULL |
+| Source Table | Destination Table | Type | FK Column | On Delete |
+|--------------|-------------------|------|-----------|-----------|
+| {{table}} | {{ref_table}} | N:1 | {{fk_column}} | RESTRICT / CASCADE / SET NULL |
 
 ---
 
-## Arquivo de Migration
+## Migration File
 
 ### Flyway
 
-Arquivo: `src/main/resources/db/migration/V{{N}}__{{descricao_snake_case}}.sql`
+File: `src/main/resources/db/migration/V{{N}}__{{snake_case_description}}.sql`
 
 ```sql
--- V{{N}}__{{descricao_snake_case}}.sql
--- HES | Feature: {{FEATURE_SLUG}} | Data: {{DATA_ATUAL}}
+-- V{{N}}__{{snake_case_description}}.sql
+-- HES | Feature: {{FEATURE_SLUG}} | Date: {{CURRENT_DATE}}
 
-CREATE TABLE IF NOT EXISTS {{nome_tabela}} (
+CREATE TABLE IF NOT EXISTS {{table_name}} (
     id          UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-    {{coluna}}  {{tipo}}     NOT NULL,
+    {{column}}  {{type}}     NOT NULL,
     created_at  TIMESTAMPTZ  NOT NULL    DEFAULT NOW(),
     updated_at  TIMESTAMPTZ  NOT NULL    DEFAULT NOW()
 );
 
--- Índices
-CREATE INDEX IF NOT EXISTS idx_{{nome_tabela}}_{{coluna_indexada}}
-    ON {{nome_tabela}}({{coluna_indexada}});
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_{{table_name}}_{{indexed_column}}
+    ON {{table_name}}({{indexed_column}});
 
--- FK (se aplicável)
-ALTER TABLE {{nome_tabela}}
-    ADD CONSTRAINT fk_{{tabela}}_{{ref}}
-    FOREIGN KEY ({{coluna_fk}})
-    REFERENCES {{tabela_ref}}(id)
+-- FK (if applicable)
+ALTER TABLE {{table_name}}
+    ADD CONSTRAINT fk_{{table}}_{{ref}}
+    FOREIGN KEY ({{fk_column}})
+    REFERENCES {{ref_table}}(id)
     ON DELETE RESTRICT;
 
--- Comentário de auditoria HES
-COMMENT ON TABLE {{nome_tabela}}
-    IS '{{DESCRICAO_DA_TABELA}} | HES:{{FEATURE_SLUG}}';
+-- HES audit comment
+COMMENT ON TABLE {{table_name}}
+    IS '{{TABLE_DESCRIPTION}} | HES:{{FEATURE_SLUG}}';
 ```
 
-### Trigger de updated_at (se necessário)
+### updated_at Trigger (if needed)
 
 ```sql
--- Função (criar uma vez por projeto, não por tabela)
+-- Function (create once per project, not per table)
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -108,9 +108,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger por tabela
-CREATE TRIGGER trg_{{nome_tabela}}_updated_at
-    BEFORE UPDATE ON {{nome_tabela}}
+-- Trigger per table
+CREATE TRIGGER trg_{{table_name}}_updated_at
+    BEFORE UPDATE ON {{table_name}}
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 ```
 
@@ -118,83 +118,83 @@ CREATE TRIGGER trg_{{nome_tabela}}_updated_at
 
 ## DTOs
 
-### Request DTO — `{{NomeFeature}}Request`
+### Request DTO — `{{FeatureName}}Request`
 
-| Campo | Tipo | Obrigatório | Validação | Descrição |
-|-------|------|------------|-----------|-----------|
-| {{campo_1}} | String | Sim | @NotBlank | {{descricao}} |
-| {{campo_2}} | BigDecimal | Sim | @Positive | {{descricao}} |
-| {{campo_3}} | String | Não | @Size(max=255) | {{descricao}} |
+| Field | Type | Required | Validation | Description |
+|-------|------|----------|-----------|-------------|
+| {{field_1}} | String | Yes | @NotBlank | {{description}} |
+| {{field_2}} | BigDecimal | Yes | @Positive | {{description}} |
+| {{field_3}} | String | No | @Size(max=255) | {{description}} |
 
-### Response DTO — `{{NomeFeature}}Response`
+### Response DTO — `{{FeatureName}}Response`
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| id | UUID | Identificador gerado |
-| {{campo}} | {{tipo}} | {{descricao}} |
-| createdAt | ISO 8601 | Data de criação |
+| Field | Type | Description |
+|-------|------|-------------|
+| id | UUID | Generated identifier |
+| {{field}} | {{type}} | {{description}} |
+| createdAt | ISO 8601 | Creation date |
 
 ---
 
-## Checklist de Aprovação
+## Approval Checklist
 
-- [ ] Migration é aditiva (sem DROP, ALTER COLUMN, ou TRUNCATE sem aprovação)?
-- [ ] Índices justificados pelas queries dos cenários BDD?
-- [ ] Tipos SQL adequados para as regras de negócio (ex: NUMERIC para valores monetários)?
-- [ ] Soft delete planejado se necessário?
-- [ ] Migration testada localmente (execução + rollback)?
-- [ ] Aprovado para avançar à Etapa 5 (TESTS)
+- [ ] Is migration additive (no DROP, ALTER COLUMN, or TRUNCATE without approval)?
+- [ ] Are indexes justified by BDD scenario queries?
+- [ ] Are SQL types appropriate for business rules (e.g., NUMERIC for monetary values)?
+- [ ] Is soft delete planned if needed?
+- [ ] Was migration tested locally (execution + rollback)?
+- [ ] Approved to advance to Step 5 (TESTS)
 ```
 
 ---
 
-## ◈ PASSO 2 — ATUALIZAR ESTADO
+## ◈ STEP 2 — UPDATE STATE
 
-### `.hes/state/current.json`: alterar `"{{FEATURE}}": "DATA"`
+### `.hes/state/current.json`: change `"{{FEATURE}}": "DATA"`
 
 ### `.hes/state/events.log`:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE_SLUG}}",
   "from": "DESIGN",
   "to": "DATA",
   "agent": "hes-v3",
   "metadata": {
     "artifacts": ["04-data.md"],
-    "migration_file": "V{{N}}__{{descricao}}.sql",
-    "tables_created": ["{{nome_tabela}}"]
+    "migration_file": "V{{N}}__{{description}}.sql",
+    "tables_created": ["{{table_name}}"]
   }
 }
 ```
 
 ---
 
-▶ PRÓXIMA AÇÃO — VALIDAÇÃO DA MIGRATION
+▶ NEXT ACTION — MIGRATION VALIDATION
 
 ```
-💾 Data layer gerado:
+💾 Data layer generated:
    .hes/specs/{{FEATURE_SLUG}}/04-data.md
-   Migration: V{{N}}__{{descricao}}.sql
+   Migration: V{{N}}__{{description}}.sql
 
-Antes de avançar, rode a migration localmente:
+Before advancing, run the migration locally:
 
   [Flyway]    mvn flyway:migrate
   [Liquibase] mvn liquibase:update
-  [Prisma]    npx prisma migrate dev --name {{descricao}}
+  [Prisma]    npx prisma migrate dev --name {{description}}
   [Alembic]   alembic upgrade head
 
-  [A] "migration ok, tabela criada"
-      → Escrevo os testes (fase RED — skills/05-tests.md)
+  [A] "migration ok, table created"
+      → I'll write the tests (RED phase — skills/05-tests.md)
 
-  [B] "erro de migration: [mensagem]"
-      → Carrego skills/error-recovery.md e analiso o erro
+  [B] "migration error: [message]"
+      → I'll load skills/error-recovery.md and analyze the error
 
-  [C] "preciso ajustar o schema: [mudança]"
-      → Ajusto o 04-data.md e regenero a migration
+  [C] "I need to adjust the schema: [change]"
+      → I'll adjust 04-data.md and regenerate the migration
 
-📄 Skill-file próximo: skills/05-tests.md
-💡 Dica: NUMERIC(precision, scale) para valores monetários.
-   Nunca FLOAT/DOUBLE — perda de precisão em operações financeiras.
+📄 Next skill-file: skills/05-tests.md
+💡 Tip: NUMERIC(precision, scale) for monetary values.
+   Never FLOAT/DOUBLE — precision loss in financial operations.
 ```

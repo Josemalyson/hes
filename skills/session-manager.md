@@ -1,8 +1,8 @@
 # HES Skill — Session Manager
 
-> Skill invocada via: `/hes status`, context bloat detection, phase lock violation, `/clear`, `/new`
-> Objetivo: gerenciar ciclo de vida da sessão — checkpoint, recovery, context bloat, phase isolation.
-> Quando usar: quando contexto está pesado, ao limpar sessão, ou ao retomar após `/clear`.
+> Skill invoked via: `/hes status`, context bloat detection, phase lock violation, `/clear`, `/new`
+> Objective: manage session lifecycle — checkpoint, recovery, context bloat, phase isolation.
+> When to use: when context is heavy, when clearing session, or when resuming after `/clear`.
 
 ---
 
@@ -36,7 +36,7 @@
 
 ---
 
-## ◈ PASSO 1 — CHECKPOINT (Save Session State)
+## ◈ STEP 1 — CHECKPOINT (Save Session State)
 
 Before `/clear` or `/new`, save a checkpoint:
 
@@ -44,20 +44,20 @@ Before `/clear` or `/new`, save a checkpoint:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{ACTIVE_FEATURE}}",
   "phase": "{{CURRENT_PHASE}}",
   "agent": "{{CURRENT_AGENT}}",
-  "last_action": "{{ÚLTIMA_AÇÃO_REALIZADA}}",
+  "last_action": "{{LAST_ACTION_PERFORMED}}",
   "completed_steps": ["{{STEP_1}}", "{{STEP_2}}"],
   "pending_steps": ["{{STEP_3}}", "{{STEP_4}}"],
-  "context_summary": "{{RESUMO_DO_CONTEXTO_ATUAL}}",
-  "artifacts_created": ["{{ARQUIVO_1}}", "{{ARQUIVO_2}}"],
+  "context_summary": "{{CURRENT_CONTEXT_SUMMARY}}",
+  "artifacts_created": ["{{FILE_1}}", "{{FILE_2}}"],
   "context_tokens_remaining": {{N}}
 }
 ```
 
-**Ao executar checkpoint:**
+**When executing checkpoint:**
 
 ```
 📝 Checkpoint saved:
@@ -70,7 +70,7 @@ To resume: run /hes status after /clear
 
 ---
 
-## ◈ PASSO 2 — RECOVERY (Restore Session)
+## ◈ STEP 2 — RECOVERY (Restore Session)
 
 After `/clear` or `/new`, recover from checkpoint:
 
@@ -88,7 +88,7 @@ After `/clear` or `/new`, recover from checkpoint:
 6. "Ready to continue. Last action: {{last_action}}"
 ```
 
-**Ao executar recovery:**
+**When executing recovery:**
 
 ```
 🔄 Session Recovery
@@ -97,7 +97,7 @@ Checkpoint says  : Feature={{X}}, Phase={{Y}}
 Current state    : Feature={{X}}, Phase={{Y}}
 Status           : ✅ Consistent
 
-Loading: skills/{{XX-fase_atual}}.md
+Loading: skills/{{XX-current-phase}}.md
 Pending steps:
   - [ ] {{pending_step_1}}
   - [ ] {{pending_step_2}}
@@ -106,7 +106,7 @@ Last action: {{last_action}}
 Ready to continue.
 ```
 
-**Se inconsistência detectada:**
+**If inconsistency detected:**
 
 ```
 ⚠ CHECKPOINT INCONSISTENCY DETECTED
@@ -123,20 +123,20 @@ Last consistent action: {{LAST_ACTION_FROM_EVENTS_LOG}}
 
 ---
 
-## ◈ PASSO 3 — CONTEXT BLOAT DETECTION
+## ◈ STEP 3 — CONTEXT BLOAT DETECTION
 
-Detectar quando o contexto está pesado e sugerir `/clear`:
+Detect when context is heavy and suggest `/clear`:
 
-### Heurísticas
+### Heuristics
 
-| Heurística | Threshold | Ação |
-|-----------|-----------|------|
-| Mensagens na sessão | > 50 | Sugerir checkpoint + clear |
-| Usuário diz "começar do zero", "start fresh", "too much context" | 1 match | Sugerir checkpoint + clear |
-| Agente relê o mesmo arquivo | 3+ vezes | Sugerir checkpoint + clear |
-| Skill-file referencia mensagens anteriores ("como discutimos antes...") | 1 match | Sugerir checkpoint + clear |
+| Heuristic | Threshold | Action |
+|-----------|-----------|--------|
+| Messages in session | > 50 | Suggest checkpoint + clear |
+| User says "start from scratch", "start fresh", "too much context" | 1 match | Suggest checkpoint + clear |
+| Agent re-reads the same file | 3+ times | Suggest checkpoint + clear |
+| Skill-file references previous messages ("as we discussed before...") | 1 match | Suggest checkpoint + clear |
 
-### Quando disparar:
+### When to trigger:
 
 ```
 ⚠ Context is getting heavy ({{N}} messages in session).
@@ -150,31 +150,31 @@ Suggested action:
   [B] Continue for now (warn me again at {{N+25}} messages)
 ```
 
-### Após usuário escolher [A]:
+### After user chooses [A]:
 
-1. Execute PASSO 1 (checkpoint)
+1. Execute STEP 1 (checkpoint)
 2. Confirm checkpoint saved
 3. "Session cleared. Run `/hes status` to resume."
 
 ---
 
-## ◈ PASSO 4 — PHASE LOCK ENFORCEMENT
+## ◈ STEP 4 — PHASE LOCK ENFORCEMENT
 
-Cada fase tem um gate explícito que impede avanço prematuro:
+Each phase has an explicit gate that prevents premature advancement:
 
 ### Phase Lock Gates
 
-| Transição | Gate | Mensagem de Bloqueio |
-|-----------|------|---------------------|
-| DISCOVERY → SPEC | Lista de RN aprovada pelo usuário | "BLOCKED: Complete RN discovery first" |
-| SPEC → DESIGN | Cenários BDD + API contract aprovados | "BLOCKED: Write and approve spec first" |
-| DESIGN → DATA | ADRs aprovados | "BLOCKED: Finalize design decisions" |
-| DATA → RED | Migrations revisadas | "BLOCKED: Review migration safety" |
-| RED → GREEN | ≥1 teste falhando (prova de RED) | "BLOCKED: Tests must fail first" |
-| GREEN → REVIEW | Build + todos os testes passando | "BLOCKED: Fix build failures" |
-| REVIEW → DONE | Checklist 5 dimensões completo | "BLOCKED: Complete review checklist" |
+| Transition | Gate | Blocking Message |
+|------------|------|------------------|
+| DISCOVERY → SPEC | RN list approved by user | "BLOCKED: Complete RN discovery first" |
+| SPEC → DESIGN | BDD scenarios + API contract approved | "BLOCKED: Write and approve spec first" |
+| DESIGN → DATA | ADRs approved | "BLOCKED: Finalize design decisions" |
+| DATA → RED | Migrations reviewed | "BLOCKED: Review migration safety" |
+| RED → GREEN | >=1 test failing (proof of RED) | "BLOCKED: Tests must fail first" |
+| GREEN → REVIEW | Build + all tests passing | "BLOCKED: Fix build failures" |
+| REVIEW → DONE | 5-dimension checklist complete | "BLOCKED: Complete review checklist" |
 
-### Quando violação detectada:
+### When violation detected:
 
 ```
 🚫 PHASE LOCK VIOLATION
@@ -191,13 +191,13 @@ Options:
 Risk: Advancing without completing requirements may cause rework or missed edge cases.
 ```
 
-### Se usuário escolher [B] (`/hes unlock --force`):
+### If user chooses [B] (`/hes unlock --force`):
 
-1. Registrar evento de risco em `events.log`:
+1. Register risk event in `events.log`:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE}}",
   "from": "{{PHASE}}",
   "to": "{{NEXT_PHASE}}",
@@ -214,10 +214,10 @@ Risk: Advancing without completing requirements may cause rework or missed edge 
 
 ---
 
-## ◈ PASSO 5 — COMANDOS DE SESSÃO
+## ◈ STEP 5 — SESSION COMMANDS
 
-| Comando | Ação |
-|---------|------|
+| Command | Action |
+|---------|--------|
 | `/hes status` | Show session state + checkpoint status + pending steps |
 | `/clear` | Save checkpoint + clear session context |
 | `/new` | Save checkpoint + start fresh session (same as /clear) |
@@ -250,24 +250,24 @@ Context tokens remaining: {{N}}
 
 ---
 
-▶ PRÓXIMA AÇÃO — APÓS SESSÃO GERENCIADA
+▶ NEXT ACTION — AFTER SESSION MANAGED
 
 ```
 Session lifecycle handled.
 
-  [A] "continuar feature [nome]"
-      → Retornar ao skill-file da fase atual: skills/{{XX-fase}}.md
+  [A] "continue feature [name]"
+      → Return to current phase skill-file: skills/{{XX-phase}}.md
 
-  [B] "salvar checkpoint e limpar"
-      → Executar PASSO 1 + confirmar clear
+  [B] "save checkpoint and clear"
+      → Execute STEP 1 + confirm clear
 
-  [C] "ver status completo"
-      → Executar PASSO 5 (/hes status output)
+  [C] "view full status"
+      → Execute STEP 5 (/hes status output)
 
-  [D] "fazer rollback para {{fase}}"
-      → Reverter estado em current.json + registrar evento de rollback
+  [D] "rollback to {{phase}}"
+      → Revert state in current.json + log rollback event
 
-📄 Skill-file: skills/session-manager.md (você está aqui)
-💡 Dica: sessões limpas = contexto focado = agente mais preciso.
-   Não espere o contexto lotar — limpe preventivamente a cada 30-40 mensagens.
+📄 Skill-file: skills/session-manager.md (you are here)
+💡 Tip: clean sessions = focused context = more accurate agent.
+   Do not wait for context to overflow — clear preventively every 30-40 messages.
 ```

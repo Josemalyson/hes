@@ -1,14 +1,14 @@
 # HES Skill — Agent Registry Reference
 
-> Documento de referência para o schema do agent registry e criação de custom agents.
-> NÃO é um skill executável — use como referência ao registrar ou criar agentes.
+> Reference document for the agent registry schema and creating custom agents.
+> NOT an executable skill — use as reference when registering or creating agents.
 > HES v3.2+
 
 ---
 
 ## ◈ REGISTRY SCHEMA
 
-Arquivo: `.hes/agents/registry.json`
+File: `.hes/agents/registry.json`
 
 ### Root Structure
 
@@ -113,11 +113,11 @@ Create `skills/custom/my-agent.md` with the agent's behavior:
 > Trigger: /hes run my-agent
 > Description: What this agent does.
 
-## ◈ PASSO 1 — ...
+## ◈ STEP 1 — ...
 
 [Agent behavior definition]
 
-▶ PRÓXIMA AÇÃO
+▶ NEXT ACTION
 ...
 ```
 

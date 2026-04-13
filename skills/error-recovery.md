@@ -1,208 +1,208 @@
 # HES Skill — Error Recovery
 
-> Skill carregada quando: usuário reporta erro em qualquer fase do pipeline.
-> Objetivo: diagnóstico cirúrgico + correção mínima + prevenção sistêmica.
+> Skill loaded when: user reports an error in any pipeline phase.
+> Objective: surgical diagnosis + minimal correction + systemic prevention.
 >
-> Princípio (Fowler, 2026): "An issue that happens multiple times should trigger
+> Principle (Fowler, 2026): "An issue that happens multiple times should trigger
 > improvement to the harness, not just correction of the instance."
 
 ---
 
-## ◈ PROTOCOLO DE DIAGNÓSTICO
+## ◈ DIAGNOSIS PROTOCOL
 
 ```
-1. Pedir erro completo se não fornecido
-   → "Cole o stack trace / mensagem de erro completa"
+1. Request full error if not provided
+   → "Paste the complete stack trace / error message"
 
-2. Identificar CATEGORIA:
-   A → Violação de regra HES (código antes da spec, etc.)
-   B → Erro técnico recorrente (import inválido, tipo errado)
-   C → Gap de guide (agente não foi orientado sobre algo)
-   D → Gap de sensor (o problema não foi detectado antes de chegar aqui)
-   E → Processo (aprovação pulada, comunicação falhou)
+2. Identify CATEGORY:
+   A → HES rule violation (code before spec, etc.)
+   B → Recurring technical error (invalid import, wrong type)
+   C → Guide gap (agent was not instructed on something)
+   D → Sensor gap (problem was not detected before reaching here)
+   E → Process (approval skipped, communication failed)
 
-3. Identificar CAUSA-RAIZ (não o sintoma):
-   - O erro está no código de produção ou no teste?
-   - É consequência de violação de etapa HES?
-   - É problema de configuração de ambiente?
-   - É um gap do harness que permitiu o problema chegar até aqui?
+3. Identify ROOT CAUSE (not the symptom):
+   - Is the error in production code or in the test?
+   - Is it a consequence of violating a HES step?
+   - Is it an environment configuration problem?
+   - Is it a harness gap that allowed the problem to reach here?
 
-4. Propor correção MÍNIMA e CIRÚRGICA:
-   - Menor mudança que resolve o problema
-   - Não refatorar durante debugging
-   - Não adicionar funcionalidade durante debugging
+4. Propose MINIMAL and SURGICAL correction:
+   - Smallest change that resolves the problem
+   - Do not refactor during debugging
+   - Do not add functionality during debugging
 
-5. Verificar impacto no harness:
-   - Categoria D → propor novo sensor ou fortalecer sensor existente
-   - Categoria C → propor melhoria no skill-file correspondente
-   - Categoria A → reforçar regra no CLAUDE.md
-   - N ≥ 2 ocorrências → OBRIGATÓRIO melhorar o harness
+5. Verify harness impact:
+   - Category D → propose new sensor or strengthen existing sensor
+   - Category C → propose improvement to corresponding skill-file
+   - Category A → reinforce rule in CLAUDE.md
+   - N ≥ 2 occurrences → MANDATORY to improve the harness
 
-6. Registrar em lessons.md após resolução
+6. Record in lessons.md after resolution
 ```
 
 ---
 
-## ◈ DIAGNÓSTICO POR CATEGORIA
+## ◈ DIAGNOSIS BY CATEGORY
 
-### Categoria A — Violação de Regra HES
-
-```
-Sintoma: código implementado antes da spec / lib não verificada / etapa pulada
-
-Ação imediata:
-  → Reverter o que foi feito fora de ordem
-  → Completar a etapa que foi pulada
-
-Ação no harness (se N ≥ 2):
-  → Reforçar REGRA-xx no .claude/CLAUDE.md
-  → Adicionar alerta no skill-file da fase onde ocorreu
-```
-
-### Categoria B — Erros de Compilação
+### Category A — HES Rule Violation
 
 ```
-Causa mais comum: import de classe que não existe ainda
+Symptom: code implemented before spec / unchecked library / skipped step
 
-Diagnóstico:
-  → Verificar se a classe existe em src/
-  → Verificar se o pacote está correto
-  → Verificar se a dependência está no manifesto
+Immediate action:
+  → Revert what was done out of order
+  → Complete the step that was skipped
 
-Correção:
-  → Criar a classe faltante (mínima, sem lógica)
-  → Corrigir o import
-  → Adicionar a dependência (com aprovação — REGRA-03)
-
-Ação no harness (se recorrente):
-  → Reforçar anti-alucinação checklist em 06-implementation.md
+Harness action (if N ≥ 2):
+  → Reinforce RULE-xx in .claude/CLAUDE.md
+  → Add alert in the skill-file of the phase where it occurred
 ```
 
-### Categoria B — Injeção de Dependência (Spring)
+### Category B — Compilation Errors
+
+```
+Most common cause: import of class that does not exist yet
+
+Diagnosis:
+  → Verify if class exists in src/
+  → Verify if package is correct
+  → Verify if dependency is in manifest
+
+Correction:
+  → Create missing class (minimal, no logic)
+  → Fix the import
+  → Add the dependency (with approval — RULE-03)
+
+Harness action (if recurring):
+  → Reinforce anti-hallucination checklist in 06-implementation.md
+```
+
+### Category B — Dependency Injection (Spring)
 
 ```
 BeanCreationException / NoSuchBeanDefinitionException
 
-Diagnóstico:
-  → Verificar: @Service, @Repository, @Component, @Bean
-  → Verificar se o pacote está no @ComponentScan
-  → Verificar perfil ativo (prod vs test)
+Diagnosis:
+  → Verify: @Service, @Repository, @Component, @Bean
+  → Verify if package is in @ComponentScan
+  → Verify active profile (prod vs test)
 
-Correção mínima:
-  → Adicionar anotação faltante
-  → Corrigir qualifier se necessário
+Minimal correction:
+  → Add missing annotation
+  → Fix qualifier if necessary
 ```
 
-### Categoria B — Erros de Migration (Flyway)
+### Category B — Migration Errors (Flyway)
 
 ```
 Checksum mismatch:
-  → NUNCA alterar migration aplicada em produção (REGRA-04)
-  → Criar NOVA migration com a correção
+  → NEVER modify an applied migration in production (RULE-04)
+  → Create a NEW migration with the fix
 
 Column already exists:
-  → Usar CREATE TABLE IF NOT EXISTS
-  → Verificar se migration já foi aplicada
+  → Use CREATE TABLE IF NOT EXISTS
+  → Verify if migration has already been applied
 
 FK violation:
-  → Verificar ordem de criação de tabelas
-  → Verificar ON DELETE behavior
+  → Verify table creation order
+  → Verify ON DELETE behavior
 ```
 
-### Categoria B — Erros de Teste
+### Category B — Test Errors
 
 ```
 Expected X but was Y:
-  → NÃO mudar o teste para fazer passar
-  → Verificar: a lógica implementada está correta?
-  → Verificar: a mensagem bate EXATAMENTE com o 02-spec.md?
-  → Verificar: o mock está configurado corretamente?
+  → DO NOT change the test to make it pass
+  → Verify: is the implemented logic correct?
+  → Verify: does the message EXACTLY match 02-spec.md?
+  → Verify: is the mock configured correctly?
 
-NullPointerException em teste:
-  → Verificar se o mock está injetado
-  → Verificar se @BeforeEach inicializa o subject
+NullPointerException in test:
+  → Verify if mock is injected
+  → Verify if @BeforeEach initializes the subject
 ```
 
-### Categoria C — Gap de Guide (feedforward insuficiente)
+### Category C — Guide Gap (insufficient feedforward)
 
 ```
-Sintoma: agente fez algo incorreto por falta de orientação
+Symptom: agent did something incorrectly due to lack of instruction
 
-Exemplos:
-  → Usou biblioteca não catalogada
-  → Escolheu padrão diferente do projeto
-  → Não seguiu convenção de nomenclatura
+Examples:
+  → Used an unlisted library
+  → Chose a different pattern from the project
+  → Did not follow naming convention
 
-Ação no harness (SEMPRE — é um gap de guide):
-  → Identificar qual skill-file deveria ter orientado o agente
-  → Propor adição ao skill-file:
-     "Adicionar em skills/0X.md → seção Anti-Alucinação:
-      [✅ NOVO] Antes de {{ACAO}}, verificar {{CONDICAO}}"
+Harness action (ALWAYS — it is a guide gap):
+  → Identify which skill-file should have instructed the agent
+  → Propose addition to skill-file:
+     "Add to skills/0X.md → Anti-Hallucination section:
+      [✅ NEW] Before {{ACTION}}, verify {{CONDITION}}"
 ```
 
-### Categoria D — Gap de Sensor (feedback não detectou)
+### Category D — Sensor Gap (feedback did not detect)
 
 ```
-Sintoma: problema chegou ao usuário que o harness deveria ter detectado
+Symptom: problem reached the user when the harness should have detected it
 
-Exemplos:
-  → Violação de boundary chegou ao review sem ser detectada
-  → Secret foi commitado (hook falhou)
-  → Boundary entre módulos foi violado silenciosamente
+Examples:
+  → Boundary violation reached review without being detected
+  → Secret was committed (hook failed)
+  → Module boundary was violated silently
 
-Ação no harness (SEMPRE — é um gap de sensor):
-  → Identificar qual sensor deveria ter detectado
-  → Se sensor computacional: fortalecer a regra ou adicionar novo sensor
-    Exemplos: nova ArchUnit rule, nova regex no safety_validator
-  → Se sensor inferencial: adicionar ao checklist do 07-review.md
-  → Registrar como Categoria D em lessons.md
+Harness action (ALWAYS — it is a sensor gap):
+  → Identify which sensor should have detected it
+  → If computational sensor: strengthen the rule or add new sensor
+    Examples: new ArchUnit rule, new regex in safety_validator
+  → If inferential sensor: add to the 07-review.md checklist
+  → Record as Category D in lessons.md
 
-  Perguntar ao usuário:
-  "Este problema chegou ao review sem ser detectado automaticamente.
-   Quer que eu configure um sensor para detectar isso mais cedo?
-   [A] Sim — proponho a configuração agora
-   [B] Registrar no harness backlog — implementar depois"
+  Ask the user:
+  "This problem reached review without being automatically detected.
+   Would you like me to configure a sensor to catch this earlier?
+   [A] Yes — I propose the configuration now
+   [B] Register in harness backlog — implement later"
 ```
 
 ---
 
-## ◈ TEMPLATE DE REGISTRO EM LESSONS.MD
+## ◈ REGISTRATION TEMPLATE IN LESSONS.MD
 
 ```markdown
-### ❌ Erro Resolvido — {{DATA}} — {{FEATURE_SLUG}}
+### ❌ Resolved Error — {{DATE}} — {{FEATURE_SLUG}}
 
-- **Sintoma:** {{MENSAGEM_DE_ERRO_RESUMIDA}}
-- **Categoria:** A / B / C / D / E
-- **Causa-raiz:** {{CAUSA_REAL}}
-- **Regra HES violada?** {{SIM/NÃO}} → {{QUAL}}
-- **Correção aplicada:** {{O_QUE_FOI_FEITO}}
-- **Gap de harness?** {{SIM/NÃO}}
-  - Tipo: Guide (C) / Sensor (D) / Regra (A)
-  - Ação no harness: {{O_QUE_MELHORAR}}
-- **Ocorrência anterior?** {{SIM → PROMOVER AO SKILL-FILE / NÃO → 1ª vez}}
+- **Symptom:** {{BRIEF_ERROR_MESSAGE}}
+- **Category:** A / B / C / D / E
+- **Root cause:** {{REAL_CAUSE}}
+- **HES rule violated?** {{YES/NO}} → {{WHICH}}
+- **Correction applied:** {{WHAT_WAS_DONE}}
+- **Harness gap?** {{YES/NO}}
+  - Type: Guide (C) / Sensor (D) / Rule (A)
+  - Harness action: {{WHAT_TO_IMPROVE}}
+- **Prior occurrence?** {{YES → PROMOTE TO SKILL-FILE / NO → 1st time}}
 ```
 
 ---
 
-▶ PRÓXIMA AÇÃO — RETORNAR AO PIPELINE
+▶ NEXT ACTION — RETURN TO PIPELINE
 
 ```
-Após resolução do erro:
+After error resolution:
 
-  [A] "erro resolvido, build verde"
-      → Retorno ao skill-file da fase atual: skills/{{FASE_ATUAL}}.md
+  [A] "error resolved, green build"
+      → Return to current phase skill-file: skills/{{CURRENT_PHASE}}.md
 
-  [B] "erro persiste: [nova mensagem]"
-      → Continuo o diagnóstico com o novo contexto
+  [B] "error persists: [new message]"
+      → Continue diagnosis with new context
 
-  [C] "quero configurar um sensor para evitar isso"
-      → Carrego skills/harness-health.md → seção de proposta de sensor
+  [C] "I want to configure a sensor to prevent this"
+      → Load skills/harness-health.md → sensor proposal section
 
-  [D] "precisei mudar a spec/design por causa do erro"
-      → Registramos como ADR ou nota no documento afetado
-         e atualizamos os testes antes de reimplementar
+  [D] "I had to change the spec/design because of the error"
+      → Record as ADR or note in the affected document
+         and update tests before reimplementing
 
-💡 Dica (Fowler): "Whenever an issue happens multiple times, the feedforward
+💡 Tip (Fowler): "Whenever an issue happens multiple times, the feedforward
    and feedback controls should be improved to make the issue less probable."
-   Todo erro recorrente é uma oportunidade de melhoria sistêmica do harness.
+   Every recurring error is an opportunity for systemic harness improvement.
 ```

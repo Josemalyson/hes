@@ -1,53 +1,53 @@
 # HES Skill — 08: Progressive Analysis
 
-> Skill carregada quando: análise de codebase grande (>50 arquivos) ou retomada de sessão interrompida.
-> Objetivo: análise incremental com preservação de estado entre sessões.
-> Pré-condição: projeto existe com código para analisar.
+> Skill loaded when: analyzing a large codebase (>50 files) or resuming an interrupted session.
+> Objective: incremental analysis with state preservation between sessions.
+> Precondition: project exists with code to analyze.
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Verificar se .hes/state/analysis-state.json existe:
-   → Sim: sessão anterior interrompida — seguir PASSO 5 (recuperação)
-   → Não: análise nova — seguir PASSO 1 (gerar árvore)
-2. Se state existe, carregar e mostrar progresso:
-   → Arquivos analisados: X/Y
-   → Último arquivo processado: {{PATH}}
-   → Regras mapeadas: {{N}}
-   → Perguntas em aberto: {{N}}
-3. Se state não existe, verificar que o projeto existe:
-   → ls do diretório raiz confirma código presente
+1. Check if .hes/state/analysis-state.json exists:
+   → Yes: previous session interrupted — follow STEP 5 (recovery)
+   → No: new analysis — follow STEP 1 (generate tree)
+2. If state exists, load and show progress:
+   → Files analyzed: X/Y
+   → Last file processed: {{PATH}}
+   → Rules mapped: {{N}}
+   → Open questions: {{N}}
+3. If state does not exist, verify the project exists:
+   → ls of root directory confirms code is present
 ```
 
 ---
 
-## ◈ ANTI-ALUCINAÇÃO — OBRIGATÓRIO ANTES DE QUALQUER ANÁLISE
+## ◈ ANTI-HALLUCINATION — MANDATORY BEFORE ANY ANALYSIS
 
 ```
-[ ] Não assuma dependências não explícitas nos imports
-[ ] Não invente regras de negócio não evidentes no código
-[ ] Se arquivo for muito grande (>500 linhas), resuma apenas a estrutura,
-    não tente analisar linha a linha
-[ ] Cite o caminho exato do arquivo quando referenciar código
-[ ] Não generalize padrões de um arquivo para o projeto inteiro sem verificar
-[ ] Regras de domínio devem estar no código ou em docs do projeto — não inferir
+[ ] Do not assume dependencies not explicit in imports
+[ ] Do not invent business rules not evident in the code
+[ ] If a file is too large (>500 lines), summarize only the structure,
+    do not attempt line-by-line analysis
+[ ] Cite the exact file path when referencing code
+[ ] Do not generalize patterns from one file to the entire project without verifying
+[ ] Domain rules must be in the code or project docs — do not infer
 ```
 
-Se qualquer item estiver incerto → registrar como pergunta em aberto, não inventar.
+If any item is uncertain → register as an open question, do not invent.
 
 ---
 
-## ◈ PASSO 1 — GERAR ÁRVORE DE ARQUIVOS (se não existe)
+## ◈ STEP 1 — GENERATE FILE TREE (if it does not exist)
 
-> Executado apenas uma vez por feature. Produz o inventário que guia a análise incremental.
+> Executed only once per feature. Produces the inventory that guides incremental analysis.
 
-### 1.1 — Escanear estrutura
+### 1.1 — Scan structure
 
 ```bash
-# Gerar inventário JSON do projeto
-cd {{DIRETORIO_RAIZ}} && find . -type f \
+# Generate project JSON inventory
+cd {{ROOT_DIRECTORY}} && find . -type f \
   -not -path '*/node_modules/*' \
   -not -path '*/.git/*' \
   -not -path '*/.venv/*' \
@@ -59,12 +59,12 @@ cd {{DIRETORIO_RAIZ}} && find . -type f \
   -not -name '*.log' | sort
 ```
 
-### 1.2 — Classificar por prioridade
+### 1.2 — Classify by priority
 
-Aplicar regras de scoring:
+Apply scoring rules:
 
-| Prioridade | Tipo de Arquivo | Exemplos |
-|------------|-----------------|----------|
+| Priority | File Type | Examples |
+|----------|-----------|----------|
 | 10 | Entry points | `main.py`, `app.py`, `index.js`, `server.js`, `Application.java` |
 | 9 | Config files | `package.json`, `pom.xml`, `settings.py`, `application.yml`, `tsconfig.json`, `.env` |
 | 8 | Domain entities / models | `*entity*`, `*model*`, `*domain*`, `*/entities/*` |
@@ -74,12 +74,12 @@ Aplicar regras de scoring:
 | 3 | Tests | `*test*`, `*spec*`, `*/tests/*` |
 | 1 | Docs, READMEs, static | `README*`, `*.md`, `*.txt`, `static/*` |
 
-### 1.3 — Gerar `.hes/state/file-tree.json`
+### 1.3 — Generate `.hes/state/file-tree.json`
 
 ```json
 {
-  "project": "{{NOME_PROJETO}}",
-  "generated_at": "{{DATA_ISO}}",
+  "project": "{{PROJECT_NAME}}",
+  "generated_at": "{{ISO_DATE}}",
   "total_files": 142,
   "total_directories": 35,
   "files": [
@@ -95,51 +95,51 @@ Aplicar regras de scoring:
 }
 ```
 
-> **Nota:** A ordem do array `files` DEVE ser decrescente por `priority` (10 primeiro, 1 por último).
+> **Note:** The `files` array order MUST be descending by `priority` (10 first, 1 last).
 
 ---
 
-## ◈ PASSO 2 — ANALISAR PRÓXIMO LOTE (processamento chunked)
+## ◈ STEP 2 — ANALYZE NEXT BATCH (chunked processing)
 
-> Processar arquivos em ordem de prioridade. Cada arquivo gera um documento individual de análise.
+> Process files in priority order. Each file generates an individual analysis document.
 
-### 2.1 — Determinar lote
-
-```
-Quantos arquivos analisar neste ciclo? (sugestão: 5-10 por vez)
-- Codebase pequeno (<200 arquivos): 10 por lote
-- Codebase médio (200-500): 5 por lote
-- Codebase grande (>500): 3 por lote
-
-Se tokens estão ficando escassos → reduzir para 1-2 por lote.
-```
-
-### 2.2 — Para CADA arquivo no lote:
+### 2.1 — Determine batch size
 
 ```
-1. Ler conteúdo do arquivo (cortar em 500 linhas se maior)
-2. Identificar:
-   - Imports/dependências
-   - Classes, funções, métodos
-   - Regras de negócio (RN-xx — apenas se explícitas no código ou comentários)
-   - Padrões arquitetônicos (se evidentes)
-3. Gerar documento individual em:
+How many files to analyze in this cycle? (suggestion: 5-10 at a time)
+- Small codebase (<200 files): 10 per batch
+- Medium codebase (200-500): 5 per batch
+- Large codebase (>500): 3 per batch
+
+If tokens are running low → reduce to 1-2 per batch.
+```
+
+### 2.2 — For EACH file in the batch:
+
+```
+1. Read file content (truncate at 500 lines if larger)
+2. Identify:
+   - Imports/dependencies
+   - Classes, functions, methods
+   - Business rules (RN-xx — only if explicit in code or comments)
+   - Architectural patterns (if evident)
+3. Generate individual document at:
    .hes/analysis/{{feature}}/files/{{file-slug}}.md
-4. Marcar como analyzed=true no file-tree.json
-5. Atualizar estado cumulativo (PASSO 3)
+4. Mark as analyzed=true in file-tree.json
+5. Update cumulative state (STEP 3)
 ```
 
-### 2.3 — Template de análise individual
+### 2.3 — Individual analysis template
 
-> Salvar em `.hes/analysis/{{feature}}/files/{{file-slug}}.md`
+> Save to `.hes/analysis/{{feature}}/files/{{file-slug}}.md`
 
 ```markdown
 # Analysis — {{FILE_PATH}}
 
-Feature: {{FEATURE}} | Analyzed: {{DATA_ISO}} | Analyst: hes-v3.1
+Feature: {{FEATURE}} | Analyzed: {{ISO_DATE}} | Analyst: hes-v3.1
 
 ## Purpose
-{{O QUE ESTE ARQUIVO FAZ EM 1-2 FRASES}}
+{{WHAT THIS FILE DOES IN 1-2 SENTENCES}}
 
 ## Key Components
 | Component | Type | Responsibility |
@@ -154,31 +154,31 @@ Feature: {{FEATURE}} | Analyzed: {{DATA_ISO}} | Analyst: hes-v3.1
 ## Domain Rules
 | Rule ID | Description | Implementation |
 |---------|-------------|----------------|
-| {{RN-XX}} | {{REGRA}} | {{COMO FOI IMPLEMENTADA}} |
+| {{RN-XX}} | {{RULE}} | {{HOW IT WAS IMPLEMENTED}} |
 
 ## Observations
-- {{OBSERVAÇÃO_1}}
-- {{OBSERVAÇÃO_2}}
+- {{OBSERVATION_1}}
+- {{OBSERVATION_2}}
 
 ## Questions
-- [ ] {{PERGUNTA_EM_ABERTO — ou "Nenhuma"}}
+- [ ] {{OPEN_QUESTION — or "None"}}
 ```
 
-> **Anti-alucinação:** Se o arquivo for grande (>500 linhas), preencher apenas a tabela de Key Components com a estrutura (nomes de classes/funções), sem detalhar o corpo de cada uma.
+> **Anti-hallucination:** If the file is large (>500 lines), fill only the Key Components table with the structure (class/function names), without detailing each body.
 
 ---
 
-## ◈ PASSO 3 — ATUALIZAR ESTADO CUMULATIVO
+## ◈ STEP 3 — UPDATE CUMULATIVE STATE
 
-> Executar APÓS cada lote processado. Garante que progresso nunca se perca.
+> Run AFTER each processed batch. Ensures progress is never lost.
 
-### 3.1 — Atualizar `.hes/state/analysis-state.json`
+### 3.1 — Update `.hes/state/analysis-state.json`
 
 ```json
 {
   "feature": "{{FEATURE_SLUG}}",
-  "started_at": "{{DATA_ISO}}",
-  "last_updated": "{{DATA_ISO}}",
+  "started_at": "{{ISO_DATE}}",
+  "last_updated": "{{ISO_DATE}}",
   "total_files": 142,
   "analyzed_count": 45,
   "pending_count": 97,
@@ -193,184 +193,184 @@ Feature: {{FEATURE}} | Analyzed: {{DATA_ISO}} | Analyst: hes-v3.1
 }
 ```
 
-### 3.2 — Atualizar também `file-tree.json`
+### 3.2 — Also update `file-tree.json`
 
 ```json
-// Para cada arquivo processado no lote:
+// For each file processed in the batch:
 "files[i].analyzed": true
 ```
 
-### 3.3 — Quando parar
+### 3.3 — When to stop
 
 ```
-Parar o lote atual se:
-- Tokens restantes < 10% do orçamento
-- Agente detectar degradação de qualidade nas respostas
-- Usuário solicitar pausa
+Stop the current batch if:
+- Remaining tokens < 10% of budget
+- Agent detects response quality degradation
+- User requests a pause
 
-Ao parar:
-1. Salvar analysis-state.json (PASSO 3.1)
-2. Salvar file-tree.json atualizado
-3. Registrar status = "interrupted"
-4. Próxima sessão retoma automaticamente (PASSO 5)
+When stopping:
+1. Save analysis-state.json (STEP 3.1)
+2. Save updated file-tree.json
+3. Register status = "interrupted"
+4. Next session resumes automatically (STEP 5)
 ```
 
 ---
 
-## ◈ PASSO 4 — GERAR SUMÁRIO CONSOLIDADO
+## ◈ STEP 4 — GENERATE CONSOLIDATED SUMMARY
 
-> Executado quando análise está completa (analyzed_count == total_files) ou sob demanda pelo usuário.
+> Executed when analysis is complete (analyzed_count == total_files) or on user demand.
 
-### 4.1 — Gerar `.hes/analysis/{{feature}}/summary.md`
+### 4.1 — Generate `.hes/analysis/{{feature}}/summary.md`
 
 ```markdown
-# Análise Consolidada — {{FEATURE}}
+# Consolidated Analysis — {{FEATURE}}
 
-Data: {{DATA}} | Arquivos analisados: X/Y | Status: {{STATUS}}
+Date: {{DATE}} | Files analyzed: X/Y | Status: {{STATUS}}
 
-## Visão Geral do Codebase
-{{RESUMO_DO_PROJETO_EM_3_PARAGRAFOS}}
+## Codebase Overview
+{{PROJECT_SUMMARY_IN_3_PARAGRAPHS}}
 
-## Arquitetura Identificada
-{{PADROES_ENCONTRADOS — ex: hexagonal, MVC, CQRS, event-driven}}
+## Identified Architecture
+{{FOUND_PATTERNS — e.g., hexagonal, MVC, CQRS, event-driven}}
 
-## Regras de Negócio Mapeadas
-| ID | Regra | Arquivo(s) | Confiança |
-|----|-------|------------|-----------|
-| RN-01 | {{REGRA}} | {{ARQUIVOS}} | Alta/Média/Baixa |
+## Mapped Business Rules
+| ID | Rule | File(s) | Confidence |
+|----|------|---------|------------|
+| RN-01 | {{RULE}} | {{FILES}} | High/Medium/Low |
 
-## Dependências Críticas
-{{MAPA_DE_DEPENDENCIAS — quais módulos externos o projeto usa}}
+## Critical Dependencies
+{{DEPENDENCY_MAP — which external modules the project uses}}
 
-## Dívida Técnica Identificada
-{{ISSUES_ENCONTRADAS — TODOs, FIXMEs, código duplicado, acoplamento}}
+## Identified Technical Debt
+{{FOUND_ISSUES — TODOs, FIXMEs, duplicated code, coupling}}
 
-## Riscos
-{{RISCOS_IDENTIFICADOS — dependências obsoletas, single points of failure}}
+## Risks
+{{IDENTIFIED_RISKS — outdated dependencies, single points of failure}}
 
-## Perguntas em Aberto
-- [ ] {{PERGUNTA}}
+## Open Questions
+- [ ] {{QUESTION}}
 
-## Arquivos de Análise
-- `.hes/analysis/{{feature}}/files/` → análises individuais por arquivo
-- `.hes/state/file-tree.json` → inventário completo com status
-- `.hes/state/analysis-state.json` → tracker de progresso
+## Analysis Files
+- `.hes/analysis/{{feature}}/files/` → individual per-file analyses
+- `.hes/state/file-tree.json` → complete inventory with status
+- `.hes/state/analysis-state.json` → progress tracker
 ```
 
-### 4.2 — Atualizar estado final
+### 4.2 — Update final state
 
 ```json
 // .hes/state/analysis-state.json
 {
   "status": "completed",
-  "completed_at": "{{DATA_ISO}}"
+  "completed_at": "{{ISO_DATE}}"
 }
 ```
 
 ---
 
-## ◈ PASSO 5 — RETOMADA DE SESSÃO (recovery protocol)
+## ◈ STEP 5 — SESSION RESUMPTION (recovery protocol)
 
-> Executado automaticamente quando a skill é carregada e o state file existe com status != "completed".
+> Executed automatically when the skill is loaded and the state file exists with status != "completed".
 
-### 5.1 — Detectar sessão interrompida
-
-```
-🔄 Sessão anterior interrompida detectada.
-
-Progresso recuperado:
-  Arquivos analisados: {{ANALYZED_COUNT}}/{{TOTAL_FILES}}
-  Último arquivo: {{CURRENT_FILE}}
-  Regras de negócio mapeadas: {{DOMAIN_RULES_COUNT}}
-  Perguntas em aberto: {{OPEN_QUESTIONS_COUNT}}
-
-  [A] "continuar análise" → retoma do próximo arquivo pendente
-  [B] "gerar sumário parcial" → gera summary.md com progresso atual
-  [C] "reiniciar análise" → limpa estado e começa do zero
-```
-
-### 5.2 — Opção A: Continuar análise
+### 5.1 — Detect interrupted session
 
 ```
-1. Carregar .hes/state/analysis-state.json
-2. Carregar .hes/state/file-tree.json
-3. Encontrar próximo arquivo com analyzed = false (maior prioridade)
-4. Retomar do PASSO 2 com esse arquivo como início do lote
-5. Exibir progresso: "Analisando arquivo X de Y: {{file_path}}"
+🔄 Previous session interruption detected.
+
+Progress recovered:
+  Files analyzed: {{ANALYZED_COUNT}}/{{TOTAL_FILES}}
+  Last file: {{CURRENT_FILE}}
+  Mapped business rules: {{DOMAIN_RULES_COUNT}}
+  Open questions: {{OPEN_QUESTIONS_COUNT}}
+
+  [A] "continue analysis" → resumes from next pending file
+  [B] "generate partial summary" → generates summary.md with current progress
+  [C] "restart analysis" → clears state and starts from scratch
 ```
 
-### 5.3 — Opção B: Sumário parcial
+### 5.2 — Option A: Continue analysis
 
 ```
-1. Coletar todos os arquivos já analisados
-2. Executar PASSO 4 com os dados disponíveis
-3. No summary.md, marcar status = "parcial (X/Y arquivos)"
-4. Manter analysis-state.json com status = "in_progress"
+1. Load .hes/state/analysis-state.json
+2. Load .hes/state/file-tree.json
+3. Find next file with analyzed = false (highest priority)
+4. Resume from STEP 2 with that file as the start of the batch
+5. Display progress: "Analyzing file X of Y: {{file_path}}"
 ```
 
-### 5.4 — Opção C: Reiniciar análise
+### 5.3 — Option B: Partial summary
 
 ```
-1. Confirmar com usuário: "Isso vai apagar {{ANALYZED_COUNT}} análises feitas. Continuar?"
-2. Se sim:
-   → Remover .hes/state/analysis-state.json
-   → Remover .hes/analysis/{{feature}}/files/
-   → Voltar ao PASSO 1
+1. Collect all already-analyzed files
+2. Execute STEP 4 with available data
+3. In summary.md, mark status = "partial (X/Y files)"
+4. Keep analysis-state.json with status = "in_progress"
+```
+
+### 5.4 — Option C: Restart analysis
+
+```
+1. Confirm with user: "This will erase {{ANALYZED_COUNT}} completed analyses. Continue?"
+2. If yes:
+   → Remove .hes/state/analysis-state.json
+   → Remove .hes/analysis/{{feature}}/files/
+   → Return to STEP 1
 ```
 
 ---
 
-## ◈ DIRETÓRIOS GERADOS
+## ◈ GENERATED DIRECTORIES
 
 ```
 .hes/
 ├── state/
-│   ├── file-tree.json              ← inventário completo com prioridades
-│   └── analysis-state.json         ← tracker de progresso
+│   ├── file-tree.json              ← complete inventory with priorities
+│   └── analysis-state.json         ← progress tracker
 └── analysis/
     └── {{feature}}/
-        ├── summary.md              ← sumário consolidado
+        ├── summary.md              ← consolidated summary
         └── files/
-            ├── app-py.md           ← análise individual por arquivo
+            ├── app-py.md           ← individual per-file analysis
             ├── config-py.md
             └── ...
 ```
 
 ---
 
-## ◈ NOTAS DE USO
+## ◈ USAGE NOTES
 
 ```
-- Esta skill é REUTILIZÁVEL — não contém valores hardcoded de projeto específico
-- O tamanho do lote deve ser ajustado conforme o orçamento de tokens disponível
-- Para codebases muito grandes (>1000 arquivos), considere escopar por diretório:
-  → Analisar apenas src/ primeiro, depois tests/, depois docs/
-- O state file É A ÚNICA FONTE DE VERDADE do progresso — sempre salvá-lo antes
-  de qualquer operação que possa consumir tokens significativos
+- This skill is REUSABLE — it contains no hardcoded values from a specific project
+- Batch size should be adjusted according to available token budget
+- For very large codebases (>1000 files), consider scoping by directory:
+  → Analyze only src/ first, then tests/, then docs/
+- The state file IS THE ONLY SOURCE OF TRUTH for progress — always save it before
+  any operation that may consume significant tokens
 ```
 
 ---
 
-▶ PRÓXIMA AÇÃO — ESCOLHER FLUXO
+▶ NEXT ACTION — CHOOSE FLOW
 
 ```
-O que fazer agora?
+What to do now?
 
-  [A] "iniciar análise de {{FEATURE}}"
-      → PASSO 1: gerar árvore de arquivos (se ainda não existe)
+  [A] "start analysis of {{FEATURE}}"
+      → STEP 1: generate file tree (if it does not exist yet)
 
-  [B] "retomar análise anterior"
-      → PASSO 5: recovery protocol — carregar estado e continuar
+  [B] "resume previous analysis"
+      → STEP 5: recovery protocol — load state and continue
 
-  [C] "analisar apenas diretório {{PATH}}"
-      → Executar PASSO 1 com escopo limitado ao subdiretório
+  [C] "analyze only directory {{PATH}}"
+      → Execute STEP 1 with scope limited to the subdirectory
 
-  [D] "gerar sumário da análise atual"
-      → PASSO 4: consolidar análises já feitas em summary.md
+  [D] "generate summary of current analysis"
+      → STEP 4: consolidate completed analyses into summary.md
 
-📄 Skill-files relacionados:
-  → skills/01-discovery.md (entendimento inicial da feature)
-  → skills/02-spec.md (especificação após análise)
-  → skills/03-design.md (design de componentes)
-  → skills/error-recovery.md (se sessão falhar repetidamente)
+📄 Related skill-files:
+  → skills/01-discovery.md (initial feature understanding)
+  → skills/02-spec.md (specification after analysis)
+  → skills/03-design.md (component design)
+  → skills/error-recovery.md (if session fails repeatedly)
 ```

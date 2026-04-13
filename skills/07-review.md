@@ -1,107 +1,107 @@
-# HES Skill — 07: Review + Fechamento do Ciclo
+# HES Skill — 07: Review + Cycle Closure
 
-> Skill carregada quando: feature.estado = REVIEW
-> Pré-condição: todos os testes passando (GREEN), coverage ≥ 80%.
-> Esta é a etapa de regulação final antes de DONE. Combina sensors inferenciais e computacionais.
-
----
-
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
-
-```
-1. Ler .hes/specs/{{feature}}/02-spec.md   → cenários BDD (baseline)
-2. Ler .hes/specs/{{feature}}/03-design.md → componentes (aderência ao design)
-3. Ler .hes/decisions/ADR-{{NNN}}.md       → decisão arquitetural (verificar implementação)
-4. Ler .hes/tasks/lessons.md               → padrões de erro anteriores para checar
-5. Verificar resultados dos sensors computacionais:
-   → Último build: coverage % e número de testes
-   → Output do linter (se configurado)
-   → ArchUnit / dep-cruiser (se configurado)
-```
+> Skill loaded when: feature.state = REVIEW
+> Pre-condition: all tests passing (GREEN), coverage ≥ 80%.
+> This is the final regulation step before DONE. Combines inferential and computational sensors.
 
 ---
 
-## ◈ DIMENSÃO 1 — ADERÊNCIA AO BEHAVIOUR HARNESS (Spec)
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-[ ] Todos os cenários BDD do 02-spec.md têm cobertura de teste?
-[ ] Rastreabilidade RN → cenário: cada RN-xx tem ao menos 1 teste?
-[ ] Mensagens de erro implementadas = EXATAMENTE as definidas na spec?
-[ ] Contrato de API (rota, método, campos, status codes) = implementado?
-[ ] Há código implementado além do escopo da spec? (feature creep)
-    → Se sim: registrar como débito ou propor spec complementar
+1. Read .hes/specs/{{feature}}/02-spec.md   → BDD scenarios (baseline)
+2. Read .hes/specs/{{feature}}/03-design.md → components (design adherence)
+3. Read .hes/decisions/ADR-{{NNN}}.md       → architectural decision (verify implementation)
+4. Read .hes/tasks/lessons.md               → previous error patterns to check
+5. Verify computational sensor results:
+   → Latest build: coverage % and test count
+   → Linter output (if configured)
+   → ArchUnit / dep-cruiser (if configured)
 ```
 
 ---
 
-## ◈ DIMENSÃO 2 — MAINTAINABILITY HARNESS (Qualidade Interna)
+## ◈ DIMENSION 1 — BEHAVIOUR HARNESS ADHERENCE (Spec)
 
 ```
-[ ] Sem lógica de negócio no Controller/Router
-[ ] Sem acesso a dados direto no Service
-[ ] Sem regra de negócio no Repository
-[ ] Nomes descritivos — sem abreviações obscuras, sem variáveis tipo "data", "info"
-[ ] Sem números mágicos (usar constantes nomeadas)
-[ ] Sem comentários óbvios (o código deve ser autoexplicativo)
-[ ] Sem código morto (métodos não usados, imports desnecessários)
-[ ] Sem duplicação — se há 2+ cópias, extrair
-[ ] Complexidade ciclomática ≤ 10 por método
-[ ] Todos os erros de domínio mapeados para HTTP responses corretos
+[ ] Do all BDD scenarios from 02-spec.md have test coverage?
+[ ] BR → scenario traceability: does each BR-xx have at least 1 test?
+[ ] Are implemented error messages = EXACTLY those defined in the spec?
+[ ] Is the API contract (route, method, fields, status codes) = implemented?
+[ ] Is there code implemented beyond spec scope? (feature creep)
+    → If yes: register as debt or propose complementary spec
 ```
 
 ---
 
-## ◈ DIMENSÃO 3 — SEGURANÇA
+## ◈ DIMENSION 2 — MAINTAINABILITY HARNESS (Internal Quality)
 
 ```
-[ ] Nenhum dado sensível logado (senhas, tokens, CPF, PAN, dados pessoais)
-[ ] Inputs validados ANTES de persistir (DTO validation)
-[ ] Nenhum secret hardcoded — zero strings de credential no código
-[ ] SQL parametrizado — zero concatenação em queries
-[ ] Autorização verificada antes de acessar recursos
-[ ] Headers de segurança mantidos (não removidos)
-[ ] Dados de APIs externas sanitizados antes de usar internamente
-```
-
----
-
-## ◈ DIMENSÃO 4 — OBSERVABILIDADE
-
-```
-[ ] Logs estruturados com contexto:
-    - feature / operação sendo executada
-    - IDs relevantes (userId, entityId, correlationId/traceId)
-    - resultado (sucesso / erro + motivo)
-[ ] Nível de log correto:
-    DEBUG → detalhes de execução (não em produção)
-    INFO  → eventos de negócio relevantes
-    WARN  → situações inesperadas mas recuperáveis
-    ERROR → falhas que precisam de atenção (com stack trace)
-[ ] Exceções logadas com stack trace completo no ERROR
-[ ] Nenhum dado sensível nos logs
-[ ] Trace ID propagado (se distributed tracing está em uso)
-[ ] Métricas críticas instrumentadas (se Prometheus/Datadog/CloudWatch ativo)
+[ ] No business logic in Controller/Router
+[ ] No direct data access in Service
+[ ] No business rules in Repository
+[ ] Descriptive names — no obscure abbreviations, no variables like "data", "info"
+[ ] No magic numbers (use named constants)
+[ ] No obvious comments (code should be self-explanatory)
+[ ] No dead code (unused methods, unnecessary imports)
+[ ] No duplication — if there are 2+ copies, extract
+[ ] Cyclomatic complexity ≤ 10 per method
+[ ] All domain errors mapped to correct HTTP responses
 ```
 
 ---
 
-## ◈ DIMENSÃO 5 — ARCHITECTURE FITNESS HARNESS (NOVO em v3.1)
+## ◈ DIMENSION 3 — SECURITY
+
+```
+[ ] No sensitive data logged (passwords, tokens, SSN, PAN, personal data)
+[ ] Inputs validated BEFORE persisting (DTO validation)
+[ ] No hardcoded secrets — zero credential strings in code
+[ ] Parameterized SQL — zero concatenation in queries
+[ ] Authorization checked before accessing resources
+[ ] Security headers maintained (not removed)
+[ ] Data from external APIs sanitized before internal use
+```
+
+---
+
+## ◈ DIMENSION 4 — OBSERVABILITY
+
+```
+[ ] Structured logs with context:
+    - feature / operation being executed
+    - relevant IDs (userId, entityId, correlationId/traceId)
+    - result (success / error + reason)
+[ ] Correct log level:
+    DEBUG → execution details (not in production)
+    INFO  → relevant business events
+    WARN  → unexpected but recoverable situations
+    ERROR → failures needing attention (with stack trace)
+[ ] Exceptions logged with full stack trace on ERROR
+[ ] No sensitive data in logs
+[ ] Trace ID propagated (if distributed tracing is in use)
+[ ] Critical metrics instrumented (if Prometheus/Datadog/CloudWatch active)
+```
+
+---
+
+## ◈ DIMENSION 5 — ARCHITECTURE FITNESS HARNESS (NEW in v3.1)
 
 > "The agent harness acts like a cybernetic governor, combining feedforward and
 >  feedback to regulate the codebase towards its desired state." — Fowler, 2026
 
 ```
-[ ] A implementação segue o fluxo definido em 03-design.md?
-[ ] A decisão do ADR-{{NNN}} foi respeitada?
-[ ] Nenhuma dependência circular introduzida?
-[ ] Boundaries de módulo respeitados (Controller → Service → Repository):
-    → Se ArchUnit configurado: verificar output do último teste de arquitetura
-    → Se não configurado: revisar manualmente imports e dependências
-[ ] Nenhuma violação de bounded context DDD (se domínios definidos)?
-[ ] Migration é reversível — rollback possível sem perda de dados?
-[ ] Feature nova não criou acoplamento não intencional com outro módulo?
+[ ] Does implementation follow the flow defined in 03-design.md?
+[ ] Was the ADR-{{NNN}} decision respected?
+[ ] No circular dependencies introduced?
+[ ] Module boundaries respected (Controller → Service → Repository):
+    → If ArchUnit configured: verify output of latest architecture test
+    → If not configured: manually review imports and dependencies
+[ ] No DDD bounded context violation (if domains defined)?
+[ ] Is migration reversible — rollback possible without data loss?
+[ ] Did the new feature create unintentional coupling with another module?
 
-DRIFT CHECK (executar se há ArchUnit/dep-cruiser):
+DRIFT CHECK (run if ArchUnit/dep-cruiser is available):
   java:   mvn test -Dtest=ArchitectureTest
   node:   npm run check:arch
   python: python -m import-linter
@@ -109,19 +109,19 @@ DRIFT CHECK (executar se há ArchUnit/dep-cruiser):
 
 ---
 
-## ◈ GERAR TEMPLATE DE PR
+## ◈ GENERATE PR TEMPLATE
 
 ```markdown
-## {{NOME_FEATURE}} — {{tipo}}: {{descricao_resumida}}
+## {{FEATURE_NAME}} — {{type}}: {{brief_description}}
 
-### Contexto
-{{PROBLEMA_QUE_RESOLVE_em_linguagem_de_negocio}}
+### Context
+{{PROBLEM_BEING_SOLVED_in_business_language}}
 
-### O que foi feito
-- {{MUDANCA_1}}
-- {{MUDANCA_2}}
+### What was done
+- {{CHANGE_1}}
+- {{CHANGE_2}}
 
-### Referências HES
+### HES References
 - 📋 Discovery   : `.hes/specs/{{feature}}/01-discovery.md`
 - 📐 Spec        : `.hes/specs/{{feature}}/02-spec.md`
 - 🏗  Design     : `.hes/specs/{{feature}}/03-design.md`
@@ -129,55 +129,55 @@ DRIFT CHECK (executar se há ArchUnit/dep-cruiser):
 - 💾 Data Layer  : `.hes/specs/{{feature}}/04-data.md`
 
 ### Checklist
-- [ ] Cenários BDD cobertos (rastreabilidade RN → cenário → teste)
+- [ ] BDD scenarios covered (BR → scenario → test traceability)
 - [ ] Coverage ≥ 80%
-- [ ] Architecture fitness: ArchUnit/dep-cruiser verde (se configurado)
-- [ ] Migration testada (up + rollback)
-- [ ] Sem secrets no código
-- [ ] Logs estruturados com contexto
-- [ ] Sem TODO/FIXME
+- [ ] Architecture fitness: ArchUnit/dep-cruiser green (if configured)
+- [ ] Migration tested (up + rollback)
+- [ ] No secrets in code
+- [ ] Structured logs with context
+- [ ] No TODO/FIXME
 
-### Como testar
+### How to test
 ```bash
-{{COMANDO_PARA_SUBIR_AMBIENTE}}
+{{COMMAND_TO_START_ENVIRONMENT}}
 
-curl -X {{METODO}} {{URL}} \
+curl -X {{METHOD}} {{URL}} \
   -H "Authorization: Bearer {{TOKEN}}" \
   -d '{{PAYLOAD}}'
 
-# Esperado: HTTP {{STATUS}} — {{DESCRICAO_DO_RESPONSE}}
+# Expected: HTTP {{STATUS}} — {{RESPONSE_DESCRIPTION}}
 ```
 ```
 
 ---
 
-## ◈ LEARNING LOOP — ATUALIZAR LESSONS.MD (hot path)
+## ◈ LEARNING LOOP — UPDATE LESSONS.MD (hot path)
 
 ```markdown
-## Sessão: {{DATA}} — {{FEATURE_SLUG}}
+## Session: {{DATE}} — {{FEATURE_SLUG}}
 
-### ✅ O que funcionou
-- {{APRENDIZADO_POSITIVO}}
+### ✅ What worked
+- {{POSITIVE_LEARNING}}
 
-### ❌ O que falhou / exigiu retrabalho
-- {{ERRO_COMETIDO}}
-  - Causa-raiz: {{CAUSA}}
-  - Impacto: {{TEMPO_PERDIDO_OU_RETRABALHO}}
-  - Prevenção futura: {{COMO_EVITAR}}
+### ❌ What failed / required rework
+- {{ERROR_COMMITTED}}
+  - Root cause: {{CAUSE}}
+  - Impact: {{WASTED_TIME_OR_REWORK}}
+  - Future prevention: {{HOW_TO_AVOID}}
 
-### 🔄 Mudança de comportamento adotada
-- {{NOVO_COMPORTAMENTO}}
+### 🔄 Behavior change adopted
+- {{NEW_BEHAVIOR}}
 
-### 📌 Promover ao skill-file? (Fowler: "issue recorrente → melhorar o harness")
-- [ ] {{LICAO}} → skills/{{XX-arquivo}}.md
-      (marcar se já apareceu antes — promoção automática na 2ª ocorrência)
+### 📌 Promote to skill-file? (Fowler: "recurring issue → improve the harness")
+- [ ] {{LESSON}} → skills/{{XX-file}}.md
+      (mark if it appeared before — automatic promotion on 2nd occurrence)
 ```
 
-**Verificar:** se alguma lição nesta sessão já aparece em lessons.md anterior → promover agora.
+**Verify:** if any lesson in this session already appears in previous lessons.md → promote now.
 
 ---
 
-## ◈ FECHAR O CICLO — ATUALIZAR ESTADO
+## ◈ CLOSE THE CYCLE — UPDATE STATE
 
 ### `.hes/state/current.json`:
 
@@ -189,17 +189,17 @@ curl -X {{METODO}} {{URL}} \
   },
   "active_feature": null,
   "completed_cycles": {{N + 1}},
-  "last_updated": "{{DATA_ATUAL_ISO}}"
+  "last_updated": "{{CURRENT_ISO_DATE}}"
 }
 ```
 
-### `.hes/tasks/backlog.md`: mover para `✅ Concluídas`
+### `.hes/tasks/backlog.md`: move to `✅ Completed`
 
 ### `.hes/state/events.log`:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE_SLUG}}",
   "from": "REVIEW",
   "to": "DONE",
@@ -216,31 +216,31 @@ curl -X {{METODO}} {{URL}} \
 
 ---
 
-▶ PRÓXIMA AÇÃO — APÓS DONE
+▶ NEXT ACTION — AFTER DONE
 
 ```
-🏁 Ciclo {{completed_cycles}} completo! {{NOME_FEATURE}} entregue.
+🏁 Cycle {{completed_cycles}} complete! {{FEATURE_NAME}} delivered.
 
-Resumo:
+Summary:
   📋 Specs    : .hes/specs/{{FEATURE_SLUG}}/
   🏛  ADR     : .hes/decisions/ADR-{{NNN}}.md
-  📚 Lições   : .hes/tasks/lessons.md (atualizado)
-  🔀 PR       : pronto para revisão humana
+  📚 Lessons  : .hes/tasks/lessons.md (updated)
+  🔀 PR       : ready for human review
 
-  [A] "próxima feature: [nome]"
-      → Inicio Discovery (skills/01-discovery.md)
+  [A] "next feature: [name]"
+      → Starting Discovery (skills/01-discovery.md)
 
-  [B] "quero ver o backlog"
-      → Mostro .hes/tasks/backlog.md priorizado
+  [B] "I want to see the backlog"
+      → Showing prioritized .hes/tasks/backlog.md
 
-  [C] "/hes report"  (recomendado se completed_cycles % 3 == 0)
-      → Batch learning sobre events.log → melhoria do harness
+  [C] "/hes report"  (recommended if completed_cycles % 3 == 0)
+      → Batch learning on events.log → harness improvement
 
   [D] "/hes harness"
-      → Diagnóstico de saúde do harness nas 3 dimensões
+      → Harness health diagnosis across 3 dimensions
 
-📄 Skill-file próximo: skills/01-discovery.md ou skills/report.md
-💡 Dica: o review é um sensor inferencial — complementa, não substitui,
-   os sensors computacionais (linter, ArchUnit, coverage).
-   Os dois juntos formam o behaviour + architecture fitness harness.
+📄 Next skill file: skills/01-discovery.md or skills/report.md
+💡 Tip: review is an inferential sensor — it complements, but does not replace,
+   computational sensors (linter, ArchUnit, coverage).
+   Together they form the behaviour + architecture fitness harness.
 ```

@@ -1,89 +1,89 @@
-# HES Skill — 05: Tests (Fase RED — TDD)
+# HES Skill — 05: Tests (RED Phase — TDD)
 
-> Skill carregada quando: feature.estado = RED
-> Pré-condição: `04-data.md` aprovado, migration executada com sucesso.
+> Skill loaded when: feature.state = RED
+> Pre-condition: `04-data.md` approved, migration executed successfully.
 >
-> Papel no harness: **Sensor Primário do Behaviour Harness**
-> Os testes são o sensor que verifica se o código implementa a spec.
-> "Keep quality left" — quanto mais cedo o sensor detecta o problema, mais barato corrigir.
+> Role in the harness: **Primary Sensor of the Behaviour Harness**
+> Tests are the sensor that verifies whether the code implements the spec.
+> "Keep quality left" — the earlier the sensor detects the problem, the cheaper it is to fix.
 
 ---
 
-## ◈ CONTEXTO A CARREGAR ANTES DE AGIR
+## ◈ CONTEXT TO LOAD BEFORE ACTING
 
 ```
-1. Ler .hes/specs/{{feature}}/02-spec.md → todos os cenários BDD
-2. Ler .hes/specs/{{feature}}/03-design.md → componentes (classes/interfaces a mockar)
-3. Ler .hes/specs/{{feature}}/04-data.md → DTOs (campos e validações)
-4. Verificar framework de testes em uso:
+1. Read .hes/specs/{{feature}}/02-spec.md → all BDD scenarios
+2. Read .hes/specs/{{feature}}/03-design.md → components (classes/interfaces to mock)
+3. Read .hes/specs/{{feature}}/04-data.md → DTOs (fields and validations)
+4. Verify testing framework in use:
    - Java:   JUnit 5 + Mockito + AssertJ? TestContainers?
    - Node:   Jest? Vitest? Supertest?
    - Python: Pytest + pytest-mock?
-5. Verificar estrutura de testes existente para manter padrão
-6. Verificar se ArchUnit está configurado (.hes/domains/*/fitness/)
-   → Se sim: adicionar teste de architecture fitness na suite
+5. Verify existing test structure to maintain pattern
+6. Verify if ArchUnit is configured (.hes/domains/*/fitness/)
+   → If yes: add architecture fitness test to the suite
 ```
 
 ---
 
-## ◈ "KEEP QUALITY LEFT" — DISTRIBUIÇÃO DOS SENSORS (Fowler, 2026)
+## ◈ "KEEP QUALITY LEFT" — SENSOR DISTRIBUTION (Fowler, 2026)
 
 ```
-Antes do commit (pré-commit hook — sensor computacional):
-  → safety_validator.py: secrets, SQL destrutivo, TODO/FIXME
+Before commit (pre-commit hook — computational sensor):
+  → safety_validator.py: secrets, destructive SQL, TODO/FIXME
 
-Junto com o desenvolvimento (roda a cada mudança):
-  → Testes unitários (rápidos — < 1s por teste)
-  → Linter com regras de qualidade
+Along with development (runs on each change):
+  → Unit tests (fast — < 1s per test)
+  → Linter with quality rules
   → Type checker (TypeScript / mypy)
 
-Na fase RED (esta etapa):
-  → Escrever testes ANTES do código
-  → Confirmar que falham pelo motivo certo
+In the RED phase (this stage):
+  → Write tests BEFORE the code
+  → Confirm they fail for the right reason
 
-Na fase GREEN:
-  → Confirmar que passam
-  → Medir coverage ≥ 80%
+In the GREEN phase:
+  → Confirm they pass
+  → Measure coverage ≥ 80%
 
-Na fase REVIEW:
+In the REVIEW phase:
   → ArchUnit / dep-cruiser (architecture fitness)
-  → Review checklist inferencial (5 dimensões)
+  → Inferential review checklist (5 dimensions)
 ```
 
 ---
 
-## ◈ ANTI-ALUCINAÇÃO — ANTES DE QUALQUER TESTE
+## ◈ ANTI-HALLUCINATION — BEFORE ANY TEST
 
 ```
-[ ] Listei todas as classes que serão referenciadas nos testes?
-[ ] Para cada classe: ela JÁ EXISTE em src/?
-    → Sim: ler o arquivo antes de usar
-    → Não: declarar como interface/mock placeholder
-[ ] Todos os imports existem no projeto?
-[ ] Nunca instanciar classe concreta que não existe — usar mock
-[ ] Cada cenário BDD do 02-spec.md tem ao menos 1 teste?
+[ ] Have I listed all classes that will be referenced in tests?
+[ ] For each class: does it ALREADY EXIST in src/?
+    → Yes: read the file before using
+    → No: declare as interface/mock placeholder
+[ ] Do all imports exist in the project?
+[ ] Never instantiate a concrete class that doesn't exist — use mock
+[ ] Does each BDD scenario from 02-spec.md have at least 1 test?
 ```
 
 ---
 
-## ◈ PASSO 1 — ESTRUTURA DE TESTES
+## ◈ STEP 1 — TEST STRUCTURE
 
 ```
 tests/
   unit/
     {{feature-slug}}/
-      {{NomeService}}Test.{{ext}}         ← regra de negócio isolada
-      {{NomeValidator}}Test.{{ext}}       ← validações (se aplicável)
+      {{NomeService}}Test.{{ext}}         ← isolated business rule
+      {{NomeValidator}}Test.{{ext}}       ← validations (if applicable)
   integration/
     {{feature-slug}}/
       {{NomeFeature}}IntegrationTest.{{ext}}  ← HTTP → DB
   architecture/
-    ArchitectureTest.{{ext}}             ← fitness functions (se ArchUnit)
+    ArchitectureTest.{{ext}}             ← fitness functions (if ArchUnit)
 ```
 
 ---
 
-## ◈ PASSO 2 — TEMPLATE UNITÁRIO
+## ◈ STEP 2 — UNIT TEMPLATE
 
 ### Java (JUnit 5 + Mockito + AssertJ)
 
@@ -94,44 +94,44 @@ class {{NomeService}}Test {
     @Mock private {{NomeRepository}} repository;
     @InjectMocks private {{NomeService}} service;
 
-    // ─── Caminho Feliz ────────────────────────────────────────
+    // ─── Happy Path ───────────────────────────────────────────
     @Test
-    @DisplayName("UC-01 — {{descricao do cenario principal}}")
-    void deve_{{resultado}}_quando_{{condicao}}() {
+    @DisplayName("UC-01 — {{scenario description}}")
+    void should_{{result}}_when_{{condition}}() {
         // Given
-        var request = {{NomeRequest}}Builder.valido().build();
-        when(repository.{{metodo}}(any())).thenReturn({{mock_retorno}});
+        var request = {{NomeRequest}}Builder.valid().build();
+        when(repository.{{method}}(any())).thenReturn({{mock_return}});
 
         // When
-        var response = service.{{metodo}}(request);
+        var response = service.{{method}}(request);
 
         // Then
-        assertThat(response.{{campo}}()).isEqualTo({{valor_esperado}});
-        verify(repository).{{metodo}}(any());
+        assertThat(response.{{field}}()).isEqualTo({{expected_value}});
+        verify(repository).{{method}}(any());
     }
 
-    // ─── Regra de Negócio ─────────────────────────────────────
+    // ─── Business Rule ────────────────────────────────────────
     @Test
-    @DisplayName("RN-01 — {{nome da regra}}")
-    void deve_lancar_excecao_quando_rn01_violada() {
-        // Given — condição que viola RN-01
-        var request = {{NomeRequest}}Builder.com_violacao_rn01().build();
+    @DisplayName("BR-01 — {{rule name}}")
+    void should_throw_exception_when_br01_violated() {
+        // Given — condition that violates BR-01
+        var request = {{NomeRequest}}Builder.with_violation_br01().build();
 
         // When / Then
-        assertThatThrownBy(() -> service.{{metodo}}(request))
-            .isInstanceOf({{TipoDeExcecao}}.class)
-            .hasMessage("{{MENSAGEM_EXATA_DO_02_SPEC_MD}}"); // ← copiar da spec
+        assertThatThrownBy(() -> service.{{method}}(request))
+            .isInstanceOf({{ExceptionType}}.class)
+            .hasMessage("{{EXACT_MESSAGE_FROM_02_SPEC_MD}}"); // ← copy from spec
     }
 
-    // ─── Validação de Entrada ─────────────────────────────────
+    // ─── Input Validation ─────────────────────────────────────
     @Test
-    @DisplayName("Campo {{campo}} obrigatório")
-    void deve_lancar_excecao_quando_campo_obrigatorio_ausente() {
-        var request = {{NomeRequest}}Builder.sem_{{campo}}().build();
+    @DisplayName("Field {{field}} is required")
+    void should_throw_exception_when_required_field_missing() {
+        var request = {{NomeRequest}}Builder.without_{{field}}().build();
 
-        assertThatThrownBy(() -> service.{{metodo}}(request))
+        assertThatThrownBy(() -> service.{{method}}(request))
             .isInstanceOf(ValidationException.class)
-            .hasMessage("{{campo}} é obrigatório"); // ← copiar da spec
+            .hasMessage("{{field}} is required"); // ← copy from spec
     }
 }
 ```
@@ -144,20 +144,20 @@ describe('{{NomeService}}', () => {
     let repository: jest.Mocked<{{NomeRepository}}>;
 
     beforeEach(() => {
-        repository = { {{metodo}}: jest.fn() } as any;
+        repository = { {{method}}: jest.fn() } as any;
         service = new {{NomeService}}(repository);
     });
 
-    it('deve {{resultado}} quando {{condicao}}', async () => {
-        repository.{{metodo}}.mockResolvedValue({{mock_retorno}});
-        const result = await service.{{metodo}}(build{{NomeRequest}}());
-        expect(result.{{campo}}).toBe({{valor_esperado}});
+    it('should {{result}} when {{condition}}', async () => {
+        repository.{{method}}.mockResolvedValue({{mock_return}});
+        const result = await service.{{method}}(build{{NomeRequest}}());
+        expect(result.{{field}}).toBe({{expected_value}});
     });
 
-    it('deve lançar erro quando RN-01 é violada', async () => {
-        const input = build{{NomeRequest}}({ {{campo}}: {{valor_invalido}} });
-        await expect(service.{{metodo}}(input))
-            .rejects.toThrow('{{MENSAGEM_EXATA_DO_02_SPEC_MD}}');
+    it('should throw error when BR-01 is violated', async () => {
+        const input = build{{NomeRequest}}({ {{field}}: {{invalid_value}} });
+        await expect(service.{{method}}(input))
+            .rejects.toThrow('{{EXACT_MESSAGE_FROM_02_SPEC_MD}}');
     });
 });
 ```
@@ -172,22 +172,22 @@ class Test{{NomeService}}:
         repo = mocker.MagicMock(spec={{NomeRepository}})
         return {{NomeService}}(repository=repo), repo
 
-    def test_deve_{{resultado}}_quando_{{condicao}}(self, service):
+    def test_should_{{result}}_when_{{condition}}(self, service):
         svc, repo = service
-        repo.{{metodo}}.return_value = {{mock_retorno}}
-        response = svc.{{metodo}}(build_{{nome_request}}())
-        assert response.{{campo}} == {{valor_esperado}}
+        repo.{{method}}.return_value = {{mock_return}}
+        response = svc.{{method}}(build_{{nome_request}}())
+        assert response.{{field}} == {{expected_value}}
 
-    def test_deve_lancar_excecao_quando_rn01_violada(self, service):
+    def test_should_throw_exception_when_br01_violated(self, service):
         svc, _ = service
-        with pytest.raises({{TipoDeExcecao}},
-                           match="{{MENSAGEM_EXATA_DO_02_SPEC_MD}}"):
-            svc.{{metodo}}(build_{{nome_request}}({{campo}}={{valor_invalido}}))
+        with pytest.raises({{ExceptionType}},
+                           match="{{EXACT_MESSAGE_FROM_02_SPEC_MD}}"):
+            svc.{{method}}(build_{{nome_request}}({{field}}={{invalid_value}}))
 ```
 
 ---
 
-## ◈ PASSO 3 — TEMPLATE DE INTEGRAÇÃO
+## ◈ STEP 3 — INTEGRATION TEMPLATE
 
 ### Java (TestContainers + RestTemplate/MockMvc)
 
@@ -204,89 +204,89 @@ class {{NomeFeature}}IntegrationTest {
     @Autowired private TestRestTemplate restTemplate;
 
     @Test
-    @DisplayName("POST /{{rota}} — caminho feliz (UC-01)")
-    void deve_{{resultado}}_com_request_valida() {
+    @DisplayName("POST /{{route}} — happy path (UC-01)")
+    void should_{{result}}_with_valid_request() {
         var response = restTemplate.postForEntity(
-            "/{{rota}}", build{{NomeRequest}}Valido(), {{NomeResponse}}.class
+            "/{{route}}", buildValid{{NomeRequest}}(), {{NomeResponse}}.class
         );
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody().{{campo}}()).isNotNull();
+        assertThat(response.getBody().{{field}}()).isNotNull();
     }
 
     @Test
-    @DisplayName("POST /{{rota}} — 400 campo obrigatório ausente")
-    void deve_retornar_400_quando_campo_ausente() {
+    @DisplayName("POST /{{route}} — 400 required field missing")
+    void should_return_400_when_field_missing() {
         var response = restTemplate.postForEntity(
-            "/{{rota}}", build{{NomeRequest}}Sem{{Campo}}(), ErrorResponse.class
+            "/{{route}}", build{{NomeRequest}}Without{{Field}}(), ErrorResponse.class
         );
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody().error())
-            .isEqualTo("{{MENSAGEM_EXATA_DO_02_SPEC_MD}}");
+            .isEqualTo("{{EXACT_MESSAGE_FROM_02_SPEC_MD}}");
     }
 }
 ```
 
 ---
 
-## ◈ PASSO 4 — ARCHITECTURE FITNESS TEST (sensor computacional — se ArchUnit configurado)
+## ◈ STEP 4 — ARCHITECTURE FITNESS TEST (computational sensor — if ArchUnit configured)
 
-> "Keep quality left" — o sensor de architecture fitness deve rodar cedo.
+> "Keep quality left" — the architecture fitness sensor should run early.
 > "Computational sensors are cheap and fast enough to run on every change." — Fowler, 2026
 
-Se ArchUnit está configurado, verificar se a nova feature precisa de novas regras:
+If ArchUnit is configured, verify whether the new feature needs new rules:
 
 ```java
-// Adicionar em src/test/java/.../ArchitectureTest.java (se aplicável):
+// Add to src/test/java/.../ArchitectureTest.java (if applicable):
 
 @ArchTest
-static final ArchRule {{NOME_FEATURE}}_boundary_rule =
+static final ArchRule {{FEATURE_NAME}}_boundary_rule =
     noClasses()
-        .that().resideInAPackage("..{{PACOTE_NOVO}}..")
+        .that().resideInAPackage("..{{NEW_PACKAGE}}..")
         .should().dependOnClassesThat()
-        .resideInAPackage("..{{PACOTE_PROIBIDO}}..")
-        .because("{{JUSTIFICATIVA_DO_ADR}}");
+        .resideInAPackage("..{{FORBIDDEN_PACKAGE}}..")
+        .because("{{JUSTIFICATION_FROM_ADR}}");
 ```
 
-Atualizar `.hes/domains/{{domain}}/fitness/README.md` com a nova regra.
+Update `.hes/domains/{{domain}}/fitness/README.md` with the new rule.
 
 ---
 
-## ◈ PASSO 5 — SELF-REFINEMENT LOOP (máx. 3 tentativas)
+## ◈ STEP 5 — SELF-REFINEMENT LOOP (max. 3 attempts)
 
 ```
-Se os testes não compilam corretamente:
+If tests do not compile correctly:
 
-Tentativa {{N}}/3:
-  1. Analisar o erro completo
-  2. É problema no TESTE ou na spec?
-  3. Corrigir o teste (nunca mudar mensagem esperada para fazer passar)
-  4. Repetir
+Attempt {{N}}/3:
+  1. Analyze the full error
+  2. Is the problem in the TEST or in the spec?
+  3. Fix the test (never change expected message to make it pass)
+  4. Repeat
 
-Após 3 tentativas sem sucesso:
-  → Registrar em lessons.md (Categoria B — erro técnico)
-  → Apresentar análise ao usuário
-  → Carregar skills/error-recovery.md
+After 3 unsuccessful attempts:
+  → Record in lessons.md (Category B — technical error)
+  → Present analysis to user
+  → Load skills/error-recovery.md
 ```
 
-**Regra:** Se um teste passa sem implementação → está testando errado. Investigar.
+**Rule:** If a test passes without implementation → it is testing the wrong thing. Investigate.
 
 ---
 
-## ◈ PASSO 6 — CHECKLIST DO RED
+## ◈ STEP 6 — RED CHECKLIST
 
 ```
-[ ] Cada cenário BDD do 02-spec.md tem ao menos 1 teste?
-[ ] Rastreabilidade: mensagens de erro = exatamente as da spec?
-[ ] Testes unitários cobrem as RN-xx?
-[ ] Teste de integração cobre o caminho feliz (UC-01)?
-[ ] Architecture fitness test adicionado (se ArchUnit ativo)?
-[ ] NENHUM teste está passando sem implementação?
-[ ] Testes compilam mas falham pelo motivo esperado?
+[ ] Does each BDD scenario from 02-spec.md have at least 1 test?
+[ ] Traceability: error messages = exactly those from spec?
+[ ] Do unit tests cover the BR-xx?
+[ ] Does integration test cover the happy path (UC-01)?
+[ ] Was architecture fitness test added (if ArchUnit active)?
+[ ] Is NO test passing without implementation?
+[ ] Do tests compile but fail for the expected reason?
 ```
 
 ---
 
-## ◈ PASSO 7 — ATUALIZAR ESTADO
+## ◈ STEP 7 — UPDATE STATE
 
 ### `.hes/state/current.json`: `"{{FEATURE}}": "RED"`
 
@@ -294,7 +294,7 @@ Após 3 tentativas sem sucesso:
 
 ```json
 {
-  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "timestamp": "{{CURRENT_ISO_DATE}}",
   "feature": "{{FEATURE_SLUG}}",
   "from": "DATA",
   "to": "RED",
@@ -310,26 +310,26 @@ Após 3 tentativas sem sucesso:
 
 ---
 
-▶ PRÓXIMA AÇÃO — CONFIRMAÇÃO DO RED
+▶ NEXT ACTION — RED CONFIRMATION
 
 ```
-🔴 Testes escritos — confirme que estão falhando pelo motivo certo:
+🔴 Tests written — confirm they are failing for the right reason:
 
   [Java]   mvn test 2>&1 | tail -30
   [Node]   npm test 2>&1 | tail -30
   [Python] pytest -v 2>&1 | tail -30
 
-  [A] "testes falhando — classe não encontrada / método não implementado"
-      → Perfeito. Inicio a implementação (skills/06-implementation.md)
+  [A] "tests failing — class not found / method not implemented"
+      → Perfect. Starting implementation (skills/06-implementation.md)
 
-  [B] "compilação falhou: [erro]"
-      → Analiso e corrijo o problema de compilação
+  [B] "compilation failed: [error]"
+      → Analyze and fix the compilation issue
 
-  [C] "alguns testes passaram sem implementar"
-      → Problema sério: o teste não testa o certo. Revisamos juntos.
+  [C] "some tests passed without implementing"
+      → Serious problem: the test is not testing the right thing. Let's review together.
 
-📄 Skill-file próximo: skills/06-implementation.md
-💡 Dica (Fowler): os testes são sensors. Um bom sensor falha exatamente
-   quando o código está errado e passa exatamente quando está certo.
-   A mensagem de erro do teste falhando é o contrato da implementação.
+📄 Next skill file: skills/06-implementation.md
+💡 Tip (Fowler): tests are sensors. A good sensor fails exactly when the code
+   is wrong and passes exactly when it is right.
+   The error message from the failing test is the implementation contract.
 ```
