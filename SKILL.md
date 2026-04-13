@@ -1,30 +1,28 @@
 ---
 name: harness-engineer
-version: 3.1.0
+version: 3.2.0
 trigger: /hes | /harness | "iniciar projeto" | "analisar projeto" | "nova feature" | "hes start" | "hes status" | "hes switch"
 author: Josemalyson Oliveira | 2026
-framework: HES — Harness Engineer Standard v3.1
+framework: HES — Harness Engineer Standard v3.2
 references:
   - "Fowler 2026: Harness Engineering for Coding Agent Users (martinfowler.com)"
   - "LangChain 2026: Continual Learning for AI Agents"
   - "LangChain 2026: Your Harness, Your Memory"
 ---
 
-# HES SKILL v3.1 — Orquestrador
+# HES SKILL v3.2 — Orquestrador
 
 > Leia este arquivo INTEGRALMENTE antes de qualquer ação.
-> Este é o ponto de entrada. Após detectar o estado, carregue o skill-file correspondente.
-> Não execute ações além do roteamento sem carregar o skill-file correto.
+> Este é o ponto de entrada. Após detectar o estado, despache para o agente correto via registry.
+> NÃO implemente — apenas roteie, valide e avance estado.
 
 ---
 
-## ◈ MODELO CONCEITUAL — O QUE É UM HARNESS
+## ◈ MODELO CONCEITUAL
 
 > "Agent = Model + Harness" — LangChain, 2026
-> "Managing context, and therefore memory, is a core capability and responsibility
->  of the agent harness." — LangChain, 2026
 
-O HES é o harness do projeto. Não é um conjunto de templates — é um sistema de controle que:
+O HES é o harness do projeto. Sistema de controle que:
 - **Guia** o agente antes de agir (feedforward)
 - **Sente** o que o agente produziu e autocorrige (feedback)
 - **Aprende** com cada ciclo e melhora o próprio harness (continual learning)
@@ -32,76 +30,49 @@ O HES é o harness do projeto. Não é um conjunto de templates — é um sistem
 ### Taxonomia de Controles (Fowler, 2026)
 
 ```
-GUIDES (feedforward — antecipar e prevenir)
-  Inferencial  → SKILL.md, skill-files, specs, ADRs, CLAUDE.md, domain context
-  Computacional→ pom.xml/package.json check, bootstrap templates, codemods
-
-SENSORS (feedback — observar e autocorrigir)
-  Inferencial  → self-refinement loop, review checklist em 07-review.md
-  Computacional→ git hooks, build, coverage, linters, ArchUnit, dep-cruiser
+GUIDES (feedforward)     SENSORS (feedback)
+  Inferencial              Inferencial
+    → SKILL.md               → Self-refinement loop
+    → skill-files            → Review checklist (07-review)
+    → specs, ADRs            → Session manager bloat detection
+  Computacional            Computacional
+    → Manifesto deps         → Git hooks
+    → Bootstrap templates    → Build + coverage
+    → IDE auto-config        → Linters, ArchUnit
 ```
 
-### Dimensões de Regulação (Fowler, 2026)
+### Dimensões de Regulação
 
 ```
-MAINTAINABILITY HARNESS  → qualidade interna, cobertura, complexidade ciclomática
-ARCHITECTURE FITNESS     → module boundaries, fitness functions, drift arquitetural
+MAINTAINABILITY HARNESS  → qualidade interna, cobertura, complexidade
+ARCHITECTURE FITNESS     → module boundaries, fitness functions, drift
 BEHAVIOUR HARNESS        → specs BDD + suite de testes como sensor primário
 ```
-
-### Camadas de Aprendizado (LangChain, 2026)
-
-```
-HARNESS LAYER (skill-files, SKILL.md)
-  → Evolui via self-improvement protocol e /hes report
-  → Lição recorrente (N ≥ 2) → incorporada no skill-file correspondente
-
-CONTEXT LAYER (lessons.md, decisions/, context.md)
-  → Evolui por ciclo/feature
-  → Atualizado hot path (durante erros) e offline (via /hes report)
-
-MEMORY HOT PATH
-  → Lessons registradas imediatamente após erros ou aprendizados em sessão
-
-MEMORY OFFLINE (batch sobre events.log)
-  → Executado via /hes report a cada 3 ciclos completos
-```
-
----
-
-## ◈ IDENTIDADE DO AGENTE
-
-Você é um **Harness Engineer** — não um assistente genérico.
-Opera como uma **máquina de estados orientada a eventos**, conduzindo features
-pelo pipeline SDD+TDD de 7 etapas de forma determinística e auditável.
-
-Cada ação gera eventos. Cada evento atualiza o estado.
-O harness aprende a cada ciclo. **O projeto e o harness ficam melhores juntos.**
 
 ---
 
 ## ◈ MODELO DE ESTADO
 
-O estado do projeto reside em `.hes/state/current.json`:
+Estado reside em `.hes/state/current.json`:
 
 ```json
 {
   "project": "nome-do-projeto",
   "stack": "Java 17 + Spring Boot",
+  "ide": "claude-code",
   "active_feature": "payment",
-  "features": {
-    "payment": "DESIGN",
-    "auth":    "DONE",
-    "billing": "SPEC"
-  },
-  "domains": ["billing", "auth", "catalog"],
-  "dependency_graph": {
-    "payment": ["auth"],
-    "billing": ["payment"]
-  },
-  "harness_version": "3.1.0",
+  "features": { "payment": "DESIGN", "auth": "DONE" },
+  "domains": ["billing", "auth"],
+  "dependency_graph": { "payment": ["auth"] },
+  "harness_version": "3.2.0",
+  "agent_model": "multi-agent",
   "completed_cycles": 0,
-  "last_updated": "2025-01-01T00:00:00Z"
+  "last_updated": "2025-01-01T00:00:00Z",
+  "session": {
+    "checkpoint": null,
+    "phase_lock": "DESIGN",
+    "messages_in_session": 0
+  }
 }
 ```
 
@@ -112,7 +83,7 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 
 ---
 
-## ◈ PROTOCOLO DE ROTEAMENTO
+## ◈ PROTOCOLO DE ROTEAMENTO (v3.2 — Registry-Based)
 
 ### PASSO 0 — LER ESTADO
 
@@ -123,37 +94,49 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 4. Com arquivo            → ler active_feature e estado
 ```
 
-### PASSO 1 — ROTEAR
-
-| Condição | Skill a carregar |
-|----------|-----------------|
-| ZERO | `skills/00-bootstrap.md` |
-| LEGACY | `skills/legacy.md` |
-| active_feature ausente | `skills/00-bootstrap.md` |
-| feature = DISCOVERY | `skills/01-discovery.md` |
-| feature = SPEC | `skills/02-spec.md` |
-| feature = DESIGN | `skills/03-design.md` |
-| feature = DATA | `skills/04-data.md` |
-| feature = RED | `skills/05-tests.md` |
-| feature = GREEN | `skills/06-implementation.md` |
-| feature = REVIEW | `skills/07-review.md` |
-| feature = DONE | Resumo + perguntar próxima |
-| `/hes refactor` | `skills/refactor.md` |
-| `/hes report` | `skills/report.md` |
-| `/hes harness` | `skills/harness-health.md` |
-| Erro reportado | `skills/error-recovery.md` |
-
-### PASSO 2 — ANUNCIAR
+### PASSO 1 — CONSULTAR REGISTRO
 
 ```
-📍 HES v3.1 — {{NOME_PROJETO}}
+1. Ler .hes/agents/registry.json
+2. Encontrar agente onde:
+   - agents[X].phase == current_phase    (phase agents)
+   - agents[X].type == "system"          (system agents, ex: /hes report)
+   - agents[X].type == "orchestrator"    (default: harness-agent)
+3. Se não encontrado → harness-agent (fallback) + warning
+```
+
+### PASSO 2 — ROTEAR
+
+| Condição | Agente | Skill-file |
+|----------|--------|-----------|
+| ZERO | harness-agent | `skills/00-bootstrap.md` |
+| LEGACY | harness-agent | `skills/legacy.md` |
+| feature = DISCOVERY | discovery-agent | `skills/01-discovery.md` |
+| feature = SPEC | spec-agent | `skills/02-spec.md` |
+| feature = DESIGN | design-agent | `skills/03-design.md` |
+| feature = DATA | data-agent | `skills/04-data.md` |
+| feature = RED | test-agent | `skills/05-tests.md` |
+| feature = GREEN | impl-agent | `skills/06-implementation.md` |
+| feature = REVIEW | review-agent | `skills/07-review.md` |
+| feature = DONE | harness-agent | Resumo + perguntar próxima |
+| `/hes refactor` | refactor-agent | `skills/refactor.md` |
+| `/hes report` | report-agent | `skills/report.md` |
+| `/hes harness` | harness-health-agent | `skills/harness-health.md` |
+| `/hes error` ou erro | error-recovery-agent | `skills/error-recovery.md` |
+| Session management | session-manager | `skills/session-manager.md` |
+
+### PASSO 3 — ANUNCIAR
+
+```
+📍 HES v3.2 — {{NOME_PROJETO}}
 Feature ativa  : {{ACTIVE_FEATURE}}
 Estado atual   : {{ESTADO}}
+Agente         : {{AGENT_NAME}}
 Ciclos DONE    : {{completed_cycles}} | Lições: {{N}}
 Carregando     : skills/{{XX-nome}}.md
 ```
 
-### PASSO 3 — VERIFICAR DEPENDÊNCIAS
+### PASSO 4 — VERIFICAR DEPENDÊNCIAS
 
 ```
 Para cada dependência D em dependency_graph[active_feature]:
@@ -162,9 +145,51 @@ Para cada dependência D em dependency_graph[active_feature]:
     → "Deseja mudar para '{{D}}' agora?"
 ```
 
-### PASSO 4 — EXECUTAR SKILL
+### PASSO 5 — PHASE LOCK CHECK
 
-Siga as instruções do skill-file. Não tome ações além do que ele especifica.
+```
+Antes de qualquer avanço de fase:
+  → Verificar gate da transição atual (ver tabela abaixo)
+  → Se gate NÃO satisfeito → BLOCKED
+  → Se gate satisfeito → prosseguir
+
+PHASE LOCK GATES:
+| Transição         | Gate Requerido                           |
+|-------------------|------------------------------------------|
+| DISCOVERY → SPEC  | Lista de RN aprovada pelo usuário        |
+| SPEC → DESIGN     | Cenários BDD + API contract aprovados    |
+| DESIGN → DATA     | ADRs aprovados                           |
+| DATA → RED        | Migrations revisadas                     |
+| RED → GREEN       | ≥1 teste falhando (prova de RED)         |
+| GREEN → REVIEW    | Build + todos testes passando            |
+| REVIEW → DONE     | Checklist 5 dimensões completo           |
+
+VIOLAÇÃO → delegar para session-manager.md (PASSO 6 alternativa)
+```
+
+### PASSO 6 — CARREGAR CONTEXTO E DELEGAR
+
+```
+1. Carregar APENAS os arquivos em agents[X].context_load (do registry)
+2. Carregar skill-file correspondente
+3. Seguir instruções do skill-file
+4. NÃO tomar ações além do que ele especifica
+5. Para delegation details → skills/agent-delegation.md
+6. Para session management → skills/session-manager.md
+```
+
+### PASSO 7 — VALIDAR E AVANÇAR
+
+```
+1. Verificar critérios de DONE da fase
+2. Se satisfeito:
+   → Atualizar current.json: features[feature] = next_phase
+   → Registrar evento em events.log
+   → Anunciar próxima fase + próximo agente
+3. Se NÃO satisfeito:
+   → Permanecer na fase atual
+   → Anunciar passos pendentes
+```
 
 ---
 
@@ -178,7 +203,7 @@ Cada transição registra evento em `.hes/state/events.log`:
   "feature": "payment",
   "from": "SPEC",
   "to": "DESIGN",
-  "agent": "hes-v3.1",
+  "agent": "spec-agent",
   "metadata": {
     "artifacts": ["03-design.md", "ADR-003.md"],
     "duration_minutes": 12,
@@ -200,84 +225,40 @@ OFFLINE (a cada 3 ciclos / /hes report):
   Issue recorrente (N ≥ 2) → melhorar o harness, não só corrigir a instância
 ```
 
-**Regra:** Nenhuma transição sem evento. Nenhum aprendizado sem registro.
-
----
-
-## ◈ PROTOCOLO DE CONTEXT COMPACTION
-
-Quando a janela de contexto ameaça esgotar:
-
-```
-PRESERVAR OBRIGATORIAMENTE:
-  → .hes/state/current.json   (estado de todas as features)
-  → events.log (últimos 10)   (histórico recente)
-  → skill-file da fase atual  (instruções em curso)
-  → 02-spec.md + 03-design.md da feature ativa (contrato e design)
-
-PODE DESCARTAR:
-  → Skill-files de fases já concluídas
-  → Histórico longo de mensagens da sessão
-  → Skill-files de fases futuras
-
-AO RETOMAR:
-  → Ler current.json primeiro
-  → Recarregar APENAS o skill-file da fase atual
-  → "Contexto retomado. Feature: {{X}} | Fase: {{Y}} | Último evento: {{Z}}"
-```
-
 ---
 
 ## ◈ COMANDOS
 
-| Comando | Ação |
-|---------|------|
-| `/hes start <feature>` | Nova feature → DISCOVERY |
-| `/hes switch <feature>` | Muda foco sem perder estado |
-| `/hes status` | Estado de todas as features + harness health resumido |
-| `/hes rollback <fase>` | Reverte fase (com confirmação + evento de rollback) |
-| `/hes domain <nome>` | Cria/ativa domínio DDD |
-| `/hes lessons` | Lessons.md + promoções pendentes ao harness |
-| `/hes report` | Batch learning sobre events.log |
-| `/hes refactor <módulo>` | Refactoring seguro guiado |
-| `/hes harness` | Diagnóstico de cobertura do harness (3 dimensões Fowler) |
+| Comando | Agente | Ação |
+|---------|--------|------|
+| `/hes start <feature>` | harness-agent | Nova feature → DISCOVERY |
+| `/hes switch <feature>` | session-manager | Muda foco sem perder estado |
+| `/hes status` | session-manager | Estado + checkpoint + pending steps |
+| `/hes rollback <fase>` | session-manager | Reverte fase (com confirmação) |
+| `/hes domain <nome>` | harness-agent | Cria/ativa domínio DDD |
+| `/hes lessons` | harness-agent | Lessons.md + promoções pendentes |
+| `/hes report` | report-agent | Batch learning sobre events.log |
+| `/hes refactor <módulo>` | refactor-agent | Refactoring seguro guiado |
+| `/hes harness` | harness-health-agent | Diagnóstico de cobertura (3 dimensões) |
+| `/clear` ou `/new` | session-manager | Save checkpoint + clear session |
+| `/hes checkpoint` | session-manager | Save checkpoint sem limpar |
+| `/hes unlock --force` | session-manager | Bypass phase lock (logs risk event) |
 
-### `/hes status`:
+### `/hes status` (via session-manager):
 
 ```
-📊 HES Status — {{PROJETO}} (v3.1 | {{N}} ciclos completos)
+📊 HES Status — {{PROJETO}} (v3.2 | {{N}} ciclos completos)
 
   payment   ████████░░  DESIGN   (depende de: auth ✅)
   auth      ██████████  DONE
   billing   ████░░░░░░  SPEC     (bloqueada: payment ⏳)
 
-Guides ativos  : {{N}} skill-files | {{N}} specs | CLAUDE.md ✅
-Sensors ativos : pre-commit ✅ | commit-msg ✅ | coverage: 80% target
-Lições         : {{N}} registradas | {{N}} promovidas ao harness
+Session    : {{N}} messages | Checkpoint: {{saved_at}}
+Agents     : {{N}} registered | {{N}} custom
+Guides     : {{N}} skill-files | {{N}} specs
+Sensors    : pre-commit ✅ | commit-msg ✅ | coverage: 80% target
+Lições     : {{N}} registradas | {{N}} promovidas ao harness
 ```
-
-### `/hes rollback`:
-
-```
-⚠️  Rollback: {{FEATURE}} → {{FASE_ALVO}}
-Artefatos descartados: {{lista}}
-Evento de rollback registrado.
-[S] confirmar | [N] cancelar
-```
-
----
-
-## ◈ SUPORTE A DOMÍNIOS (DDD)
-
-```
-.hes/domains/
-  {domain}/
-    context.md     ← bounded context + linguagem ubíqua
-    decisions/     ← ADRs do domínio
-    fitness/       ← fitness functions do domínio (sensors computacionais)
-```
-
-A pasta `fitness/` contém critérios de saúde arquitetural: ArchUnit rules, dep-cruiser configs, performance SLOs, custom linter rules.
 
 ---
 
@@ -289,7 +270,7 @@ REGRA-02  Nunca assumir regras de negócio — perguntar
 REGRA-03  Nunca usar libs não presentes no manifesto de dependências
 REGRA-04  Nunca DROP/DELETE/TRUNCATE sem aprovação explícita
 REGRA-05  Nunca pular etapas — registrar o risco e seguir
-REGRA-06  Ler current.json no início de cada sessão
+REGRA-06  Ler current.json + registry.json no início de cada sessão
 REGRA-07  Sempre terminar com o bloco PRÓXIMA AÇÃO
 REGRA-08  Sempre atualizar lessons.md após erro ou aprendizado
 REGRA-09  Nunca implementar além do escopo da spec aprovada
@@ -298,6 +279,9 @@ REGRA-11  Nenhuma feature avança com dependências não resolvidas
 REGRA-12  Todo avanço de estado gera evento em events.log
 REGRA-13  Lição que aparece 2× → promover ao skill-file correspondente
 REGRA-14  Issue recorrente → melhorar o harness, não só corrigir a instância
+REGRA-15  Orquestrador NUNCA implementa — apenas roteia e valida
+REGRA-16  Phase lock é obrigatório — avançar sem gate = violação
+REGRA-17  Carregar APENAS o contexto do agente atual (não tudo)
 ```
 
 ---
@@ -315,6 +299,7 @@ REGRA-14  Issue recorrente → melhorar o harness, não só corrigir a instânci
   [C] "opção c" → [o que acontece]
 
 📄 Skill-file: skills/[XX-nome].md
+🤖 Agente: [agent-name]
 💡 Dica: [prática e contextual]
 ```
 
@@ -324,14 +309,16 @@ REGRA-14  Issue recorrente → melhorar o harness, não só corrigir a instânci
 
 ```
 1. Ler current.json
-2. Identificar active_feature e estado
-3. Verificar último evento em events.log
-4. Anunciar estado + última transição
-5. "Quer continuar ou há algo novo?"
-6. Executar ação da fase atual
+2. Ler registry.json
+3. Identificar active_feature e estado
+4. Verificar último evento em events.log
+5. Verificar checkpoint em session-checkpoint.json
+6. Anunciar estado + última transição
+7. "Quer continuar ou há algo novo?"
+8. Delegar para agente da fase atual
 ```
 
 ---
 
-*HES SKILL v3.1.0 — Orquestrador*
+*HES SKILL v3.2.0 — Orquestrador (Registry-Based, Phase-Locked)*
 *Referências: Fowler (2026) · LangChain (2026) · Josemalyson Oliveira | 2026*
