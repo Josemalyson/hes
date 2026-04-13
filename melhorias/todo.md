@@ -1,19 +1,27 @@
-# TASKs
+# ⚠️ DEPRECATED
 
-1. Mudar todos os arquivos para ingles
-2. Identificar o idoma do usuário e seguir fluxo com ele.
-3. criar um readme.md com tutorial de uso do projeto. Seguir exemplos do ecc, superpowers, speckkit.
-4. criar arquivo de contribuição gerar uma skills
-5. criar Skill de criação de uma issue para gerar um pr de correção e remover a pasta de melhorias a issue pode ser de melhoria e de bugs
-6. pedir para as AIs buscar falhas no projeto e buscar mais artigos
-7.  Buscar link da documentação de mais projetos como setup para o hes. outras ides e cli
-8.  verificar o padrão de autoresearch e ver a possibilidade de adicionar
-9.  ver o padrão de karptar sobre o obsidian e ver se dá pra adapar no projeto
-10. ter um comando para auto melhorar o projeto onde o usuário pode passar um link ou descrição de referência e ai ele abre uma issue verificar usar esse projeto nessa feature https://github.com/safishamsi/graphify
-11. ter uma analise automático dos prs abertos avaliar se melhoria ou bug faz sentido e comentar
-12. pedir na issue um arquivo para replicar os erros pode ser o arquivo de estado para ter como debugar e identificar o erro pegar informações importantes do sistema operacional até a versão do hes, clis, ide, qualquer coisa
-13. ele deveria ter um arquivo AGENTS.md para ficar mais genérico 
-14. https://github.com/msitarzewski/agency-agents
-15. https://github.com/garrytan/gstack
-16. https://github.com/addyosmani/agent-skills
-17. https://claude-blog.md/blog/claude-obsidian-second-brain
+This file has been superseded by GitHub Issues.
+
+All bugs and improvement proposals should now be tracked via:
+- [GitHub Issues](../../issues)
+
+To create an issue:
+- **Bug:** Run `/hes bug` in your HES-enabled session
+- **Improvement:** Run `/hes improvement`
+- **Manual:** Use the templates at `.hes/templates/`
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full contribution workflow.
+
+---
+
+## Historical Content
+
+The items below were migrated to GitHub Issues. They are preserved here for reference only.
+
+### Previously tracked items:
+1. criar arquivo de contribuição → ✅ CONTRIBUTING.md created
+2. criar Skill de criação de uma issue → ✅ skills/09-issue-create.md created
+3. pedir na issue um arquivo para replicar os erros → ✅ Included in issue templates
+4. ver o padrão de autoresearch → 📋 Future phase (Phase 3)
+5. ter uma analise automático dos prs → 📋 Future phase (Phase 2)
+6. AGENTS.md para ficar mais genérico → 📋 Future phase
