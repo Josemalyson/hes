@@ -17,7 +17,7 @@ Este skill é invocado quando:
 ## ◈ PASSO 1 — COLETAR INFORMAÇÕES (máximo 4 perguntas)
 
 ```
-🚀 HES Bootstrap v3.1 — vou configurar o harness do projeto.
+🚀 HES Bootstrap v3.2 — vou configurar o harness do projeto.
 
 Preciso de 4 informações:
 
@@ -55,7 +55,7 @@ fi
 Execute as verificações abaixo (use `ls`, `test -f`, `test -d` ou equivalente):
 
 ```
-📋 Validando estrutura de arquivos HES v3.1...
+📋 Validando estrutura de arquivos HES v3.2...
 
   [ ] SKILL.md existe na raiz do projeto
   [ ] Diretório skills/ existe (VISÍVEL, não .skills/)
@@ -136,6 +136,155 @@ Salve o resultado em `.hes/state/setup-validation.json`:
 
 ---
 
+## ◈ PASSO 1.5.1 — IDE AUTO-DETECTION (NOVO em v3.2)
+
+> Detectar o ambiente de IDE e gerar configuração específica automaticamente.
+
+### Detection Order
+
+```
+1. Check for marker files/dirs:
+   - .vscode/ → VS Code
+   - .cursor/ or .cursorrules → Cursor
+   - .claude/ or CLAUDE.md → Claude Code
+   - .gemini/ → Gemini CLI
+   - .openhands/ → OpenHands
+   - .windsurf/ → Windsurf
+
+2. If multiple detected → ask user:
+   "Detected: {{lista_de_IDEs}}. Which is your primary IDE?"
+
+3. If none detected → ask user:
+   "What IDE/editor are you using?"
+   [A] Claude Code  [B] Cursor  [C] VS Code  [D] Windsurf  [E] Copilot  [F] OpenHands  [G] Other
+```
+
+### IDE-Specific Config Generation
+
+**Claude Code detected (or selected):**
+```bash
+mkdir -p .claude
+```
+
+Generate `.claude/CLAUDE.md` with updated HES v3.2 content (update version references in the existing PASSO 5 content to v3.2).
+
+**Cursor detected (or selected):**
+Generate `.cursorrules`:
+```
+# HES — Harness Engineer Standard v3.2
+
+Ao receber /hes ou qualquer comando de engenharia:
+1. Ler SKILL.md na raiz do projeto
+2. Ler .hes/state/current.json e .hes/agents/registry.json
+3. Identificar agente correto via registry para a fase atual
+4. Carregar APENAS o contexto definido no registry
+5. Seguir o skill-file do agente sem desvios
+6. NUNCA pular etapas — phase lock é obrigatório
+7. Orquestrador NUNCA implementa — apenas roteia
+8. Sempre terminar com o bloco PRÓXIMA AÇÃO
+```
+
+**VS Code detected (or selected):**
+```bash
+mkdir -p .vscode
+```
+
+Generate `.vscode/hes-agent.md`:
+```markdown
+# HES Agent for VS Code — v3.2
+
+When working on this project:
+1. Read SKILL.md first
+2. Read .hes/state/current.json to identify phase
+3. Read .hes/agents/registry.json to identify agent
+4. Load only the context specified in registry
+5. Follow the agent's skill-file
+6. Never skip stages — phase lock enforced
+```
+
+**Windsurf detected (or selected):**
+Generate `.windsurfrules` (same content as `.cursorrules`)
+
+**Generic (none detected or "Other"):**
+Generate `AGENTS.md`:
+```markdown
+# HES — Harness Engineer Standard v3.2
+
+Ao iniciar qualquer sessão:
+1. Ler SKILL.md na raiz do projeto
+2. Ler .hes/state/current.json para identificar estado
+3. Ler .hes/agents/registry.json para identificar agente
+4. Carregar skill-file do agente correspondente
+5. Seguir instruções do skill-file sem desvios
+6. NUNCA pular etapas
+7. Orquestrador NUNCA implementa — apenas roteia
+8. Sempre terminar com o bloco PRÓXIMA AÇÃO
+```
+
+### Register IDE in current.json
+
+Add `"ide": "{{detected_ide}}"` to the current.json schema in PASSO 3.
+
+---
+
+## ◈ PASSO 1.6 — AGENT REGISTRY INIT (NOVO em v3.2)
+
+> Gerar o arquivo de registro de agentes.
+
+```bash
+mkdir -p .hes/agents
+```
+
+Verify `.hes/agents/registry.json` exists (should already exist from Task 1). If not found, display warning:
+```
+🚨 Agent registry not found: .hes/agents/registry.json
+
+Please ensure HES v3.2 agent registry is installed.
+```
+
+If registry exists, validate:
+```bash
+python3 -c "import json; r=json.load(open('.hes/agents/registry.json')); assert r['version'] == '3.2.0'; print('Registry OK')"
+```
+
+If version < 3.2.0, prompt for upgrade.
+
+---
+
+## ◈ PASSO 1.7 — SESSION MANAGER INIT (NOVO em v3.2)
+
+> Inicializar o session manager e arquivo de checkpoint.
+
+1. Verify `skills/session-manager.md` exists. If not:
+```
+🚨 Session manager skill not found: skills/session-manager.md
+
+Please ensure HES v3.2 skill-files are installed.
+```
+
+2. Generate empty checkpoint:
+
+```json
+{
+  "timestamp": null,
+  "feature": null,
+  "phase": null,
+  "agent": null,
+  "last_action": null,
+  "completed_steps": [],
+  "pending_steps": [],
+  "context_summary": "",
+  "artifacts_created": [],
+  "context_tokens_remaining": null
+}
+```
+
+Save to `.hes/state/session-checkpoint.json`.
+
+3. Verify session-manager entry exists in registry.json.
+
+---
+
 ## ◈ PASSO 2 — GERAR ESTRUTURA DE DIRETÓRIOS
 
 ```bash
@@ -151,7 +300,7 @@ mkdir -p scripts/hooks
 # Se houver domínios DDD
 for domain in {{DOMINIOS_INFORMADOS}}; do
   mkdir -p .hes/domains/$domain/decisions
-  mkdir -p .hes/domains/$domain/fitness   # ← NOVO v3.1: sensors computacionais por domínio
+  mkdir -p .hes/domains/$domain/fitness   # ← NOVO v3.2: sensors computacionais por domínio
 done
 ```
 
@@ -170,7 +319,7 @@ A pasta `fitness/` é onde ficam os sensors computacionais de architecture fitne
   "features": {},
   "domains": [{{DOMINIOS_OU_ARRAY_VAZIO}}],
   "dependency_graph": {},
-  "harness_version": "3.1.0",
+  "harness_version": "3.2.0",
   "completed_cycles": 0,
   "last_updated": "{{DATA_ATUAL_ISO}}"
 }
@@ -187,11 +336,11 @@ A pasta `fitness/` é onde ficam os sensors computacionais de architecture fitne
     "feature": "global",
     "from": "NONE",
     "to": "HARNESS_INSTALADO",
-    "agent": "hes-v3.1",
+    "agent": "hes-v3.2",
     "metadata": {
       "project": "{{NOME_PROJETO}}",
       "stack": "{{STACK}}",
-      "harness_version": "3.1.0"
+      "harness_version": "3.2.0"
     }
   }
 ]
@@ -205,7 +354,7 @@ A pasta `fitness/` é onde ficam os sensors computacionais de architecture fitne
 # Identidade do Agente — {{NOME_PROJETO}}
 
 ## Missão
-Você é um Harness Engineer (HES v3.1) para o projeto {{NOME_PROJETO}}.
+Você é um Harness Engineer (HES v3.2) para o projeto {{NOME_PROJETO}}.
 Sua função é conduzir o pipeline SDD+TDD de 7 etapas de forma determinística.
 
 NUNCA escreva código antes de completar as Etapas 1–4 aprovadas.
@@ -341,7 +490,7 @@ _a preencher após configuração_
 
 ---
 
-## ◈ PASSO 9 — CONFIGURAR ARCHITECTURE FITNESS SENSORS (NOVO em v3.1)
+## ◈ PASSO 9 — CONFIGURAR ARCHITECTURE FITNESS SENSORS (NOVO em v3.2)
 
 > "Feedforward and feedback controls are currently scattered across delivery steps.
 >  Building the outer harness is an ongoing engineering practice." — Fowler, 2026
@@ -421,7 +570,7 @@ class ArchitectureTest {
 Adicionar dependência no `pom.xml`:
 
 ```xml
-<!-- Architecture Fitness Sensor — HES v3.1 -->
+<!-- Architecture Fitness Sensor — HES v3.2 -->
 <dependency>
     <groupId>com.tngtech.archunit</groupId>
     <artifactId>archunit-junit5</artifactId>
@@ -479,7 +628,7 @@ pip install import-linter --break-system-packages
 
 ```python
 #!/usr/bin/env python3
-"""HES Safety Validator v3.1 — pre-commit hook
+"""HES Safety Validator v3.2 — pre-commit hook
 Sensor computacional: bloqueia secrets, SQL destrutivo e pendências."""
 import subprocess, sys, re
 
@@ -520,29 +669,29 @@ for f in get_staged_files():
     violations.extend(check_file(f))
 
 if violations:
-    print('\n🚨 HES Safety Validator v3.1 — COMMIT BLOQUEADO\n')
+    print('\n🚨 HES Safety Validator v3.2 — COMMIT BLOQUEADO\n')
     for v in violations:
         print(v)
     print('\nCorrija os problemas acima antes de commitar.')
     print('Override (não recomendado): git commit --no-verify\n')
     sys.exit(1)
 
-print('✅ HES Safety Validator v3.1 — OK')
+print('✅ HES Safety Validator v3.2 — OK')
 ```
 
 ### `scripts/hooks/sdd_commit_checker.py` (commit-msg — sensor computacional)
 
 ```python
 #!/usr/bin/env python3
-"""HES SDD Commit Checker v3.1 — commit-msg hook
+"""HES SDD Commit Checker v3.2 — commit-msg hook
 Sensor computacional: valida Conventional Commits e estágio HES."""
 import sys, re
 
 VALID_TYPES = [
     'feat', 'fix', 'docs', 'test', 'refactor',
     'chore', 'spec', 'design', 'data', 'discovery', 'review',
-    'harness',   # ← NOVO v3.1: commits de melhoria do harness
-    'fitness',   # ← NOVO v3.1: commits de fitness functions
+    'harness',   # ← NOVO v3.2: commits de melhoria do harness
+    'fitness',   # ← NOVO v3.2: commits de fitness functions
 ]
 PATTERN = re.compile(
     r'^(' + '|'.join(VALID_TYPES) + r')(\(\w[\w-]*\))?!?: .{10,}$'
@@ -555,7 +704,7 @@ with open(msg_file) as f:
 first_line = msg.split('\n')[0]
 
 if not PATTERN.match(first_line):
-    print('\n🚨 HES Commit Checker v3.1 — Mensagem inválida\n')
+    print('\n🚨 HES Commit Checker v3.2 — Mensagem inválida\n')
     print(f'  Recebido : {first_line}')
     print(f'  Esperado : <type>(<scope>): <descrição com 10+ chars>')
     print(f'  Tipos    : {", ".join(VALID_TYPES)}')
@@ -563,7 +712,7 @@ if not PATTERN.match(first_line):
     print(f'             harness(arch): adicionar regras ArchUnit para camada de serviço\n')
     sys.exit(1)
 
-print('✅ HES Commit Checker v3.1 — OK')
+print('✅ HES Commit Checker v3.2 — OK')
 ```
 
 ### `scripts/hooks/install.sh`
@@ -571,39 +720,48 @@ print('✅ HES Commit Checker v3.1 — OK')
 ```bash
 #!/usr/bin/env bash
 set -e
-echo "🔧 Instalando HES Git Hooks v3.1..."
+echo "🔧 Instalando HES Git Hooks v3.2..."
 HOOKS_DIR="$(git rev-parse --git-dir)/hooks"
 SCRIPTS_DIR="$(git rev-parse --show-toplevel)/scripts/hooks"
 ln -sf "$SCRIPTS_DIR/safety_validator.py"   "$HOOKS_DIR/pre-commit"
 ln -sf "$SCRIPTS_DIR/sdd_commit_checker.py" "$HOOKS_DIR/commit-msg"
 chmod +x "$SCRIPTS_DIR"/*.py
-echo "✅ Hooks instalados (sensors computacionais HES v3.1):"
+echo "✅ Hooks instalados (sensors computacionais HES v3.2):"
 echo "   pre-commit  → safety_validator.py"
 echo "   commit-msg  → sdd_commit_checker.py"
 echo ""
-echo "Teste: git commit --allow-empty -m 'harness: validar hooks HES v3.1'"
+echo "Teste: git commit --allow-empty -m 'harness: validar hooks HES v3.2'"
 ```
 
 ---
 
-## ◈ PASSO 11 — EXIBIR RESUMO DO BOOTSTRAP
+## ◈ PASSO 11 — EXIBIR RESUMO DO BOOTSTRAP (v3.2)
 
 ```
-✅ HES Bootstrap v3.1 Concluído — {{NOME_PROJETO}}
+✅ HES Bootstrap v3.2 Concluído — {{NOME_PROJETO}}
 
 Guides instalados (feedforward):
-  .claude/CLAUDE.md                  ← identidade do agente
-  .hes/state/current.json            ← estado do projeto
-  .hes/state/events.log              ← log de transições (traces)
-  .hes/tasks/lessons.md              ← memória de aprendizado
-  .hes/tasks/backlog.md              ← backlog de features
-  {{.hes/domains/*/context.md}}      ← bounded contexts (se domínios)
-  {{.hes/domains/*/fitness/}}        ← sensors de architecture fitness
+  .claude/CLAUDE.md (ou equivalente)   ← identidade do agente
+  .hes/state/current.json              ← estado do projeto (v3.2 schema)
+  .hes/state/events.log                ← log de transições (traces)
+  .hes/state/session-checkpoint.json   ← checkpoint de sessão (NOVO v3.2)
+  .hes/agents/registry.json            ← registro de agentes (NOVO v3.2)
+  .hes/tasks/lessons.md                ← memória de aprendizado
+  .hes/tasks/backlog.md                ← backlog de features
+  {{.hes/domains/*/context.md}}        ← bounded contexts (se domínios)
+  {{.hes/domains/*/fitness/}}          ← sensors de architecture fitness
+
+Agents registrados:
+  {{N}} phase agents + {{N}} system agents + {{N}} sub-agents
 
 Sensors instalados (feedback):
-  scripts/hooks/safety_validator.py  ← pre-commit (computacional)
-  scripts/hooks/sdd_commit_checker.py← commit-msg (computacional)
-  {{src/.../ArchitectureTest.java}}  ← ArchUnit (se configurado)
+  scripts/hooks/safety_validator.py    ← pre-commit (computacional)
+  scripts/hooks/sdd_commit_checker.py  ← commit-msg (computacional)
+  {{src/.../ArchitectureTest.java}}    ← ArchUnit (se configurado)
+
+IDE detectada: {{IDE}} → config gerada: {{CONFIG_FILE}}
+Session manager: skills/session-manager.md ✅
+Agent delegation: skills/agent-delegation.md ✅
 
 Para ativar os git hooks:
   bash scripts/hooks/install.sh
