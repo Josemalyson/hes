@@ -45,6 +45,12 @@ Computacional:
   [ ] pom.xml / package.json / pyproject.toml presente e versionado
   [ ] scripts/hooks/install.sh presente
   [ ] Fitness functions definidas em .hes/domains/*/fitness/ (se domínios existem)
+
+Agent Registry Coverage (NOVO em v3.2):
+  [ ] .hes/agents/registry.json exists and is valid JSON
+  [ ] All agents in registry have corresponding skill-files
+  [ ] All custom agents have skill-files in skills/custom/
+  [ ] Registry version matches SKILL.md version
 ```
 
 **Score de Guides:** {{N_OK}} / {{N_TOTAL}}
@@ -74,6 +80,12 @@ Computacional — Architecture Fitness (NOVO em v3.1):
   [ ] ArchUnit (Java) / dep-cruiser (Node) / import-linter (Python) configurado
   [ ] Regras de módulo definidas (ex: Controller não depende de Repository)
   [ ] Pipeline CI tem etapa de architecture check
+
+Agent Sensors (NOVO em v3.2):
+  [ ] Sub-agents defined in registry (test-runner, linter, arch-check)
+  [ ] Phase lock enforcement active (session-manager)
+  [ ] Context bloat detection active (session-manager heuristics)
+  [ ] Checkpoint save/restore functional (session-manager)
 ```
 
 **Score de Sensors:** {{N_OK}} / {{N_TOTAL}}
@@ -151,6 +163,28 @@ Tests gerados pelo agente não substituem a validação humana do comportamento.
 Diagnóstico: 🟢 / 🟡 / 🔴
 ```
 
+### Dimensão 4 — Agent Delegation Harness (NOVO em v3.2)
+
+```
+Objetivo: garantir que o orquestrador delega corretamente e agentes executam com contexto focado.
+
+Guides ativos:
+  [✅/❌] SKILL.md com routing-only orchestrator (≤300 lines)
+  [✅/❌] skills/agent-delegation.md com dispatch protocol
+  [✅/❌] skills/agent-registry.md com schema documentation
+
+Sensors ativos:
+  [✅/❌] Registry JSON válido e consistente
+  [✅/❌] Todos os agents têm skill-files correspondentes
+  [✅/❌] Phase lock enforcement funcionando
+  [✅/❌] Session checkpoint save/restore funcional
+
+Gaps identificados:
+  → {{LISTA_DE_GAPS_OU_NENHUM}}
+
+Diagnóstico: 🟢 / 🟡 / 🔴
+```
+
 ---
 
 ## ◈ PASSO 4 — GERAR RELATÓRIO DE SAÚDE
@@ -169,6 +203,7 @@ Data: {{DATA_ATUAL}} | HES v3.1
 | Maintainability | {{N}}/{{N}} | 🟢/🟡/🔴 |
 | Architecture Fit | {{N}}/{{N}} | 🟢/🟡/🔴 |
 | Behaviour | {{N}}/{{N}} | 🟢/🟡/🔴 |
+| Agent Delegation (NOVO) | {{N}}/{{N}} | 🟢/🟡/🔴 |
 
 ## Gaps Prioritários
 
