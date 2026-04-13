@@ -27,8 +27,112 @@ Preciso de 4 informações:
 4. O sistema possui domínios DDD definidos? Se sim, liste-os (ex: billing, auth, catalog — ou "não" se for monolito simples): [GERAR AUTOMATICAMENTE]
 ```
 
-Tentar gerar as respostas automaticamente, se não conseguir aguardar resposta. 
+Tentar gerar as respostas automaticamente, se não conseguir aguardar resposta.
 Com as respostas, executar os passos abaixo.
+
+---
+
+## ◈ PASSO 1.5 — VALIDAR ESTRUTURA DE SETUP
+
+> Antes de gerar qualquer diretório, verifique se os arquivos HES foram copiados corretamente.
+> Este passo é executado APÓS o usuário copiar os arquivos e ANTES de gerar a estrutura.
+
+### 0. Verificação Prévia — Diretório Oculto
+
+**Antes do checklist principal, verifique se não há um diretório oculto `.skills/`:**
+
+```bash
+# Se .skills/ existe mas skills/ não existe:
+if [ -d ".skills" ] && [ ! -d "skills" ]; then
+  echo "⚠ Atenção: pasta '.skills/' (oculta) detectada."
+  echo "   A pasta correta é 'skills/' (sem o ponto)."
+  echo "   Renomeie: mv .skills skills"
+fi
+```
+
+### 1. Checklist de Validação
+
+Execute as verificações abaixo (use `ls`, `test -f`, `test -d` ou equivalente):
+
+```
+📋 Validando estrutura de arquivos HES v3.1...
+
+  [ ] SKILL.md existe na raiz do projeto
+  [ ] Diretório skills/ existe (VISÍVEL, não .skills/)
+  [ ] skills/00-bootstrap.md
+  [ ] skills/01-discovery.md
+  [ ] skills/02-spec.md
+  [ ] skills/03-design.md
+  [ ] skills/04-data.md
+  [ ] skills/05-tests.md
+  [ ] skills/06-implementation.md
+  [ ] skills/07-review.md
+  [ ] skills/legacy.md
+  [ ] skills/error-recovery.md
+  [ ] skills/refactor.md
+  [ ] skills/report.md
+  [ ] skills/harness-health.md
+```
+
+**Se algum arquivo estiver faltando**, exiba erro claro:
+
+```
+🚨 Estrutura HES INCOMPLETA — os seguintes arquivos não foram encontrados:
+
+  ❌ skills/02-spec.md
+  ❌ skills/05-tests.md
+
+Ações possíveis:
+  1. Recopie a pasta skills/ do repositório HES original
+  2. Verifique se o caminho de destino está correto (deve ser skills/, não .skills/)
+  3. Execute este bootstrap novamente após corrigir
+```
+
+### 2. Tipo de Instalação
+
+Se a estrutura estiver válida, pergunte ao usuário:
+
+```
+📦 Tipo de Instalação — como o HES será usado?
+
+  [A] Local (este projeto apenas)
+      → Arquivos ficam no projeto, versionados com git
+      → Ideal: projeto isolado, cada projeto tem sua versão
+
+  [B] Global (compartilhado entre projetos)
+      → Arquivos em ~/.hes/skills/ com symlinks nos projetos
+      → Ideal: múltiplos projetos, atualização centralizada
+      → Comando:
+        # Copiar para localização global
+        cp -r skills/ ~/.hes/skills/
+
+        # Remover cópia local e criar symlink
+        rm -rf skills/
+        ln -s ~/.hes/skills/ ./skills
+```
+
+- Se **[A] Local**: registre `"installation_type": "local"` e siga para Passo 2.
+- Se **[B] Global**: execute a cópia e criação do symlink, registre `"installation_type": "global"`, e siga para Passo 2.
+
+### 3. Gerar Relatório de Validação
+
+Salve o resultado em `.hes/state/setup-validation.json`:
+
+```json
+{
+  "timestamp": "{{DATA_ATUAL_ISO}}",
+  "installation_type": "local|global",
+  "structure_valid": true|false,
+  "files_expected": ["SKILL.md", "skills/00-bootstrap.md", "skills/01-discovery.md", "skills/02-spec.md", "skills/03-design.md", "skills/04-data.md", "skills/05-tests.md", "skills/06-implementation.md", "skills/07-review.md", "skills/legacy.md", "skills/error-recovery.md", "skills/refactor.md", "skills/report.md", "skills/harness-health.md"],
+  "files_missing": [],
+  "issues": []
+}
+```
+
+- `files_expected`: lista completa de arquivos que deveriam existir
+- `files_missing`: lista de arquivos não encontrados (vazia se todos presentes)
+- `issues`: lista de problemas adicionais (ex: `"skills/ é diretório oculto (.skills/), deveria ser visível"`)
+- `structure_valid`: `true` apenas se `files_missing` estiver vazio
 
 ---
 
