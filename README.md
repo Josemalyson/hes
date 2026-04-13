@@ -366,26 +366,30 @@ The `.hes/` directory is generated automatically by the bootstrap process. You o
 
 ### Agent Registry
 
-HES defines 14 specialized agents + 3 sub-agents:
+HES defines **18 specialized agents** + 3 sub-agents:
 
-| Agent | Type | Phase | Responsibility |
-|-------|------|-------|----------------|
-| `harness-agent` | orchestrator | — | Default router, reads state, dispatches |
-| `discovery-agent` | phase | DISCOVERY | Captures business rules, use cases, domains |
-| `spec-agent` | phase | SPEC | BDD scenarios, API contracts, traceability |
-| `design-agent` | phase | DESIGN | Components, ADRs, architecture decisions |
-| `data-agent` | phase | DATA | Schema design, migrations, DTOs |
-| `test-agent` | phase | RED | Writes failing tests (TDD red phase) |
-| `impl-agent` | phase | GREEN | Writes production code (TDD green phase) |
-| `review-agent` | phase | REVIEW | 5-dimension review checklist |
-| `session-manager` | system | — | Lifecycle, checkpoints, context bloat detection |
-| `error-recovery-agent` | system | — | Error diagnosis, categorization, lessons |
-| `refactor-agent` | system | — | Safe refactoring by type (A-I) |
-| `report-agent` | system | — | Batch learning over events.log |
-| `harness-health-agent` | system | — | Coverage diagnostics (3 dimensions) |
-| `issue-create-agent` | system | — | Auto-diagnostic GitHub Issue creation |
+| Agent | Type | Phase | Responsibility | Skill File |
+|-------|------|-------|----------------|------------|
+| `harness-agent` | orchestrator | — | Default router, reads state, dispatches | `SKILL.md` |
+| `discovery-agent` | phase | DISCOVERY | Captures business rules, use cases, domains | `01-discovery.md` |
+| `spec-agent` | phase | SPEC | BDD scenarios, API contracts, traceability | `02-spec.md` |
+| `design-agent` | phase | DESIGN | Components, ADRs, architecture decisions | `03-design.md` |
+| `data-agent` | phase | DATA | Schema design, migrations, DTOs | `04-data.md` |
+| `test-agent` | phase | RED | Writes failing tests (TDD red phase) | `05-tests.md` |
+| `impl-agent` | phase | GREEN | Writes production code (TDD green phase) | `06-implementation.md` |
+| `review-agent` | phase | REVIEW | 5-dimension review checklist | `07-review.md` |
+| `progressive-analysis-agent` | system | — | Large codebase analysis with state preservation | `08-progressive-analysis.md` |
+| `issue-create-agent` | system | — | Auto-diagnostic GitHub Issue creation | `09-issue-create.md` |
+| `session-manager` | system | — | Lifecycle, checkpoints, context bloat detection | `session-manager.md` |
+| `error-recovery-agent` | system | — | Error diagnosis, categorization, lessons | `error-recovery.md` |
+| `refactor-agent` | system | — | Safe refactoring by type (A-I) | `refactor.md` |
+| `report-agent` | system | — | Batch learning over events.log | `report.md` |
+| `harness-health-agent` | system | — | Coverage diagnostics (3 dimensions) | `harness-health.md` |
+| `delegation-agent` | system | — | Multi-agent dispatch protocol | `agent-delegation.md` |
+| `registry-agent` | system | — | Registry schema reference | `agent-registry.md` |
+| `legacy-agent` | system | — | Legacy project inventory + harnessability | `legacy.md` |
 
-Sub-agents (`test-runner`, `linter`, `arch-check`) are spawned by `impl-agent` during implementation.
+**Sub-agents** (`test-runner`, `linter`, `arch-check`) are spawned by `impl-agent` during implementation.
 
 ---
 
@@ -418,26 +422,71 @@ Every state transition is logged as a structured event to `.hes/state/events.log
 
 Each skill file is a specialized guide for one phase or system function:
 
-| File | Purpose |
-|------|---------|
-| `00-bootstrap.md` | Initial setup — 4 questions, generates `.hes/` structure, git hooks, fitness sensors |
-| `01-discovery.md` | Business rules capture, use case identification, domain analysis |
-| `02-spec.md` | BDD scenarios, API contracts, requirements traceability |
-| `03-design.md` | Component design, ADRs, architecture fitness harnessability |
-| `04-data.md` | Schema design, SQL migrations (Flyway), DTOs |
-| `05-tests.md` | TDD RED phase — unit/integration test templates for Java/Node/Python |
-| `06-implementation.md` | TDD GREEN phase — minimal viable implementation, sensor loops |
-| `07-review.md` | 5-dimension review: behavior, maintainability, security, observability, architecture |
-| `08-progressive-analysis.md` | Incremental analysis of large codebases (>50 files) with state preservation |
-| `09-issue-create.md` | Auto-diagnostic GitHub Issue creation (bug/improvement) |
-| `agent-delegation.md` | Multi-agent dispatch protocol, sub-agent spawning |
-| `agent-registry.md` | Registry schema and custom agent creation guide |
-| `error-recovery.md` | Error diagnosis by category (A-E), harness improvement on recurrence |
-| `harness-health.md` | 3-dimension harness coverage diagnostics |
-| `legacy.md` | Inventory + harnessability assessment for existing/legacy projects |
-| `refactor.md` | Safe refactoring by type (A-I), including harnessability improvement |
-| `report.md` | Batch learning over events.log — harness improvement from traces |
-| `session-manager.md` | Session lifecycle: checkpoint, recovery, context bloat, phase lock |
+### Phase Skills (Sequential)
+
+| File | Phase | Purpose | Lines |
+|------|-------|---------|-------|
+| `00-bootstrap.md` | ZERO | Initial setup — 4 questions, generates `.hes/` structure, git hooks, fitness sensors | ~794 |
+| `01-discovery.md` | DISCOVERY | Business rules capture, use case identification, domain analysis | — |
+| `02-spec.md` | SPEC | BDD scenarios, API contracts, requirements traceability | — |
+| `03-design.md` | DESIGN | Component design, ADRs, architecture fitness harnessability | — |
+| `04-data.md` | DATA | Schema design, SQL migrations (Flyway), DTOs | — |
+| `05-tests.md` | RED | TDD RED phase — unit/integration test templates for Java/Node/Python | — |
+| `06-implementation.md` | GREEN | TDD GREEN phase — minimal viable implementation, sensor loops | — |
+| `07-review.md` | REVIEW | 5-dimension review: behavior, maintainability, security, observability, architecture | — |
+
+### Analysis & Issue Skills
+
+| File | Type | Purpose | Lines |
+|------|------|---------|-------|
+| `08-progressive-analysis.md` | System | Incremental analysis of large codebases (>50 files) with state preservation between sessions | ~377 |
+| `09-issue-create.md` | System | Auto-diagnostic GitHub Issue creation (bug/improvement) with automatic diagnostic collection | ~187 |
+
+### Agent & Delegation Skills
+
+| File | Type | Purpose | Lines |
+|------|------|---------|-------|
+| `agent-delegation.md` | System | Multi-agent dispatch protocol, sub-agent spawning, delegation pattern | ~268 |
+| `agent-registry.md` | System | Registry schema reference and custom agent creation guide | ~198 |
+
+### System & Recovery Skills
+
+| File | Type | Purpose | Lines |
+|------|------|---------|-------|
+| `error-recovery.md` | System | Error diagnosis by category (A-E), harness improvement on recurrence | ~209 |
+| `harness-health.md` | System | 3-dimension harness coverage diagnostics (Maintainability, Architecture, Behaviour) | ~351 |
+| `legacy.md` | System | Inventory + harnessability assessment for existing/legacy projects | ~272 |
+| `refactor.md` | System | Safe refactoring by type (A-I), including harnessability improvement | ~274 |
+| `report.md` | System | Batch learning over events.log — harness improvement from traces | ~287 |
+| `session-manager.md` | System | Session lifecycle: checkpoint, recovery, context bloat, phase lock | ~274 |
+
+---
+
+## ◈ COMPLETE SKILL INVENTORY (18 files)
+
+```
+skills/
+├── 00-bootstrap.md            (794 lines) — Initial project setup
+├── 01-discovery.md            — Business rules elicitation
+├── 02-spec.md                 — BDD scenarios + API contracts
+├── 03-design.md               — Architecture decisions (ADRs)
+├── 04-data.md                 — Data model + migrations
+├── 05-tests.md                — Test-first implementation (RED)
+├── 06-implementation.md       — Code implementation (GREEN)
+├── 07-review.md               — 5-dimension review checklist
+├── 08-progressive-analysis.md (377 lines) — Large codebase analysis
+├── 09-issue-create.md         (187 lines) — GitHub Issue creation
+├── agent-delegation.md        (268 lines) — Multi-agent delegation
+├── agent-registry.md          (198 lines) — Registry reference
+├── error-recovery.md          (209 lines) — Error diagnosis & recovery
+├── harness-health.md          (351 lines) — Coverage diagnostics
+├── legacy.md                  (272 lines) — Legacy project onboarding
+├── refactor.md                (274 lines) — Safe refactoring
+├── report.md                  (287 lines) — Batch learning reports
+└── session-manager.md         (274 lines) — Session lifecycle
+```
+
+**Total:** 18 skill files covering 9 phases + 9 system functions
 
 ---
 
