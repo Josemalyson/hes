@@ -20,3 +20,4 @@ o projeto ficou tão grande que ele quebrou o processo inical, então a sugestã
 17. https://github.com/msitarzewski/agency-agents
 18. https://github.com/garrytan/gstack
 19. https://github.com/addyosmani/agent-skills
+20. https://claude-blog.md/blog/claude-obsidian-second-brain
