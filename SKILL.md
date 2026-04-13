@@ -151,13 +151,16 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 
 ## ◈ ROUTING PROTOCOL (v3.3 — Registry-Based)
 
-### PASSO 0 — READ STATE
+### PASSO 0 — READ STATE AND AUTO-INSTALL
 
 ```
 1. Check .hes/state/current.json
-2. No file AND no src/ → ZERO
-3. No file AND with src/ → LEGACY
-4. With file            → read active_feature and state
+2. No file AND no .hes/ directory → RUN AUTO-INSTALL
+   → Load skills/auto-install.md
+   → Execute auto-install protocol using agentic tools
+   → After completion, resume from ZERO state
+3. No file AND with .hes/ → LEGACY (load skills/legacy.md)
+4. With file → read active_feature and state (normal operation)
 ```
 
 ### PASSO 0-B — DETECT LANGUAGE
@@ -191,7 +194,8 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 
 | Condition | Agent | Skill-file |
 |-----------|-------|-----------|
-| ZERO | harness-agent | `skills/00-bootstrap.md` |
+| ZERO (no .hes/) | auto-install-agent | `skills/auto-install.md` |
+| ZERO (with .hes/) | harness-agent | `skills/00-bootstrap.md` |
 | LEGACY | harness-agent | `skills/legacy.md` |
 | feature = DISCOVERY | discovery-agent | `skills/01-discovery.md` |
 | feature = SPEC | spec-agent | `skills/02-spec.md` |
@@ -205,6 +209,7 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 | `/hes report` | report-agent | `skills/report.md` |
 | `/hes harness` | harness-health-agent | `skills/harness-health.md` |
 | `/hes error` or error | error-recovery-agent | `skills/error-recovery.md` |
+| `/hes auto-install` | auto-install-agent | `skills/auto-install.md` |
 | Session management | session-manager | `skills/session-manager.md` |
 
 ### PASSO 3 — ANNOUNCE

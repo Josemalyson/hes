@@ -11,7 +11,7 @@ your-project/
 ├── SKILL.md                       ← place in project root
 │   └── Orchestrator file (v3.3.0) — reads state, routes to agents
 │
-└── skills/                        ← 18 skill files total
+└── skills/                        ← 19 skill files total
     ├── 00-bootstrap.md            (794 lines) — initial project setup
     ├── 01-discovery.md            — business rules elicitation
     ├── 02-spec.md                 — BDD scenarios + API contracts
@@ -24,6 +24,7 @@ your-project/
     ├── 09-issue-create.md         (187 lines) — GitHub Issue creation
     ├── agent-delegation.md        (268 lines) — multi-agent delegation
     ├── agent-registry.md          (198 lines) — registry reference
+    ├── auto-install.md            (~280 lines) — automated installation
     ├── error-recovery.md          (209 lines) — error diagnosis & recovery
     ├── harness-health.md          (351 lines) — coverage diagnostics
     ├── legacy.md                  (272 lines) — legacy project onboarding
@@ -40,7 +41,7 @@ your-project/
 **Phase Skills (Sequential - 8 files):** 00-bootstrap → 07-review
 **Analysis & Issue Skills (2 files):** 08-progressive-analysis, 09-issue-create
 **Agent & Delegation Skills (2 files):** agent-delegation, agent-registry
-**System & Recovery Skills (6 files):** error-recovery, harness-health, legacy, refactor, report, session-manager
+**System & Recovery Skills (7 files):** auto-install, error-recovery, harness-health, legacy, refactor, report, session-manager
 
 ---
 
@@ -50,6 +51,60 @@ your-project/
 - **AI coding agent** (Claude Code, Cursor, Copilot, etc.)
 - **Node.js 18+** (if using CLI tools)
 - **Language**: Auto-detected (pt, es, fr, de, en)
+
+---
+
+## ◈ AUTOMATIC INSTALLATION (RECOMMENDED)
+
+HES v3.3 now supports **fully automatic installation** using agentic tools.
+
+### Quick Start (Automatic)
+
+```bash
+# In your project root, just run:
+/hes
+
+# The agent will automatically:
+# 1. Detect HES is not installed
+# 2. Ask for source location of HES files
+# 3. Copy all files using agentic tools
+# 4. Auto-detect project info (name, stack, IDE)
+# 5. Generate .hes/ structure
+# 6. Commit to version control
+# 7. Ready to use!
+```
+
+### Explicit Auto-Install
+
+```bash
+# Force auto-install even if .hes/ partially exists:
+/hes auto-install
+
+# Agent will:
+# ✓ Copy 19 files (1 orchestrator + 18 skills)
+# ✓ Auto-detect project metadata
+# ✓ Generate .hes/ state structure
+# ✓ Create IDE config files
+# ✓ Validate installation
+# ✓ Git commit
+```
+
+### What Gets Auto-Detected
+
+| Item | Detection Method | Fallback |
+|------|------------------|----------|
+| Project name | `git remote` or `pwd` | "my-project" |
+| Stack | Scan for pom.xml, package.json, etc. | User specifies |
+| IDE | Check .claude/, .cursor/, .vscode/ | "generic" |
+| Domains | Scan src/ structure | Empty array |
+
+### Manual Override
+
+If auto-detection is wrong, you can correct during the bootstrap questionnaire.
+
+---
+
+## ◈ MANUAL INSTALLATION (ALTERNATIVE)
 
 ---
 
@@ -202,6 +257,7 @@ HES v3.3 uses a registry-based routing system (`.hes/agents/registry.json`) with
 
 | Command | Agent | Skill-file | Purpose |
 |---------|-------|-----------|---------|
+| `/hes auto-install` | auto-install-agent | `skills/auto-install.md` | Automated HES installation |
 | `/hes refactor <module>` | refactor-agent | `skills/refactor.md` | Safe refactoring by type (A-I) |
 | `/hes report` | report-agent | `skills/report.md` | Batch learning from events.log |
 | `/hes harness` | harness-health-agent | `skills/harness-health.md` | 3-dimension coverage diagnostics |
@@ -337,6 +393,7 @@ This is useful when you know exactly what you need.
 
 | File | Lines | Agent | Trigger | Key Functions |
 |------|-------|-------|---------|---------------|
+| `auto-install.md` | ~280 | auto-install-agent | `/hes auto-install` or first `/hes` | Automated installation, auto-detection, validation |
 | `error-recovery.md` | ~209 | error-recovery-agent | Error detection | Diagnosis by category (A-E), surgical correction, systemic prevention |
 | `harness-health.md` | ~351 | harness-health-agent | `/hes harness` | 3-dimension coverage diagnostics (Maintainability, Architecture, Behaviour) |
 | `legacy.md` | ~272 | legacy-agent | State = LEGACY | Inventory + harnessability assessment for existing projects |
@@ -412,6 +469,17 @@ Adapts response complexity:
 
 ### Installation Checklist
 
+**Automatic (Recommended):**
+```
+[ ] Run /hes or /hes auto-install
+[ ] Agent auto-detects project info
+[ ] Agent copies all 19 files
+[ ] Agent generates .hes/ structure
+[ ] Agent commits to version control
+[ ] Verify: /hes status works
+```
+
+**Manual (Alternative):**
 ```
 [ ] Copy SKILL.md to project root
 [ ] Copy all 18 skill files to skills/ directory
@@ -422,15 +490,24 @@ Adapts response complexity:
 
 ### What Gets Installed
 
+**Automatic installation:**
+- Agent uses file system tools to copy all files
+- Auto-detects project metadata (name, stack, IDE)
+- Generates .hes/ state structure
+- Commits everything to version control
+- Total: 1 orchestrator + 19 skill files (including auto-install.md)
+
+**Manual installation:**
 - **1 orchestrator file:** SKILL.md (entry point)
-- **18 skill files:** 8 phase + 2 analysis + 2 delegation + 6 system
-- **Total lines:** ~4,500+ lines of specialized AI agent instructions
-- **Generated:** `.hes/` directory structure (by bootstrap)
+- **19 skill files:** 8 phase + 2 analysis + 2 delegation + 7 system
+- **Total lines:** ~4,800+ lines of specialized AI agent instructions
+- **Generated:** .hes/ directory structure (by bootstrap or auto-install)
 
 ### Key Commands
 
 ```bash
-/hes                       # Start HES (auto-detects state)
+/hes                       # Start HES (auto-installs if needed)
+/hes auto-install          # Force automatic installation
 /hes start <feature>       # Start new feature → DISCOVERY
 /hes status                # Show all features + state
 /hes switch <feature>      # Switch feature focus
