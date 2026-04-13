@@ -1,120 +1,166 @@
 {
   "version": "3.3.0",
-  "language_support": ["en", "pt", "es", "fr", "de"],
-  "audience_modes": ["beginner", "expert"],
-  "agents": {
-    "harness-agent": {
-      "description": "Default orchestrator agent — reads SKILL.md, routes phases",
+  "agents": [
+    {
+      "name": "harness-agent",
       "type": "orchestrator",
-      "triggers": ["/hes", "/hes status", "/hes start", "/hes switch", "/hes domain", "/hes lessons"],
-      "context_load": ["SKILL.md", ".hes/state/current.json", ".hes/agents/registry.json"]
+      "phase": "ZERO",
+      "skill_file": "SKILL.md",
+      "context_load": ["SKILL.md"],
+      "trigger": "/hes"
     },
-    "discovery-agent": {
-      "description": "Runs 01-discovery — captures RN, use cases, domain analysis",
+    {
+      "name": "discovery-agent",
       "type": "phase",
       "phase": "DISCOVERY",
-      "triggers": ["feature state = DISCOVERY"],
-      "context_load": ["SKILL.md", "skills/01-discovery.md", ".hes/state/current.json", ".hes/domains/*/context.md"]
+      "skill_file": "skills/01-discovery.md",
+      "context_load": ["SKILL.md", "skills/01-discovery.md"],
+      "trigger": "/hes start"
     },
-    "spec-agent": {
-      "description": "Runs 02-spec — BDD scenarios, API contracts, RN traceability",
+    {
+      "name": "spec-agent",
       "type": "phase",
       "phase": "SPEC",
-      "triggers": ["feature state = SPEC"],
-      "context_load": ["SKILL.md", "skills/02-spec.md", ".hes/state/current.json"]
+      "skill_file": "skills/02-spec.md",
+      "context_load": ["SKILL.md", "skills/02-spec.md"],
+      "trigger": "phase_advancement"
     },
-    "design-agent": {
-      "description": "Runs 03-design — components, ADRs, architecture decisions",
+    {
+      "name": "design-agent",
       "type": "phase",
       "phase": "DESIGN",
-      "triggers": ["feature state = DESIGN"],
-      "context_load": ["SKILL.md", "skills/03-design.md", ".hes/state/current.json", ".hes/decisions/"]
+      "skill_file": "skills/03-design.md",
+      "context_load": ["SKILL.md", "skills/03-design.md"],
+      "trigger": "phase_advancement"
     },
-    "data-agent": {
-      "description": "Runs 04-data — schema design, migrations, data modeling",
+    {
+      "name": "data-agent",
       "type": "phase",
       "phase": "DATA",
-      "triggers": ["feature state = DATA"],
-      "context_load": ["SKILL.md", "skills/04-data.md", ".hes/state/current.json"]
+      "skill_file": "skills/04-data.md",
+      "context_load": ["SKILL.md", "skills/04-data.md"],
+      "trigger": "phase_advancement"
     },
-    "test-agent": {
-      "description": "Runs 05-tests — RED phase, writes failing tests",
+    {
+      "name": "test-agent",
       "type": "phase",
       "phase": "RED",
-      "triggers": ["feature state = RED"],
-      "context_load": ["SKILL.md", "skills/05-tests.md", ".hes/state/current.json", "skills/02-spec.md"]
+      "skill_file": "skills/05-tests.md",
+      "context_load": ["SKILL.md", "skills/05-tests.md"],
+      "trigger": "phase_advancement"
     },
-    "impl-agent": {
-      "description": "Runs 06-implementation — GREEN phase, writes production code",
+    {
+      "name": "impl-agent",
       "type": "phase",
       "phase": "GREEN",
-      "triggers": ["feature state = GREEN"],
-      "context_load": ["SKILL.md", "skills/06-implementation.md", ".hes/state/current.json", ".hes/specs/*/02-spec.md"],
-      "sub_agents": ["test-runner", "linter", "arch-check"]
+      "skill_file": "skills/06-implementation.md",
+      "context_load": ["SKILL.md", "skills/06-implementation.md"],
+      "trigger": "phase_advancement"
     },
-    "review-agent": {
-      "description": "Runs 07-review — 5 dimensions, DONE gate",
+    {
+      "name": "review-agent",
       "type": "phase",
       "phase": "REVIEW",
-      "triggers": ["feature state = REVIEW"],
-      "context_load": ["SKILL.md", "skills/07-review.md", ".hes/state/current.json", "skills/05-tests.md", "skills/06-implementation.md"]
+      "skill_file": "skills/07-review.md",
+      "context_load": ["SKILL.md", "skills/07-review.md"],
+      "trigger": "phase_advancement"
     },
-    "session-manager": {
-      "description": "Manages session lifecycle — /new, /clear, context bloat detection, recovery, phase lock",
+    {
+      "name": "progressive-analysis-agent",
       "type": "system",
-      "triggers": ["/hes status", "context > threshold", "phase lock violation"],
-      "context_load": ["SKILL.md", "skills/session-manager.md", ".hes/state/current.json", ".hes/state/session-checkpoint.json"]
+      "phase": null,
+      "skill_file": "skills/08-progressive-analysis.md",
+      "context_load": ["SKILL.md", "skills/08-progressive-analysis.md"],
+      "trigger": "large_codebase"
     },
-    "error-recovery-agent": {
-      "description": "Diagnoses and resolves errors, categorizes lessons",
+    {
+      "name": "issue-create-agent",
       "type": "system",
-      "triggers": ["user reports error", "/hes error"],
-      "context_load": ["SKILL.md", "skills/error-recovery.md", ".hes/state/current.json"]
+      "phase": null,
+      "skill_file": "skills/09-issue-create.md",
+      "context_load": ["SKILL.md", "skills/09-issue-create.md"],
+      "trigger": "/hes bug, /hes improvement"
     },
-    "refactor-agent": {
-      "description": "Guides safe refactoring by type",
+    {
+      "name": "session-manager",
       "type": "system",
-      "triggers": ["/hes refactor"],
-      "context_load": ["SKILL.md", "skills/refactor.md", ".hes/state/current.json"]
+      "phase": null,
+      "skill_file": "skills/session-manager.md",
+      "context_load": ["SKILL.md", "skills/session-manager.md"],
+      "trigger": "/hes status, /hes switch, /clear"
     },
-    "report-agent": {
-      "description": "Batch learning over events.log",
+    {
+      "name": "error-recovery-agent",
       "type": "system",
-      "triggers": ["/hes report"],
-      "context_load": ["SKILL.md", "skills/report.md", ".hes/state/events.log"]
+      "phase": null,
+      "skill_file": "skills/error-recovery.md",
+      "context_load": ["SKILL.md", "skills/error-recovery.md"],
+      "trigger": "error_detected"
     },
-    "harness-health-agent": {
-      "description": "Diagnoses harness coverage across 3 dimensions",
+    {
+      "name": "refactor-agent",
       "type": "system",
-      "triggers": ["/hes harness"],
-      "context_load": ["SKILL.md", "skills/harness-health.md", ".hes/state/current.json"]
+      "phase": null,
+      "skill_file": "skills/refactor.md",
+      "context_load": ["SKILL.md", "skills/refactor.md"],
+      "trigger": "/hes refactor"
     },
-    "issue-create-agent": {
-      "description": "Creates GitHub Issues with auto-diagnostic collection for bugs and improvements",
+    {
+      "name": "report-agent",
       "type": "system",
-      "triggers": ["/hes issue", "/hes bug", "/hes improvement"],
-      "context_load": ["SKILL.md", "skills/09-issue-create.md", ".hes/state/current.json", ".hes/templates/"]
+      "phase": null,
+      "skill_file": "skills/report.md",
+      "context_load": ["SKILL.md", "skills/report.md"],
+      "trigger": "/hes report"
+    },
+    {
+      "name": "harness-health-agent",
+      "type": "system",
+      "phase": null,
+      "skill_file": "skills/harness-health.md",
+      "context_load": ["SKILL.md", "skills/harness-health.md"],
+      "trigger": "/hes harness"
+    },
+    {
+      "name": "delegation-agent",
+      "type": "system",
+      "phase": null,
+      "skill_file": "skills/agent-delegation.md",
+      "context_load": ["SKILL.md", "skills/agent-delegation.md"],
+      "trigger": "multi_agent_dispatch"
+    },
+    {
+      "name": "registry-agent",
+      "type": "system",
+      "phase": null,
+      "skill_file": "skills/agent-registry.md",
+      "context_load": ["SKILL.md", "skills/agent-registry.md"],
+      "trigger": "registry_lookup"
+    },
+    {
+      "name": "legacy-agent",
+      "type": "system",
+      "phase": null,
+      "skill_file": "skills/legacy.md",
+      "context_load": ["SKILL.md", "skills/legacy.md"],
+      "trigger": "legacy_project"
     }
-  },
-  "sub_agents": {
-    "test-runner": {
-      "description": "Executes tests, reports results, loops on failure (max 3 iterations)",
+  ],
+  "sub_agents": [
+    {
+      "name": "test-runner",
       "parent": "impl-agent",
-      "trigger": "after code change",
-      "scope": ["tests/", "build output"]
+      "purpose": "execute_test_suites"
     },
-    "linter": {
-      "description": "Runs linter + complexity check before commit",
+    {
+      "name": "linter",
       "parent": "impl-agent",
-      "trigger": "before commit",
-      "scope": ["*.java", "*.ts", "*.py", "*.js"]
+      "purpose": "run_linting_checks"
     },
-    "arch-check": {
-      "description": "Validates architecture boundaries (ArchUnit/dep-cruiser/import-linter)",
+    {
+      "name": "arch-check",
       "parent": "impl-agent",
-      "trigger": "before commit",
-      "scope": ["architecture rules"]
+      "purpose": "validate_architecture_constraints"
     }
-  },
-  "custom_agents": {}
+  ]
 }

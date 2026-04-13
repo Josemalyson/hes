@@ -1,0 +1,20 @@
+{
+  "project": "hes",
+  "stack": "Markdown Documentation + AI Agent Skills",
+  "ide": "qwen-code",
+  "active_feature": null,
+  "features": {},
+  "domains": [],
+  "dependency_graph": {},
+  "harness_version": "3.3.0",
+  "agent_model": "single-agent",
+  "user_language": "pt",
+  "audience_mode": "expert",
+  "completed_cycles": 0,
+  "last_updated": "2026-04-13T16:15:00Z",
+  "session": {
+    "checkpoint": null,
+    "phase_lock": "ZERO",
+    "messages_in_session": 0
+  }
+}
