@@ -254,13 +254,14 @@ Update `.hes/domains/{{domain}}/fitness/README.md` with the new rule.
 ## ◈ STEP 5 — SELF-REFINEMENT LOOP (max. 3 attempts)
 
 ```
-If tests do not compile correctly:
+⏱ Time Budget: 10 minutes for RED phase
 
 Attempt {{N}}/3:
   1. Analyze the full error
   2. Is the problem in the TEST or in the spec?
   3. Fix the test (never change expected message to make it pass)
-  4. Repeat
+  4. Run the test to verify
+  5. If still failing and N < 3 → Loop detection: "Consider a different approach."
 
 After 3 unsuccessful attempts:
   → Record in lessons.md (Category B — technical error)
@@ -298,7 +299,7 @@ After 3 unsuccessful attempts:
   "feature": "{{FEATURE_SLUG}}",
   "from": "DATA",
   "to": "RED",
-  "agent": "hes-v3.1",
+  "agent": "hes-v3.3",
   "metadata": {
     "unit_tests": {{N}},
     "integration_tests": {{N}},

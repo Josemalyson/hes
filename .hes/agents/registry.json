@@ -1,0 +1,140 @@
+{
+  "version": "3.3.0",
+  "harness_version": "3.3.0",
+  "agents": {
+    "harness-agent": {
+      "description": "Default orchestrator — routes phases and manages state",
+      "type": "orchestrator",
+      "triggers": ["/hes", "/hes start", "iniciar projeto", "analisar projeto"],
+      "context_load": ["SKILL.md", ".hes/state/current.json", ".hes/agents/registry.json"],
+      "skill_file": "SKILL.md"
+    },
+    "auto-install-agent": {
+      "description": "Automated HES installation using agentic tools",
+      "type": "system",
+      "phase": "INSTALL",
+      "triggers": ["/hes auto-install", "first /hes without .hes/"],
+      "context_load": ["SKILL.md", "skills/auto-install.md"],
+      "skill_file": "skills/auto-install.md"
+    },
+    "discovery-agent": {
+      "description": "Captures business rules, use cases, domain analysis",
+      "type": "phase",
+      "phase": "DISCOVERY",
+      "triggers": ["feature.state = DISCOVERY"],
+      "context_load": ["skills/01-discovery.md", ".hes/state/current.json"],
+      "skill_file": "skills/01-discovery.md"
+    },
+    "spec-agent": {
+      "description": "Generates BDD scenarios, API contracts, traceability",
+      "type": "phase",
+      "phase": "SPEC",
+      "triggers": ["feature.state = SPEC"],
+      "context_load": ["skills/02-spec.md", ".hes/specs/{{feature}}/01-discovery.md"],
+      "skill_file": "skills/02-spec.md"
+    },
+    "design-agent": {
+      "description": "Creates components, ADRs, architecture decisions",
+      "type": "phase",
+      "phase": "DESIGN",
+      "triggers": ["feature.state = DESIGN"],
+      "context_load": ["skills/03-design.md", ".hes/specs/{{feature}}/02-spec.md"],
+      "skill_file": "skills/03-design.md"
+    },
+    "data-agent": {
+      "description": "Designs schema, SQL migrations, DTOs",
+      "type": "phase",
+      "phase": "DATA",
+      "triggers": ["feature.state = DATA"],
+      "context_load": ["skills/04-data.md", ".hes/specs/{{feature}}/03-design.md"],
+      "skill_file": "skills/04-data.md"
+    },
+    "test-agent": {
+      "description": "Writes failing tests (TDD RED phase)",
+      "type": "phase",
+      "phase": "RED",
+      "triggers": ["feature.state = RED"],
+      "context_load": ["skills/05-tests.md", ".hes/specs/{{feature}}/04-data.md"],
+      "skill_file": "skills/05-tests.md"
+    },
+    "impl-agent": {
+      "description": "Writes production code (TDD GREEN phase)",
+      "type": "phase",
+      "phase": "GREEN",
+      "triggers": ["feature.state = GREEN"],
+      "context_load": ["skills/06-implementation.md", ".hes/specs/{{feature}}/05-tests.md"],
+      "skill_file": "skills/06-implementation.md"
+    },
+    "review-agent": {
+      "description": "Executes 5-dimension review checklist",
+      "type": "phase",
+      "phase": "REVIEW",
+      "triggers": ["feature.state = REVIEW"],
+      "context_load": ["skills/07-review.md", ".hes/specs/{{feature}}/06-implementation.md"],
+      "skill_file": "skills/07-review.md"
+    },
+    "session-manager": {
+      "description": "Session lifecycle: checkpoint, recovery, context bloat, phase lock",
+      "type": "system",
+      "triggers": ["/hes status", "/hes switch", "/clear", "/new", "/hes checkpoint"],
+      "context_load": ["skills/session-manager.md", ".hes/state/current.json"],
+      "skill_file": "skills/session-manager.md"
+    },
+    "error-recovery-agent": {
+      "description": "Error diagnosis by category (A-E), harness improvement on recurrence",
+      "type": "system",
+      "triggers": ["/hes error", "error detected"],
+      "context_load": ["skills/error-recovery.md", ".hes/tasks/lessons.md"],
+      "skill_file": "skills/error-recovery.md"
+    },
+    "refactor-agent": {
+      "description": "Guided safe refactoring by type (A-I)",
+      "type": "system",
+      "triggers": ["/hes refactor"],
+      "context_load": ["skills/refactor.md"],
+      "skill_file": "skills/refactor.md"
+    },
+    "report-agent": {
+      "description": "Batch learning over events.log — harness improvement from traces",
+      "type": "system",
+      "triggers": ["/hes report"],
+      "context_load": ["skills/report.md", ".hes/state/events.log"],
+      "skill_file": "skills/report.md"
+    },
+    "harness-health-agent": {
+      "description": "Harness coverage diagnostics (3 regulation dimensions)",
+      "type": "system",
+      "triggers": ["/hes harness"],
+      "context_load": ["skills/harness-health.md"],
+      "skill_file": "skills/harness-health.md"
+    },
+    "legacy-agent": {
+      "description": "Inventory + harnessability assessment for existing projects",
+      "type": "system",
+      "triggers": ["LEGACY state", "existing project analysis"],
+      "context_load": ["skills/legacy.md"],
+      "skill_file": "skills/legacy.md"
+    }
+  },
+  "sub_agents": {
+    "test-runner": {
+      "description": "Runs test suite and reports results",
+      "parent": "impl-agent",
+      "trigger": "after code change",
+      "scope": ["tests/", "build output"]
+    },
+    "linter": {
+      "description": "Runs linter and code quality checks",
+      "parent": "impl-agent",
+      "trigger": "before commit",
+      "scope": ["source code files"]
+    },
+    "arch-check": {
+      "description": "Validates architecture constraints",
+      "parent": "review-agent",
+      "trigger": "before commit",
+      "scope": ["ArchitectureTest", ".dependency-cruiser.js"]
+    }
+  },
+  "custom_agents": {}
+}

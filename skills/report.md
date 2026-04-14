@@ -246,7 +246,7 @@ Register in `events.log`:
   "feature": "global",
   "from": "ACTIVE",
   "to": "REPORT_GENERATED",
-  "agent": "hes-v3.1",
+  "agent": "hes-v3.3",
   "metadata": {
     "report_file": ".hes/tasks/report-{{DATE}}.md",
     "cycles_analyzed": {{N}},

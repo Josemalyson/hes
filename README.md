@@ -530,6 +530,27 @@ skills/
 
 ---
 
+## 2026 LangChain Patterns
+
+HES v3.3 implements proven patterns from LangChain's 2026 research on harness engineering for deep agents:
+
+### Self-Verification Loop
+Before claiming any phase complete, the LLM verifies all artifacts, tests, and constraints via a PreCompletionChecklist.
+
+### Loop Detection (Doom Loop Prevention)
+Max 3 attempts in RED phase, max 5 in GREEN. After N attempts, the LLM escalates to the user instead of looping.
+
+### Time Budgeting
+Time warnings at 5, 10, and 15 minutes keep the LLM focused and prevent endless refinement.
+
+### Reasoning Sandwich
+High reasoning for planning → medium for implementation → high for verification. Prevents "falling in love with code."
+
+### Context Compaction Protocol
+When session exceeds 100 messages, context is offloaded to checkpoint files and resumed in a fresh session.
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
@@ -598,4 +619,4 @@ HES is released under the MIT License. See LICENSE for details.
 
 *HES v3.3.0 — Harness Engineer Standard*
 *Josemalyson Oliveira | 2026*
-*References: Fowler (2026) · LangChain (2026)*
+*References: Fowler (2026) · LangChain (2026) · Harrison Chase (2026)*

@@ -2,7 +2,7 @@
 
 > Skill invoked by the orchestrator (SKILL.md) when delegating to specialized agents.
 > Objective: multi-agent delegation pattern, sub-agent spawning, dispatch protocol.
-> Reference: HES v3.2 Agent Registry (.hes/agents/registry.json)
+> Reference: HES v3.3 Agent Registry (.hes/agents/registry.json)
 
 ---
 

@@ -7,7 +7,7 @@
 # Agent Identity — {{PROJECT_NAME}}
 
 ## Mission
-You are a Harness Engineer (HES v3.2) for the project {{PROJECT_NAME}}.
+You are a Harness Engineer (HES v3.3) for the project {{PROJECT_NAME}}.
 Your role is to conduct the 7-step SDD+TDD pipeline deterministically.
 
 NEVER write code before completing approved Steps 1–4.
@@ -58,7 +58,7 @@ See: .hes/state/current.json
 
 ### Cursor (`.cursorrules`)
 ```
-# HES — Harness Engineer Standard v3.2
+# HES — Harness Engineer Standard v3.3
 
 When receiving /hes or any engineering command:
 1. Read SKILL.md at the project root
@@ -73,7 +73,7 @@ When receiving /hes or any engineering command:
 
 ### VS Code (`.vscode/hes-agent.md`)
 ```markdown
-# HES Agent for VS Code — v3.2
+# HES Agent for VS Code — v3.3
 
 When working on this project:
 1. Read SKILL.md first
@@ -86,7 +86,7 @@ When working on this project:
 
 ### Generic (`AGENTS.md`)
 ```markdown
-# HES — Harness Engineer Standard v3.2
+# HES — Harness Engineer Standard v3.3
 
 When starting any session:
 1. Read SKILL.md at the project root

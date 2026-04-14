@@ -203,7 +203,7 @@ curl -X {{METHOD}} {{URL}} \
   "feature": "{{FEATURE_SLUG}}",
   "from": "REVIEW",
   "to": "DONE",
-  "agent": "hes-v3.1",
+  "agent": "hes-v3.3",
   "metadata": {
     "review_dimensions_passed": 5,
     "architecture_fitness_checked": true,

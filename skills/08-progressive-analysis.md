@@ -136,7 +136,7 @@ If tokens are running low → reduce to 1-2 per batch.
 ```markdown
 # Analysis — {{FILE_PATH}}
 
-Feature: {{FEATURE}} | Analyzed: {{ISO_DATE}} | Analyst: hes-v3.1
+Feature: {{FEATURE}} | Analyzed: {{ISO_DATE}} | Analyst: hes-v3.3
 
 ## Purpose
 {{WHAT THIS FILE DOES IN 1-2 SENTENCES}}

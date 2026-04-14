@@ -8,6 +8,8 @@ references:
   - "Fowler 2026: Harness Engineering for Coding Agent Users (martinfowler.com)"
   - "LangChain 2026: Continual Learning for AI Agents"
   - "LangChain 2026: Your Harness, Your Memory"
+  - "LangChain 2026: Improving Deep Agents with Harness Engineering (Harrison Chase)"
+  - "LangChain 2026: The Anatomy of an Agent Harness"
 ---
 
 # HES SKILL v3.3 — LLM HARNESS ORCHESTRATOR
@@ -129,6 +131,92 @@ Audience Mode + Language = Adapted Response
 - expert + pt: Technical Portuguese, concise, assumes domain knowledge
 - beginner + en: Simple English, minimal jargon, step-by-step explanations
 - expert + en: Technical English, concise, assumes domain knowledge
+```
+
+---
+
+## ◈ 2026 LANGCHAIN PATTERNS (Harrison Chase)
+
+> Implemented from LangChain 2026 research on harness engineering for deep agents.
+
+### Self-Verification Loop (PreCompletionChecklistMiddleware)
+
+Before claiming any phase complete, the LLM MUST verify:
+
+```
+PRE-COMPLETION CHECKLIST (per phase):
+  [ ] All required artifacts created?
+  [ ] All tests passing?
+  [ ] No violations of previous phase gates?
+  [ ] Error messages match spec exactly?
+  [ ] Coverage ≥ 80% (where applicable)?
+  [ ] No TODO/FIXME/HACK in code?
+  [ ] Architecture constraints satisfied?
+```
+
+### Loop Detection (Doom Loop Prevention)
+
+```
+MAX ATTEMPTS per self-refinement:
+  - RED phase (05-tests): max 3 attempts
+  - GREEN phase (06-impl): max 5 attempts
+  - Review phase (07-review): max 3 attempts
+
+On attempt N:
+  → If N > max → BLOCK and escalate to user
+  → Inject: "You've tried {{N}} times. Consider a different approach."
+  → Log to lessons.md (Category B — recurring technical error)
+```
+
+### Time Budgeting
+
+```
+TIME WARNINGS (inject at intervals):
+  - 5 minutes: "⏱ Time budget: 5 min used. Focus on essential only."
+  - 10 minutes: "⏱ Time budget: 10 min. Shift from building to verifying."
+  - 15 minutes: "⏱ Time budget: 15 min. Present current state to user."
+```
+
+### Reasoning Sandwich
+
+```
+REASONING BUDGET DISTRIBUTION:
+  Planning (high reasoning):   heavy context analysis, approach selection
+  Implementation (medium):      focused coding, minimal reasoning
+  Verification (high):          thorough checking, self-critique
+
+This prevents agents from "falling in love with their code."
+```
+
+### Context Compaction Protocol
+
+```
+WHEN session context exceeds threshold (> 100 messages or > 60k tokens):
+
+1. Save checkpoint: .hes/state/session-checkpoint.json
+2. Offload context:
+   → Commit partial progress to events.log
+   → Write summary to .hes/tasks/checkpoint.md
+   → Summarize lessons learned
+3. Clear session context
+4. Resume from checkpoint on next session
+```
+
+### Trace Analyzer Pattern
+
+```
+/hes report triggers:
+1. Reads events.log (all historical traces)
+2. Identifies patterns:
+   → Frequent error types (Category B lessons)
+   → Phase bottlenecks (which phase takes longest)
+   → Recurring issues (same lesson N ≥ 2)
+3. Proposes harness improvements:
+   → New rules to add
+   → Sensors to strengthen
+   → Guides to clarify
+4. Updates lessons.md with findings
+5. Proposes skill-file updates if needed
 ```
 
 ---
@@ -440,7 +528,9 @@ RULE-11   LLM NEVER advances feature with unresolved dependencies — YOU check 
 RULE-12   LLM ALWAYS generates event in events.log on every state advance — YOU log it
 RULE-13   LLM detects lesson appearing 2× → YOU promote to corresponding skill-file
 RULE-14   LLM detects recurring issue → YOU improve the harness, not just fix the instance
-RULE-15   LLM AS ORCHESTRATOR NEVER implements — YOU only route, validate, and advance state
+RULE-15   LLM AS ORCHESTRATOR executes the harness — routing + validation + state management
+          YOU DO NOT delegate skill-file execution to sub-agents
+          Sub-agents (test-runner, linter, arch-check) run TOOLS only, not skill-files
 RULE-16   LLM ENFORCES phase lock — YOU block advancement without gate satisfaction
 RULE-17   LLM loads ONLY current agent's context — YOU don't load everything
 RULE-18   LLM ALWAYS detects and adapts to user's language — YOU store and use it

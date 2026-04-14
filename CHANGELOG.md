@@ -1,5 +1,56 @@
 # HES — Changelog
 
+## v3.3.0 (2026)
+
+Refatoração focada em consistência e modernização técnica:
+
+### Adicionado
+
+**Conceitual:**
+- Sistema de auto-install automatizado via `skills/auto-install.md` (agentic tools)
+- Detecção automática de linguagem + Audience Mode (beginner/expert)
+- Campos `agent_model`, `user_language`, `audience_mode` em current.json
+- Campo `session.phase_lock` para enforcement de fase
+- Comando `/hes auto-install` e `/hes language`
+- Multi-agent delegation via `skills/agent-delegation.md`
+
+**Padrões 2026 (LangChain/Harrison Chase):**
+- PreCompletionChecklistMiddleware pattern (self-verification before exit)
+- LoopDetectionMiddleware (prevenção de doom loops)
+- Time budgeting warnings in skill-files
+- Reasoning sandwich pattern (high→medium→high reasoning budgets)
+- Context compaction protocol for long sessions
+- Modular Skills loading (dynamic, not monolithic prompts)
+- Trace Analyzer pattern for batch learning
+
+**Melhorias:**
+- Clarificação do mandato: LLM harness assume responsabilidade total de execução
+- Sistema de phase lock mais rigoroso
+- Agent registry com versionamento explícito
+- Habilidate de multi-agent orchestration via registry
+
+### Atualizado
+
+**Version consistency:**
+- SKILL.md: v3.3.0 ✅
+- ARCHITECTURE.md: v3.1 → v3.3.0
+- 00-bootstrap.md: v3.2 → v3.3.0
+- agent-registry.md: v3.2+ → v3.3+
+- agent-identity template: v3.2 → v3.3
+- CHANGELOG.md: adicionado entry v3.3.0
+
+**Files updated:**
+- `SKILL.md` — execution mandate, language detection, audience mode, auto-install
+- `ARCHITECTURE.md` — version + modernization of references
+- `skills/00-bootstrap.md` — auto-install integration, v3.3 schema
+- `skills/agent-registry.md` — v3.3+, validation command update
+- `skills/reference/templates/agent-identity.md` — v3.3 references
+
+**Removed inconsistencies:**
+- ghost files que não existiam no skills/
+- SETUP.md redundante (INSTALL.md cobre o mesmo)
+- Referências a arquivos não existentes em bootstrap
+
 ## v3.1.0 (2025)
 
 Refatoração baseada em leitura de literatura técnica:

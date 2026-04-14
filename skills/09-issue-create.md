@@ -3,7 +3,7 @@ name: issue-create
 version: 1.0.0
 trigger: /hes issue | /hes bug | /hes improvement
 author: HES Team | 2026
-framework: HES — Harness Engineer Standard v3.2
+framework: HES — Harness Engineer Standard v3.3
 ---
 
 # HES Skill — 09: Issue Creation

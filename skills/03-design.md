@@ -216,7 +216,7 @@ Check if the execution flow defines new boundaries to be captured:
   "feature": "{{FEATURE_SLUG}}",
   "from": "SPEC",
   "to": "DESIGN",
-  "agent": "hes-v3.1",
+  "agent": "hes-v3.3",
   "metadata": {
     "artifacts": ["03-design.md", "ADR-{{NNN}}.md"],
     "harnessability": "{{HIGH/MEDIUM/LOW}}",

@@ -1,0 +1,21 @@
+# HES State (project-specific state - not framework files)
+# These are generated per-project and should NOT be committed to framework repo
+.hes/state/current.json
+.hes/state/events.log
+.hes/state/session-checkpoint.json
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp

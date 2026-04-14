@@ -312,7 +312,7 @@ Register in events.log:
   "feature": "global",
   "from": "ACTIVE",
   "to": "HARNESS_HEALTH_CHECKED",
-  "agent": "hes-v3.1",
+  "agent": "hes-v3.3",
   "metadata": {
     "guides_score": "{{N}}/{{N}}",
     "sensors_score": "{{N}}/{{N}}",

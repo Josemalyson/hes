@@ -18,7 +18,7 @@ Invoked when:
 ## ◈ STEP 1 — COLLECT INFORMATION (max 4 questions)
 
 ```
-🚀 HES Bootstrap v3.2 — I'll configure the project harness.
+🚀 HES Bootstrap v3.3 — I'll configure the project harness.
 
 I need 4 pieces of information:
 
@@ -169,7 +169,7 @@ done
   "features": {},
   "domains": [{{DOMAINS_OR_EMPTY_ARRAY}}],
   "dependency_graph": {},
-  "harness_version": "3.2.0",
+  "harness_version": "3.3.0",
   "completed_cycles": 0,
   "last_updated": "{{CURRENT_ISO_DATE}}"
 }
@@ -186,11 +186,11 @@ done
     "feature": "global",
     "from": "NONE",
     "to": "HARNESS_INSTALLED",
-    "agent": "hes-v3.2",
+    "agent": "hes-v3.3",
     "metadata": {
       "project": "{{PROJECT_NAME}}",
       "stack": "{{STACK}}",
-      "harness_version": "3.2.0"
+      "harness_version": "3.3.0"
     }
   }
 ]
@@ -291,11 +291,11 @@ bash scripts/hooks/install.sh
 ## ◈ STEP 11 — DISPLAY BOOTSTRAP SUMMARY
 
 ```
-✅ HES Bootstrap v3.2 Completed — {{PROJECT_NAME}}
+✅ HES Bootstrap v3.3 Completed — {{PROJECT_NAME}}
 
 Guides installed (feedforward):
   .claude/CLAUDE.md (or equivalent)   ← agent identity
-  .hes/state/current.json              ← project state (v3.2 schema)
+  .hes/state/current.json              ← project state (v3.3 schema)
   .hes/state/events.log                ← transition log (traces)
   .hes/state/session-checkpoint.json   ← session checkpoint
   .hes/agents/registry.json            ← agent registry

@@ -118,6 +118,8 @@ Fast sensors run after each component — slow sensors (integration, ArchUnit) r
 ## ◈ STEP 4 — SELF-REFINEMENT LOOP (max. 5 attempts)
 
 ```
+⏱ Time Budget: 15 minutes for GREEN phase
+
 Attempt {{N}}/5:
 
 1. Run test suite
@@ -127,7 +129,8 @@ Attempt {{N}}/5:
    → Unexpected exception?   → Analyze full stack trace
 3. Make the minimal correction
 4. Run the corresponding sensor
-5. Repeat
+5. If still failing and N ≥ 3 → Loop detection: "You've tried {{N}} times. Consider a different approach."
+6. If N ≥ 5 → BLOCK: Present current state to user and escalate
 
 After 5 unsuccessful attempts:
   → Record in lessons.md (Category B — recurring technical error)
@@ -193,7 +196,7 @@ pytest --cov=src --cov-report=term-missing -v
   "feature": "{{FEATURE_SLUG}}",
   "from": "RED",
   "to": "GREEN",
-  "agent": "hes-v3.1",
+  "agent": "hes-v3.3",
   "metadata": {
     "tests_passing": {{N}},
     "coverage": "{{X}}%",

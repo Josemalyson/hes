@@ -11,7 +11,7 @@
 
 ```python
 #!/usr/bin/env python3
-"""HES Safety Validator v3.2 — pre-commit hook
+"""HES Safety Validator v3.3 — pre-commit hook
 Computational sensor: blocks secrets, destructive SQL, and pending tasks."""
 import subprocess, sys, re
 
@@ -52,14 +52,14 @@ for f in get_staged_files():
     violations.extend(check_file(f))
 
 if violations:
-    print('\n🚨 HES Safety Validator v3.2 — COMMIT BLOCKED\n')
+    print('\n🚨 HES Safety Validator v3.3 — COMMIT BLOCKED\n')
     for v in violations:
         print(v)
     print('\nFix the issues above before committing.')
     print('Override (not recommended): git commit --no-verify\n')
     sys.exit(1)
 
-print('✅ HES Safety Validator v3.2 — OK')
+print('✅ HES Safety Validator v3.3 — OK')
 ```
 
 ---
@@ -70,7 +70,7 @@ print('✅ HES Safety Validator v3.2 — OK')
 
 ```python
 #!/usr/bin/env python3
-"""HES SDD Commit Checker v3.2 — commit-msg hook
+"""HES SDD Commit Checker v3.3 — commit-msg hook
 Computational sensor: validates Conventional Commits and HES stage."""
 import sys, re
 
@@ -91,7 +91,7 @@ with open(msg_file) as f:
 first_line = msg.split('\n')[0]
 
 if not PATTERN.match(first_line):
-    print('\n🚨 HES Commit Checker v3.2 — Invalid message\n')
+    print('\n🚨 HES Commit Checker v3.3 — Invalid message\n')
     print(f'  Received : {first_line}')
     print(f'  Expected : <type>(<scope>): <description with 10+ chars>')
     print(f'  Types    : {", ".join(VALID_TYPES)}')
@@ -99,7 +99,7 @@ if not PATTERN.match(first_line):
     print(f'             harness(arch): add ArchUnit rules for service layer\n')
     sys.exit(1)
 
-print('✅ HES Commit Checker v3.2 — OK')
+print('✅ HES Commit Checker v3.3 — OK')
 ```
 
 ---
@@ -111,17 +111,17 @@ print('✅ HES Commit Checker v3.2 — OK')
 ```bash
 #!/usr/bin/env bash
 set -e
-echo "🔧 Installing HES Git Hooks v3.2..."
+echo "🔧 Installing HES Git Hooks v3.3..."
 HOOKS_DIR="$(git rev-parse --git-dir)/hooks"
 SCRIPTS_DIR="$(git rev-parse --show-toplevel)/scripts/hooks"
 ln -sf "$SCRIPTS_DIR/safety_validator.py"   "$HOOKS_DIR/pre-commit"
 ln -sf "$SCRIPTS_DIR/sdd_commit_checker.py" "$HOOKS_DIR/commit-msg"
 chmod +x "$SCRIPTS_DIR"/*.py
-echo "✅ Hooks installed (HES v3.2 computational sensors):"
+echo "✅ Hooks installed (HES v3.3 computational sensors):"
 echo "   pre-commit  → safety_validator.py"
 echo "   commit-msg  → sdd_commit_checker.py"
 echo ""
-echo "Test: git commit --allow-empty -m 'harness: validate HES v3.2 hooks'"
+echo "Test: git commit --allow-empty -m 'harness: validate HES v3.3 hooks'"
 ```
 
 ---

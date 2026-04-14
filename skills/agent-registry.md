@@ -2,7 +2,7 @@
 
 > Reference document for the agent registry schema and creating custom agents.
 > NOT an executable skill — use as reference when registering or creating agents.
-> HES v3.2+
+> HES v3.3+
 
 ---
 
@@ -194,4 +194,4 @@ test -f skills/custom/my-agent.md && echo "Skill file OK" || echo "MISSING"
 When HES version changes:
 1. Update `version` field in registry
 2. Check if new agent types are needed
-3. Run validation: `python3 -c "import json; r=json.load(open('.hes/agents/registry.json')); assert r['version'] == '3.2.0'"`
+3. Run validation: `python3 -c "import json; r=json.load(open('.hes/agents/registry.json')); assert r['version'] == '3.3.0'"`
