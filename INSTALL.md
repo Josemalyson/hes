@@ -89,7 +89,7 @@ else → "generic"
 
 ```
 Scan first user message for patterns:
-  Portuguese : "iniciar", "projeto", "como", "funciona", "criar" → "pt-br"
+  Portuguese : "iniciar", "projeto", "como", "funciona", "criar" → "pt-BR"
   Spanish   : "iniciar", "proyecto", "cómo", "funciona"        → "es"
   French    : "démarrer", "projet", "comment", "fonctionne"    → "fr"
   German    : "starten", "projekt", "wie", "funktioniert"      → "de"

@@ -281,7 +281,7 @@ HES auto-detects your language from the first message and adapts all responses:
 
 | Detected | Language | Example |
 |----------|----------|---------|
-| `pt` | Portuguese | "📍 HES v3.3 — {{NOME_PROJETO}}" |
+| `pt-BR` | Português do Brasil | "📍 HES v3.3 — {{NOME_PROJETO}}" |
 | `en` | English | "📍 HES v3.3 — {{PROJECT_NAME}}" |
 | `es` | Spanish | "📍 HES v3.3 — {{NOMBRE_PROYECTO}}" |
 | `fr` | French | "📍 HES v3.3 — {{NOM_PROJET}}" |
@@ -290,9 +290,9 @@ HES auto-detects your language from the first message and adapts all responses:
 Override auto-detection:
 
 ```
-/hes language pt-br     → Force Portuguese Brazilian
-/hes language en     → Force English
-/hes language auto   → Re-enable auto-detection
+/hes language pt-BR     → Force Portuguese Brazilian
+/hes language en        → Force English
+/hes language auto      → Re-enable auto-detection
 ```
 
 ---

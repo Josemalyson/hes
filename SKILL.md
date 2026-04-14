@@ -90,7 +90,7 @@ On first user interaction:
    - English: default (all other patterns)
 
 3. LLM stores detected language in .hes/state/current.json:
-   "user_language": "pt-br" | "es" | "fr" | "de" | "en"
+   "user_language": "pt-BR" | "es" | "fr" | "de" | "en"
 
 4. LLM adapts ALL responses to detected language:
    - Status messages
@@ -104,7 +104,7 @@ On first user interaction:
 
 | Detected Language | Response Language | Example Greeting |
 |-------------------|-------------------|------------------|
-| pt (Portuguese) | Portuguese | "📍 HES v3.3 — {{PROJECT_NAME}}" |
+| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.3 — {{NOME_PROJETO}}" |
 | es (Spanish) | Spanish | "📍 HES v3.3 — {{PROJECT_NAME}}" |
 | fr (French) | French | "📍 HES v3.3 — {{PROJECT_NAME}}" |
 | de (German) | German | "📍 HES v3.3 — {{PROJECT_NAME}}" |
@@ -115,7 +115,7 @@ On first user interaction:
 Users can explicitly override auto-detection:
 
 ```
-/hes language pt-br     → Force Portuguese Brazilian
+/hes language pt-BR  → Force Portuguese Brazilian
 /hes language en     → Force English
 /hes language es     → Force Spanish
 /hes language auto   → Re-enable auto-detection
@@ -127,8 +127,8 @@ Language detection works alongside audience mode selection:
 
 ```
 Audience Mode + Language = Adapted Response
-- beginner + pt: Simple Portuguese, minimal jargon, step-by-step explanations
-- expert + pt: Technical Portuguese, concise, assumes domain knowledge
+- beginner + pt-BR: Português minimal jargon, step-by-step explanations
+- expert + pt-BR: Português técnico, concise, assumes domain knowledge
 - beginner + en: Simple English, minimal jargon, step-by-step explanations
 - expert + en: Technical English, concise, assumes domain knowledge
 ```
