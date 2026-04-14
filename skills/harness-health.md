@@ -170,7 +170,7 @@ Objective: ensure the orchestrator delegates correctly and agents execute with f
 
 Active guides:
   [✅/❌] SKILL.md with routing-only orchestrator (<=300 lines)
-  [✅/❌] skills/agent-delegation.md with dispatch protocol
+  [✅/❌] skills/tool-dispatch.md with dispatch protocol
   [✅/❌] skills/agent-registry.md with schema documentation
 
 Active sensors:

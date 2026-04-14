@@ -164,7 +164,7 @@ skills/09-issue-create.md         — Auto-diagnostic GitHub Issues
 
 **Agent & Delegation Skills** (2 files):
 ```
-skills/agent-delegation.md      — Multi-agent dispatch protocol
+skills/tool-dispatch.md        — Tool dispatch protocol (NOT skill-file delegation)
 skills/agent-registry.md        — Registry schema reference
 ```
 
@@ -311,7 +311,7 @@ Generated structure:
     { "agent": "session-manager",        "type": "system", "skill_file": "skills/session-manager.md",   "trigger": "/hes status" },
     { "agent": "issue-create-agent",     "type": "system", "skill_file": "skills/09-issue-create.md",   "trigger": "/hes bug" },
     { "agent": "progressive-analysis-agent", "type": "system", "skill_file": "skills/08-progressive-analysis.md", "trigger": ">50 files" },
-    { "agent": "delegation-agent",       "type": "system", "skill_file": "skills/agent-delegation.md",  "trigger": "multi-agent" },
+    { "agent": "delegation-agent",       "type": "system", "skill_file": "skills/tool-dispatch.md",     "trigger": "multi-agent" },
     { "agent": "registry-agent",         "type": "system", "skill_file": "skills/agent-registry.md",    "trigger": "registry ref" }
   ],
   "harness_version": "3.3.0",
@@ -517,7 +517,7 @@ your-project/
 │   ├── 07-review.md                (phase REVIEW)
 │   ├── 08-progressive-analysis.md  (large codebase)
 │   ├── 09-issue-create.md         (bug/improvement)
-│   ├── agent-delegation.md        (multi-agent)
+│   ├── tool-dispatch.md         (tool dispatch)
 │   ├── agent-registry.md          (registry ref)
 │   ├── auto-install.md            (self-install)
 │   ├── error-recovery.md          (errors A-E)

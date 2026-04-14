@@ -1,3 +1,10 @@
+> **SCOPE BOUNDARY**: This skill-file defines how the LLM dispatches TOOLS
+> (shell commands, linters, test runners) to sub-processes.
+> It does NOT authorize delegation of skill-file execution to other LLM agents.
+> See RULE-15 in SKILL.md for the authoritative boundary.
+
+---
+
 # HES Skill — Agent Delegation
 
 > Skill invoked by the orchestrator (SKILL.md) when delegating to specialized agents.
@@ -261,7 +268,7 @@ Agent delegation handled.
   [D] "add custom agent"
       → Follow Custom Agents creation flow
 
-📄 Skill-file: skills/agent-delegation.md (you are here)
+📄 Skill-file: skills/tool-dispatch.md (you are here)
 💡 Tip: each agent loads ONLY its required context.
    This keeps the session clean and focused on the current task.
 ```

@@ -287,6 +287,13 @@ State resides in `.hes/state/current.json`:
 ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW → DONE
 ```
 
+**Project-level bootstrap states (resolved before feature state machine):**
+```
+ZERO    → no .hes/, no current.json → bootstrap (new project)
+ORPHAN  → .hes/ exists, no current.json → legacy assessment (cloned/corrupted)
+LEGACY  → .hes/ exists, current.json exists → normal operation
+```
+
 ---
 
 ## ◈ ROUTING PROTOCOL (v3.3 — LLM Execution-Based)
@@ -303,7 +310,10 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
    → LLM executes auto-install protocol using file system tools
    → LLM copies all files, generates .hes/ structure, commits to git
    → After completion, LLM resumes from ZERO state
-3. No file AND with .hes/ → LLM loads skills/legacy.md
+3. No file AND with .hes/ → Project state: ORPHAN
+   → LLM loads skills/legacy.md
+   → LLM announces: "HES state file not found. Project appears to be cloned or corrupted.
+     Running legacy assessment to reconstruct state."
 4. With file → LLM reads active_feature and state (normal operation)
 ```
 
@@ -338,8 +348,8 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 
 | Condition | Agent | Skill-file |
 |-----------|-------|-----------|
-| ZERO (no .hes/) | auto-install-agent | `skills/auto-install.md` |
-| ZERO (with .hes/) | harness-agent | `skills/legacy.md` |
+| ZERO | auto-install-agent | `skills/auto-install.md` |
+| ORPHAN | harness-agent | `skills/legacy.md` |
 | LEGACY | harness-agent | `skills/legacy.md` |
 | feature = DISCOVERY | discovery-agent | `skills/01-discovery.md` |
 | feature = SPEC | spec-agent | `skills/02-spec.md` |
@@ -410,7 +420,7 @@ VIOLATION → LLM delegates to session-manager.md (alternative PASSO 6)
 2. LLM loads corresponding skill-file
 3. LLM executes skill-file instructions using available tools
 4. LLM does NOT take actions beyond what skill-file specifies
-5. For delegation details → LLM reads skills/agent-delegation.md
+5. For delegation details → LLM reads skills/tool-dispatch.md
 6. For session management → LLM reads skills/session-manager.md
 
 > **LLM Mandate**: You execute all actions specified in the skill-file.
@@ -531,6 +541,9 @@ RULE-14   LLM detects recurring issue → YOU improve the harness, not just fix 
 RULE-15   LLM AS ORCHESTRATOR executes the harness — routing + validation + state management
           YOU DO NOT delegate skill-file execution to sub-agents
           Sub-agents (test-runner, linter, arch-check) run TOOLS only, not skill-files
+          → skills/tool-dispatch.md defines TOOL DISPATCH only (shell, lint, test runners)
+          → "Delegation" = invoking a tool via shell, NOT handing a skill-file to another LLM
+          → If you are uncertain: check skills/tool-dispatch.md section "Scope Boundary"
 RULE-16   LLM ENFORCES phase lock — YOU block advancement without gate satisfaction
 RULE-17   LLM loads ONLY current agent's context — YOU don't load everything
 RULE-18   LLM ALWAYS detects and adapts to user's language — YOU store and use it

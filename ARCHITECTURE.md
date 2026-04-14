@@ -142,16 +142,20 @@ SENSORS (feedback — observe after acting and self-correct)
 
 ## ◈ STATE MACHINE
 
+Project bootstrap states (resolved before feature state machine):
+  ZERO   → virgin project, no .hes/ → bootstrap
+  ORPHAN → .hes/ present, no state  → legacy assessment
+  LEGACY → .hes/ + state present    → normal phase routing
+
 ```
                     ZERO
                       │
           ┌───────────┴───────────┐
-          │ (new project)         │ (existing project)
+          │ (new project)         │ (existing project / cloned)
           ▼                       ▼
-     00-bootstrap.md          legacy.md
+     00-bootstrap.md          ORPHAN
           │                       │
-          │                  [Harnessability
-          │                   Assessment]
+          │                       └─ legacy.md (Harnessability Assessment)
           └───────────┬───────────┘
                       │
                       ▼
