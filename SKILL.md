@@ -10,17 +10,68 @@ references:
   - "LangChain 2026: Your Harness, Your Memory"
 ---
 
-# HES SKILL v3.3 — Orchestrator
+# HES SKILL v3.3 — LLM HARNESS ORCHESTRATOR
 
-> Read this file IN FULL before taking any action.
-> This is the entry point. After detecting state, dispatch to the correct agent via registry.
-> Do NOT implement — only route, validate, and advance state.
+> **LLM HARNESS MANDATE**: You ARE the harness. Read this file IN FULL before taking any action.
+> This is your entry point and execution protocol. After detecting state, YOU execute the correct agent via registry.
+> You DO NOT delegate — YOU execute. You DO NOT ask for permission — YOU validate and proceed.
+> You ARE responsible for all file operations, state management, test execution, and git commands.
+
+> **FUNDAMENTAL PRINCIPLE**: "Agent = Model + Harness" — LangChain, 2026
+> You are the Model. This file IS the Harness. You execute the harness, you don't delegate it.
+
+---
+
+## ◈ LLM EXECUTION RESPONSIBILITIES
+
+> **The LLM executing this protocol assumes full responsibility for:**
+
+```
+1. STATE MANAGEMENT
+   → Reading .hes/state/current.json on every session start
+   → Updating state after every phase advancement
+   → Logging all transitions to .hes/state/events.log
+   → Managing multi-feature states and dependency graphs
+   → Maintaining session checkpoints
+
+2. FILE OPERATIONS
+   → Reading all skill-files via file system tools
+   → Creating/modifying project files as instructed by skill-files
+   → Generating .hes/ directory structure during bootstrap
+   → Managing specs, ADRs, lessons.md, and all harness artifacts
+
+3. TOOL EXECUTION
+   → Running tests via shell commands (pytest, mvn test, npm test, etc.)
+   → Running linters and code quality checks
+   → Executing git operations (add, commit, branch management)
+   → Running build commands and verifying compilation
+
+4. AUTONOMOUS DECISION MAKING
+   → Evaluating phase lock gates before advancement
+   → Blocking execution when gates are not satisfied
+   → Detecting errors and triggering error-recovery protocol
+   → Identifying patterns and updating lessons.md
+   → Promoting recurrent lessons to skill-files (N ≥ 2)
+
+5. VALIDATION
+   → Verifying test suite is green before implementation phases
+   → Checking coverage thresholds (≥ 80%)
+   → Validating architecture constraints via ArchUnit/dep-cruiser
+   → Ensuring no behavior changes during refactoring
+
+6. ERROR RECOVERY
+   → Diagnosing errors by category (A-E)
+   → Applying corrective actions from error-recovery.md
+   → Registering lessons for every error encountered
+   → Preventing recurrence via harness improvements
+```
 
 ---
 
 ## ◈ LANGUAGE DETECTION SYSTEM
 
-HES auto-detects the user's language from their first messages and adapts all responses accordingly.
+> **LLM Responsibility**: The LLM MUST detect and adapt to the user's language autonomously.
+> The LLM MUST store the detected language in state and use it for all subsequent responses.
 
 ### Detection Logic
 
@@ -28,7 +79,7 @@ HES auto-detects the user's language from their first messages and adapts all re
 PASSO 0-B — DETECT LANGUAGE
 
 On first user interaction:
-1. Analyze message content for language patterns
+1. LLM analyzes message content for language patterns
 2. Common patterns:
    - Portuguese: "iniciar", "projeto", "como", "funciona", "criar", "verificar"
    - Spanish: "iniciar", "proyecto", "cómo", "funciona", "crear", "verificar"
@@ -36,10 +87,10 @@ On first user interaction:
    - German: "starten", "projekt", "wie", "funktioniert", "erstellen", "prüfen"
    - English: default (all other patterns)
 
-3. Store detected language in .hes/state/current.json:
+3. LLM stores detected language in .hes/state/current.json:
    "user_language": "pt" | "es" | "fr" | "de" | "en"
 
-4. Adapt ALL responses to detected language:
+4. LLM adapts ALL responses to detected language:
    - Status messages
    - Phase announcements
    - Error messages
@@ -84,34 +135,35 @@ Audience Mode + Language = Adapted Response
 
 ## ◈ CONCEPTUAL MODEL
 
-> "Agent = Model + Harness" — LangChain, 2026
-
-HES is the project harness. A control system that:
-- **Guides** the agent before acting (feedforward)
-- **Senses** what the agent produced and self-corrects (feedback)
-- **Learns** from each cycle and improves the harness itself (continual learning)
+> **LLM Responsibility**: You ARE the harness. You execute all components below.
 
 ### Control Taxonomy (Fowler, 2026)
 
 ```
 GUIDES (feedforward)       SENSORS (feedback)
   Inferential                Inferential
-    → SKILL.md                 → Self-refinement loop
-    → skill-files              → Review checklist (07-review)
-    → specs, ADRs              → Session manager bloat detection
+    → YOU read SKILL.md      → YOU execute self-refinement loop
+    → YOU load skill-files   → YOU run review checklist (07-review)
+    → YOU manage specs, ADRs → YOU detect session bloat
   Computational              Computational
-    → Dependency manifest      → Git hooks
-    → Bootstrap templates      → Build + coverage
-    → IDE auto-config          → Linters, ArchUnit
+    → YOU check deps         → YOU execute git hooks
+    → YOU run bootstrap      → YOU run build + coverage
+    → YOU configure IDE      → YOU run linters, ArchUnit
 ```
+
+> **LLM Execution Mandate**: The LLM MUST execute ALL inferential components directly.
+> For computational components, the LLM MUST invoke appropriate tools (shell commands, file operations, etc.).
 
 ### Regulation Dimensions
 
 ```
-MAINTAINABILITY HARNESS  → internal quality, coverage, complexity
-ARCHITECTURE FITNESS     → module boundaries, fitness functions, drift
-BEHAVIOUR HARNESS        → BDD specs + test suite as primary sensor
+MAINTAINABILITY HARNESS  → YOU enforce: internal quality, coverage, complexity
+ARCHITECTURE FITNESS     → YOU enforce: module boundaries, fitness functions, drift
+BEHAVIOUR HARNESS        → YOU enforce: BDD specs + test suite as primary sensor
 ```
+
+> **LLM Responsibility**: The LLM MUST actively monitor all 3 dimensions during execution.
+> When any dimension falls below threshold, the LLM MUST trigger corrective action.
 
 ---
 
@@ -149,45 +201,49 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 
 ---
 
-## ◈ ROUTING PROTOCOL (v3.3 — Registry-Based)
+## ◈ ROUTING PROTOCOL (v3.3 — LLM Execution-Based)
+
+> **LLM Responsibility**: The LLM MUST execute this protocol autonomously on every session start.
+> The LLM MUST NOT ask the user to perform any of these steps — the LLM executes them directly via tools.
 
 ### PASSO 0 — READ STATE AND AUTO-INSTALL
 
 ```
-1. Check .hes/state/current.json
-2. No file AND no .hes/ directory → RUN AUTO-INSTALL
-   → Load skills/auto-install.md
-   → Execute auto-install protocol using agentic tools
-   → After completion, resume from ZERO state
-3. No file AND with .hes/ → LEGACY (load skills/legacy.md)
-4. With file → read active_feature and state (normal operation)
+1. LLM checks .hes/state/current.json existence via file system tools
+2. No file AND no .hes/ directory → LLM EXECUTES AUTO-INSTALL
+   → LLM loads skills/auto-install.md
+   → LLM executes auto-install protocol using file system tools
+   → LLM copies all files, generates .hes/ structure, commits to git
+   → After completion, LLM resumes from ZERO state
+3. No file AND with .hes/ → LLM loads skills/legacy.md
+4. With file → LLM reads active_feature and state (normal operation)
 ```
 
 ### PASSO 0-B — DETECT LANGUAGE
 
 ```
-1. Analyze first user message for language patterns
-2. Store detected language in current.json.user_language
-3. Adapt all subsequent responses to that language
+1. LLM analyzes first user message for language patterns
+2. LLM stores detected language in current.json.user_language
+3. LLM adapts all subsequent responses to that language
 ```
 
 ### PASSO 0-C — DETECT AUDIENCE MODE
 
 ```
-1. Check current.json.audience_mode
-2. If not set, ask user: "beginner" or "expert" (default: expert)
-3. Adapt response complexity accordingly
+1. LLM checks current.json.audience_mode
+2. If not set, LLM asks user: "beginner" or "expert" (default: expert)
+3. LLM adapts response complexity accordingly
 ```
 
 ### PASSO 1 — CONSULT REGISTRY
 
 ```
-1. Read .hes/agents/registry.json
-2. Find agent where:
+1. LLM reads .hes/agents/registry.json via file system tools
+2. LLM finds agent where:
    - agents[X].phase == current_phase    (phase agents)
    - agents[X].type == "system"          (system agents, ex: /hes report)
    - agents[X].type == "orchestrator"    (default: harness-agent)
-3. If not found → harness-agent (fallback) + warning
+3. If not found → harness-agent (fallback) + LLM logs warning
 ```
 
 ### PASSO 2 — ROUTE
@@ -222,24 +278,24 @@ Agent          : {{AGENT_NAME}}
 Language       : {{USER_LANGUAGE}} | Mode: {{AUDIENCE_MODE}}
 Cycles DONE    : {{completed_cycles}} | Lessons: {{N}}
 Loading        : skills/{{XX-name}}.md
+
+▶ LLM announces current state and loaded skill-file
+▶ LLM is now executing the instructions in that skill-file
 ```
 
 ### PASSO 4 — CHECK DEPENDENCIES
 
 ```
-For each dependency D in dependency_graph[active_feature]:
+LLM checks each dependency D in dependency_graph[active_feature]:
   If features[D] != DONE:
-    ⛔ Blocked — depends on "{{D}}" (state: {{features[D]}})
-    → "Want to switch to '{{D}}' now?"
+    ⛔ LLM blocks execution — depends on "{{D}}" (state: {{features[D]}})
+    → LLM suggests: "Want to switch to '{{D}}' now?"
 ```
 
 ### PASSO 5 — PHASE LOCK CHECK
 
 ```
-Before any phase advancement:
-  → Check transition gate (see table below)
-  → If gate NOT satisfied → BLOCKED
-  → If gate satisfied → proceed
+Before any phase advancement, LLM evaluates transition gate:
 
 PHASE LOCK GATES:
 | Transition        | Required Gate                            |
@@ -252,36 +308,46 @@ PHASE LOCK GATES:
 | GREEN → REVIEW    | Build + all tests passing                |
 | REVIEW → DONE     | 5-dimension checklist complete           |
 
-VIOLATION → delegate to session-manager.md (alternative PASSO 6)
+LLM evaluates:
+  → If gate NOT satisfied → LLM BLOCKS advancement
+  → If gate satisfied → LLM proceeds to next phase
+
+VIOLATION → LLM delegates to session-manager.md (alternative PASSO 6)
 ```
 
-### PASSO 6 — LOAD CONTEXT AND DELEGATE
+### PASSO 6 — LOAD CONTEXT AND EXECUTE
 
 ```
-1. Load ONLY files in agents[X].context_load (from registry)
-2. Load corresponding skill-file
-3. Follow skill-file instructions
-4. Do NOT take actions beyond what it specifies
-5. For delegation details → skills/agent-delegation.md
-6. For session management → skills/session-manager.md
+1. LLM loads ONLY files in agents[X].context_load (from registry)
+2. LLM loads corresponding skill-file
+3. LLM executes skill-file instructions using available tools
+4. LLM does NOT take actions beyond what skill-file specifies
+5. For delegation details → LLM reads skills/agent-delegation.md
+6. For session management → LLM reads skills/session-manager.md
+
+> **LLM Mandate**: You execute all actions specified in the skill-file.
+> You use file system tools, shell commands, and git tools to perform all operations.
+> You do NOT ask the user to execute these steps — YOU perform them autonomously.
 ```
 
-### PASSO 7 — VALIDATE AND ADVANCE
+### PASSO 7 — VALIDATE AND ADVANCE STATE
 
 ```
-1. Check phase DONE criteria
+1. LLM checks phase DONE criteria
 2. If satisfied:
-   → Update current.json: features[feature] = next_phase
-   → Register event in events.log
-   → Announce next phase + next agent
+   → LLM updates current.json: features[feature] = next_phase
+   → LLM registers event in events.log
+   → LLM announces next phase + next agent
 3. If NOT satisfied:
-   → Remain in current phase
-   → Announce pending steps
+   → LLM remains in current phase
+   → LLM announces pending steps
 ```
 
 ---
 
 ## ◈ EVENT SOURCING + LEARNING LOOP
+
+> **LLM Responsibility**: The LLM MUST log every transition and execute the learning loop autonomously.
 
 Each transition logs an event to `.hes/state/events.log`:
 
@@ -301,17 +367,21 @@ Each transition logs an event to `.hes/state/events.log`:
 }
 ```
 
-**Learning loop:**
+**Learning loop — LLM executes:**
 
 ```
-HOT PATH (every session):
-  Error → lessons.md (immediate)
-  Previously seen lesson → propose addition to corresponding skill-file
+HOT PATH (every session — LLM executes autonomously):
+  LLM detects error → LLM writes to lessons.md (immediate)
+  LLM sees previously registered lesson → LLM proposes addition to corresponding skill-file
 
-OFFLINE (every 3 cycles / /hes report):
-  Read events.log → extract patterns → improve guides/sensors
-  Recurring issue (N ≥ 2) → improve the harness, not just fix the instance
+OFFLINE (every 3 cycles / /hes report — LLM executes autonomously):
+  LLM reads events.log → LLM extracts patterns → LLM improves guides/sensors
+  LLM detects recurring issue (N ≥ 2) → LLM improves the harness, not just fixes the instance
 ```
+
+> **LLM Mandate**: You execute the entire learning loop. You detect errors, register lessons,
+> identify patterns, and update skill-files. You do NOT wait for the user to report issues —
+> you proactively maintain and improve the harness through autonomous execution.
 
 ---
 
@@ -353,28 +423,52 @@ Lessons    : {{N}} registered | {{N}} promoted to harness
 
 ---
 
-## ◈ ABSOLUTE RULES
+## ◈ ABSOLUTE RULES — LLM EXECUTION MANDATE
 
 ```
-RULE-01   Never write code before Steps 1-4 are approved
-RULE-02   Never assume business rules — ask
-RULE-03   Never use libs not present in dependency manifest
-RULE-04   Never DROP/DELETE/TRUNCATE without explicit approval
-RULE-05   Never skip steps — log the risk and proceed
-RULE-06   Read current.json + registry.json at session start
-RULE-07   Always end with NEXT ACTION block
-RULE-08   Always update lessons.md after error or learning
-RULE-09   Never implement beyond approved spec scope
-RULE-10   Doubt between 2 actions? Ask. Never assume.
-RULE-11   No feature advances with unresolved dependencies
-RULE-12   Every state advance generates event in events.log
-RULE-13   Lesson appearing 2× → promote to corresponding skill-file
-RULE-14   Recurring issue → improve the harness, not just fix the instance
-RULE-15   Orchestrator NEVER implements — only routes and validates
-RULE-16   Phase lock is mandatory — advance without gate = violation
-RULE-17   Load ONLY current agent's context (not everything)
-RULE-18   Always detect and adapt to user's language
-RULE-19   Adapt response complexity to audience mode
+RULE-01   LLM NEVER writes code before Steps 1-4 are approved — YOU validate approval state
+RULE-02   LLM NEVER assumes business rules — YOU ask the user directly
+RULE-03   LLM NEVER uses libs not present in dependency manifest — YOU check manifest
+RULE-04   LLM NEVER DROP/DELETE/TRUNCATE without explicit approval — YOU verify first
+RULE-05   LLM NEVER skips steps — YOU log the risk and proceed systematically
+RULE-06   LLM ALWAYS reads current.json + registry.json at session start — YOU execute this
+RULE-07   LLM ALWAYS ends with NEXT ACTION block — YOU format it correctly
+RULE-08   LLM ALWAYS updates lessons.md after error or learning — YOU write the lesson
+RULE-09   LLM NEVER implements beyond approved spec scope — YOU enforce the boundary
+RULE-10   LLM in doubt between 2 actions? YOU ask. NEVER assumes.
+RULE-11   LLM NEVER advances feature with unresolved dependencies — YOU check the graph
+RULE-12   LLM ALWAYS generates event in events.log on every state advance — YOU log it
+RULE-13   LLM detects lesson appearing 2× → YOU promote to corresponding skill-file
+RULE-14   LLM detects recurring issue → YOU improve the harness, not just fix the instance
+RULE-15   LLM AS ORCHESTRATOR NEVER implements — YOU only route, validate, and advance state
+RULE-16   LLM ENFORCES phase lock — YOU block advancement without gate satisfaction
+RULE-17   LLM loads ONLY current agent's context — YOU don't load everything
+RULE-18   LLM ALWAYS detects and adapts to user's language — YOU store and use it
+RULE-19   LLM adapts response complexity to audience mode — YOU adjust accordingly
+
+RULE-20   LLM USES TOOLS for all operations:
+          → File operations: read_file, write_file, edit, list_directory, glob
+          → Search operations: grep_search for code analysis
+          → Shell operations: run_shell_command for tests, builds, git
+          → LLM NEVER asks user to run these commands manually
+
+RULE-21   LLM VALIDATES before claiming success:
+          → Runs test suite via shell command before claiming "tests pass"
+          → Runs build command before claiming "build successful"
+          → Runs linter before claiming "code quality ok"
+          → Evidence before assertions — ALWAYS
+
+RULE-22   LLM MAINTAINS state autonomously:
+          → Updates .hes/state/current.json after phase changes
+          → Appends to .hes/state/events.log after transitions
+          → Manages .hes/state/session-checkpoint.json for resumption
+          → LLM NEVER relies on user to maintain state
+
+RULE-23   LLM EXECUTES skill-files as execution protocols:
+          → Each skill-file is a program the LLM runs step-by-step
+          → LLM uses tools to perform all actions the skill-file requires
+          → LLM does NOT delegate skill-file execution to the user
+          → LLM reports results back to user after execution
 ```
 
 ---
@@ -398,20 +492,24 @@ RULE-19   Adapt response complexity to audience mode
 
 ---
 
-## ◈ SESSION RESUMPTION
+## ◈ SESSION RESUMPTION — LLM EXECUTES
 
 ```
-1. Read current.json
-2. Read registry.json
-3. Identify active_feature and state
-4. Check last event in events.log
-5. Check checkpoint in session-checkpoint.json
-6. Announce state + last transition
-7. "Want to continue or is there something new?"
-8. Delegate to current phase agent
+1. LLM reads current.json via file system tools
+2. LLM reads registry.json via file system tools
+3. LLM identifies active_feature and state
+4. LLM checks last event in events.log
+5. LLM checks checkpoint in session-checkpoint.json
+6. LLM announces state + last transition to user
+7. LLM asks: "Want to continue or is there something new?"
+8. LLM delegates to current phase agent skill-file for execution
+
+> **LLM Mandate**: You execute the entire resumption protocol autonomously.
+> You read all state files, reconstruct the session context, and announce the state.
+> You do NOT ask the user to provide state information — you read it directly.
 ```
 
 ---
 
-*HES SKILL v3.3.0 — Orchestrator (Registry-Based, Phase-Locked, Multi-Language)*
+*HES SKILL v3.3.0 — LLM HARNESS ORCHESTRATOR (Execution-Based, Phase-Locked, Multi-Language)*
 *References: Fowler (2026) · LangChain (2026) · Josemalyson Oliveira | 2026*

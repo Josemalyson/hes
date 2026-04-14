@@ -1,59 +1,67 @@
-# HES v3.1 — Arquitetura do Sistema
+# HES v3.1 — System Architecture
 
-> Documento técnico de referência do HES — Harness Engineer Standard.
-> Baseado em: Fowler (2026), LangChain/Harrison (2026).
+> Technical reference document for HES — Harness Engineer Standard.
+> Based on: Fowler (2026), LangChain/Harrison (2026).
 
 ---
 
-## ◈ MODELO CONCEITUAL
+## ◈ CONCEPTUAL MODEL
 
-### O que é um Harness (LangChain, 2026)
+### What is a Harness (LangChain, 2026)
 
 ```
 Agent = Model + Harness
 
-O Harness é tudo ao redor do modelo:
-  → Código que orquestra o agente
-  → Instruções no contexto (SKILL.md, skill-files)
-  → Ferramentas disponíveis (git hooks, scripts)
-  → Memória (events.log, lessons.md, specs, ADRs)
+The Harness is everything around the model:
+  → Code that orchestrates the agent
+  → Instructions in context (SKILL.md, skill-files)
+  → Available tools (git hooks, scripts)
+  → Memory (events.log, lessons.md, specs, ADRs)
 ```
 
 > "Managing context, and therefore memory, is a core capability and responsibility
 >  of the agent harness." — LangChain, 2026
 
-O HES é o harness do projeto. Cada skill-file é um **guide inferencial**.
-Cada git hook é um **sensor computacional**. As specs são o **behaviour harness**.
+**LLM HARNESS RESPONSIBILITY**: The LLM executing in the harness IS the harness. Each skill-file is an **inferential guide**.
+Each git hook is a **computational sensor**. The specs are the **behavior harness**.
+
+> **The LLM executing these instructions assumes full responsibility for:**
+> - Reading and interpreting all skill-files
+> - Making execution decisions based on the state machine
+> - Using available tools to perform all actions
+> - Validating outcomes via sensors
+> - Learning from errors and updating lessons
+> - Maintaining project state across sessions
 
 ---
 
-## ◈ TAXONOMIA DE CONTROLES (Fowler, 2026)
+## ◈ CONTROL TAXONOMY (Fowler, 2026)
 
 ```
-GUIDES (feedforward — antecipar e prevenir erros antes de agir)
+GUIDES (feedforward — anticipate and prevent errors before acting)
 ┌─────────────────────────────────────────────────────────────┐
-│ Inferencial (semântico — executado pelo LLM)                │
-│   → SKILL.md (orquestrador)                                 │
+│ Inferential (semantic — executed by the LLM harness)        │
+│   → SKILL.md (orchestrator)                                 │
 │   → skills/01-discovery.md ~ skills/07-review.md           │
-│   → .claude/CLAUDE.md (identidade do agente)                │
-│   → .hes/domains/*/context.md (bounded context DDD)         │
-│   → .hes/decisions/ADR-*.md (decisões arquiteturais)        │
-│   → .hes/specs/*/0[1-4]-*.md (specs da feature)            │
+│   → .claude/CLAUDE.md (agent identity)                      │
+│   → .hes/domains/*/context.md (DDD bounded context)         │
+│   → .hes/decisions/ADR-*.md (architectural decisions)       │
+│   → .hes/specs/*/0[1-4]-*.md (feature specs)               │
 │                                                             │
-│ Computacional (determinístico — executado pela CPU)         │
-│   → Verificação de pom.xml / package.json (pre-impl)        │
-│   → Bootstrap templates (.hes/domains/*/fitness/)           │
-│   → Anti-alucinação checklist (estruturado nos skill-files) │
+│ Computational (deterministic — executed by CPU)             │
+│   → pom.xml / package.json verification (pre-impl)         │
+│   → Bootstrap templates (.hes/domains/*/fitness/)          │
+│   → Anti-hallucination checklist (structured in skill-files)│
 └─────────────────────────────────────────────────────────────┘
 
-SENSORS (feedback — observar após agir e autocorrigir)
+SENSORS (feedback — observe after acting and self-correct)
 ┌─────────────────────────────────────────────────────────────┐
-│ Inferencial (semântico)                                     │
+│ Inferential (semantic)                                      │
 │   → Self-refinement loop (05-tests + 06-implementation)     │
-│   → Review checklist 5 dimensões (07-review)                │
+│   → Review checklist 5 dimensions (07-review)               │
 │   → Harness health assessment (harness-health)              │
 │                                                             │
-│ Computacional (determinístico)                              │
+│ Computational (deterministic)                               │
 │   → scripts/hooks/safety_validator.py (pre-commit)          │
 │   → scripts/hooks/sdd_commit_checker.py (commit-msg)        │
 │   → Build + coverage report (mvn/npm test)                  │
@@ -63,72 +71,82 @@ SENSORS (feedback — observar após agir e autocorrigir)
 └─────────────────────────────────────────────────────────────┘
 ```
 
+> **LLM Responsibility**: The LLM MUST execute all inferential guides and sensors autonomously.
+> When computational sensors require tool execution, the LLM MUST invoke appropriate tools.
+
 ---
 
-## ◈ DIMENSÕES DE REGULAÇÃO (Fowler, 2026)
+## ◈ REGULATION DIMENSIONS (Fowler, 2026)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ MAINTAINABILITY HARNESS                                      │
-│   Objetivo: qualidade interna do código                      │
-│   Guides:  CLAUDE.md com regras de qualidade                 │
-│            Anti-alucinação checklists nos skill-files        │
+│   Objective: internal code quality                           │
+│   Guides:  CLAUDE.md with quality rules                      │
+│            Anti-hallucination checklists in skill-files      │
 │   Sensors: coverage ≥ 80%, linter, complexity check         │
-│            Review checklist — Dimensão "Qualidade"           │
+│            Review checklist — "Quality" dimension            │
 ├──────────────────────────────────────────────────────────────┤
 │ ARCHITECTURE FITNESS HARNESS                                 │
-│   Objetivo: module boundaries + drift arquitetural           │
+│   Objective: module boundaries + architectural drift         │
 │   Guides:  03-design.md + ADRs + domain context.md          │
-│            .hes/domains/*/fitness/ (regras de domínio)       │
+│            .hes/domains/*/fitness/ (domain rules)            │
 │   Sensors: ArchUnit / dep-cruiser / import-linter           │
-│            Review checklist — Dimensão "Arquitetura"         │
-│            /hes report — drift detection offline             │
+│            Review checklist — "Architecture" dimension       │
+│            /hes report — offline drift detection             │
 ├──────────────────────────────────────────────────────────────┤
 │ BEHAVIOUR HARNESS                                            │
-│   Objetivo: o código faz o que a spec diz                    │
-│   Guides:  01-discovery + 02-spec (cenários BDD)            │
-│            Rastreabilidade RN → cenário → teste              │
-│   Sensors: suite de testes unitários + integração            │
+│   Objective: the code does what the spec says               │
+│   Guides:  01-discovery + 02-spec (BDD scenarios)           │
+│            Traceability BR → scenario → test                │
+│   Sensors: unit + integration test suite                    │
 │            Self-refinement loop (05 + 06)                    │
-│            Review humano (07-review)                         │
+│            Human review (07-review)                          │
 └──────────────────────────────────────────────────────────────┘
 ```
 
+> **LLM Responsibility**: The LLM MUST actively monitor all 3 dimensions during execution.
+> When any dimension falls below threshold, the LLM MUST trigger corrective action via appropriate skill-files.
+
 ---
 
-## ◈ CAMADAS DE APRENDIZADO (LangChain, 2026)
+## ◈ LEARNING LAYERS (LangChain, 2026)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ HARNESS LAYER (skill-files, SKILL.md)                       │
-│   → Evolui via self-improvement protocol                     │
-│   → /hes report: batch learning sobre events.log            │
-│   → Lição recorrente (N ≥ 2) → skill-file correspondente   │
-│   → Muda para TODOS os projetos futuros                      │
+│   → Evolves via self-improvement protocol                    │
+│   → /hes report: batch learning over events.log             │
+│   → Recurrent lesson (N ≥ 2) → corresponding skill-file    │
+│   → Changes for ALL future projects                          │
 ├─────────────────────────────────────────────────────────────┤
 │ CONTEXT LAYER (lessons.md, decisions/, context.md, specs)   │
-│   → Evolui por ciclo/feature/projeto                        │
-│   → Hot path: lessons registradas durante erros             │
-│   → Offline: consolidação via /hes report                   │
-│   → Muda para ESTE projeto                                   │
+│   → Evolves by cycle/feature/project                        │
+│   → Hot path: lessons registered during errors              │
+│   → Offline: consolidation via /hes report                  │
+│   → Changes for THIS project only                           │
 ├─────────────────────────────────────────────────────────────┤
 │ MEMORY = CONTEXT MANAGEMENT                                  │
-│   → O harness É a memória (LangChain, 2026)                │
-│   → events.log = traces = fonte primária do learning loop   │
-│   → lessons.md = memória consolidada do projeto             │
-│   → ADRs = memória arquitetural permanente                  │
+│   → The harness IS the memory (LangChain, 2026)            │
+│   → events.log = traces = primary source of learning loop   │
+│   → lessons.md = consolidated project memory                │
+│   → ADRs = permanent architectural memory                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
+> **LLM Responsibility**: The LLM MUST maintain and evolve the learning layers autonomously.
+> On each error, the LLM MUST register lessons. On recurrent patterns, the LLM MUST update skill-files.
+> The LLM MUST run /hes report periodically to perform batch learning over events.log.
+
 ---
 
-## ◈ MÁQUINA DE ESTADOS
+## ◈ STATE MACHINE
 
 ```
                     ZERO
                       │
           ┌───────────┴───────────┐
-          │ (novo projeto)        │ (projeto existente)
+          │ (new project)         │ (existing project)
           ▼                       ▼
      00-bootstrap.md          legacy.md
           │                       │
@@ -137,60 +155,69 @@ SENSORS (feedback — observar após agir e autocorrigir)
           └───────────┬───────────┘
                       │
                       ▼
-               01-discovery.md    ← Guide inferencial
-                      │ aprovado
+               01-discovery.md    ← Inferential guide
+                      │ approved
                       ▼
-                 02-spec.md       ← Guide inferencial (behaviour harness)
-                      │ aprovado
+                 02-spec.md       ← Inferential guide (behaviour harness)
+                      │ approved
                       ▼
-                 03-design.md     ← Guide inferencial (architecture fitness)
-                      │ aprovado
+                 03-design.md     ← Inferential guide (architecture fitness)
+                      │ approved
                       ▼
-                 04-data.md       ← Guide inferencial + computacional
+                 04-data.md       ← Inferential guide + computational
                       │ migration ok
                       ▼
-                 05-tests.md (RED) ← Sensor inferencial (behaviour)
-                      │ testes falhando conforme esperado
+                 05-tests.md (RED) ← Inferential sensor (behaviour)
+                      │ tests failing as expected
                       ▼
              06-implementation.md (GREEN)
-                      │ build verde
+                      │ build green
                       ▼
-                 07-review.md     ← Sensor inferencial (5 dimensões)
+                 07-review.md     ← Inferential sensor (5 dimensions)
                       │ ArchUnit + coverage + checklist ok
                       ▼
                     DONE
                       │
-                      ├─ (a cada 3 ciclos)
+                      ├─ (every 3 cycles)
                       ▼
                  report.md        ← Batch learning (offline)
-                      │ melhorias identificadas
+                      │ improvements identified
                       ▼
-             harness-health.md    ← Diagnóstico das 3 dimensões
+             harness-health.md    ← 3 dimensions diagnostics
                       │
                       ▼
-                 [harness melhorado]
+                 [improved harness]
                       │
                       ▼
-               próxima feature ──→ loop
+               next feature ──→ loop
 ```
+
+> **LLM Responsibility**: The LLM MUST execute this state machine autonomously.
+> The LLM MUST NOT skip phases or advance without meeting gates.
+> The LLM MUST make all execution decisions based on the current state and skill-file instructions.
+> The LLM MUST use tools to perform all actions (file creation, test execution, git operations, etc.).
 
 ---
 
 ## ◈ EVENT SOURCING
 
 ```
-events.log = traces = flywheel de aprendizado (LangChain, 2026)
+events.log = traces = learning flywheel (LangChain, 2026)
 
-Cada evento contém:
+Each event contains:
   timestamp, feature, from, to, agent, metadata
   metadata: artifacts, duration_minutes, refinement_iterations, lessons_added
 
-Usos dos traces:
+Trace uses:
   → /hes report: batch analysis → harness improvement
-  → /hes status: estado atual de todas as features
-  → /hes rollback: identificar o estado alvo para reverter
-  → Diagnóstico de gargalos por fase
+  → /hes status: current state of all features
+  → /hes rollback: identify target state to revert
+  → Bottleneck diagnostics per phase
 ```
+
+> **LLM Responsibility**: The LLM MUST log every state transition to events.log.
+> The LLM MUST use events.log data for /hes report and /hes status commands.
+> The LLM MUST analyze traces to identify patterns and improve the harness autonomously.
 
 ---
 
@@ -210,11 +237,15 @@ Usos dos traces:
 }
 ```
 
-Regras:
-- `active_feature` = foco da sessão atual
-- `/hes switch` muda foco sem perder estado
-- Feature bloqueada por dependência não-DONE → warning automático
-- `/hes status` mostra o estado de todas + dependências
+Rules:
+- `active_feature` = current session focus
+- `/hes switch` changes focus without losing state
+- Feature blocked by non-DONE dependency → automatic warning
+- `/hes status` shows state of all features + dependencies
+
+> **LLM Responsibility**: The LLM MUST manage the dependency graph autonomously.
+> The LLM MUST prevent execution of blocked features and warn the user.
+> The LLM MUST maintain accurate state for all concurrent features.
 
 ---
 
@@ -222,59 +253,68 @@ Regras:
 
 > "Not every codebase is equally amenable to harnessing."
 
-Codebase fortemente tipado + boundaries claros + DI + testes = harnessability alta.
-O harness é instalado proporcionalmente ao score (veja `legacy.md`).
+Strongly typed codebase + clear boundaries + DI + tests = high harnessability.
+The harness adapts proportionally to the score (see `legacy.md`).
 
 ```
-Alto   → Harness completo (todos os guides + sensors)
-Médio  → Harness incremental (começar pelos guides + hooks)
-Baixo  → Harness mínimo (só hooks + specs) + sprint de harnessability
+High   → Complete harness (all guides + sensors)
+Medium → Incremental harness (start with guides + hooks)
+Low    → Minimal harness (only hooks + specs) + harnessability sprint
 ```
+
+> **LLM Responsibility**: The LLM MUST assess harnessability at project start.
+> The LLM MUST adapt the harness depth based on the harnessability score.
+> For low harnessability projects, the LLM MUST prioritize harnessability improvements.
 
 ---
 
-## ◈ ESTRUTURA DE ARQUIVOS
+## ◈ FILE STRUCTURE
 
 ```
-projeto/
-├── SKILL.md                      ← Orquestrador (ler sempre primeiro)
-├── ARCHITECTURE.md               ← Este documento
-├── SETUP.md                      ← Instalação por ambiente
+project/
+├── SKILL.md                      ← Orchestrator (read first always)
+├── ARCHITECTURE.md               ← This document
+├── SETUP.md                      ← Installation by environment
 │
 └── skills/
-    ├── 00-bootstrap.md           ← Estrutura HES + git hooks + domínios
-    ├── 01-discovery.md           ← Entendimento + RN + UC [Guide Inf.]
-    ├── 02-spec.md                ← BDD + API contract [Guide Inf.]
-    ├── 03-design.md              ← Componentes + ADR [Guide Inf.]
-    ├── 04-data.md                ← Schema + migration [Guide Comp.]
-    ├── 05-tests.md               ← Fase RED [Sensor Inf.]
-    ├── 06-implementation.md      ← Fase GREEN [Sensor Inf.]
-    ├── 07-review.md              ← 5 dimensões + DONE [Sensor Inf.]
-    ├── legacy.md                 ← Harnessability + inventário
-    ├── error-recovery.md         ← Diagnóstico por categoria
-    ├── refactor.md               ← Refactoring seguro por tipo
+    ├── 00-bootstrap.md           ← HES structure + git hooks + domains
+    ├── 01-discovery.md           ← Understanding + BR + UC [Inferential Guide]
+    ├── 02-spec.md                ← BDD + API contract [Inferential Guide]
+    ├── 03-design.md              ← Components + ADR [Inferential Guide]
+    ├── 04-data.md                ← Schema + migration [Inferential + Computational]
+    ├── 05-tests.md               ← RED phase [Inferential Sensor]
+    ├── 06-implementation.md      ← GREEN phase [Inferential Sensor]
+    ├── 07-review.md              ← 5 dimensions + DONE [Inferential Sensor]
+    ├── legacy.md                 ← Harnessability + inventory
+    ├── error-recovery.md         ← Diagnosis by category
+    ├── refactor.md               ← Safe refactoring by type
     ├── report.md                 ← Batch learning (offline)
-    └── harness-health.md         ← Diagnóstico 3 dimensões [NOVO]
+    └── harness-health.md         ← 3 dimensions diagnostics [NEW]
 ```
+
+> **LLM Responsibility**: The LLM MUST read SKILL.md first on every session.
+> The LLM MUST load skill-files based on the current state machine phase.
+> The LLM MUST execute the instructions in each skill-file without deviation.
+> The LLM MUST use tools to perform all file operations, test execution, and git commands.
 
 ---
 
-## ◈ DECISÕES DE DESIGN — O QUE FICOU DE FORA E POR QUÊ
+## ◈ DESIGN DECISIONS — WHAT WAS LEFT OUT AND WHY
 
-| Proposta | Decisão | Justificativa |
+| Proposal | Decision | Justification |
 |----------|---------|--------------|
-| CLI executável (`hes-cli`) | ❌ Fora do escopo | Skill-file é LLM-agnóstico; CLI é infraestrutura separada |
-| `runtime/executor.sh` | ❌ Removido | Idem — pertence à camada de infraestrutura |
-| "RAG semântica" | 🔄 Adaptado | Context loading estruturado por convenção — funciona em qualquer LLM |
-| Self-refinement ilimitado | 🔄 Limitado | Máx. 3–5 tentativas + escalação humana obrigatória |
-| Event sourcing completo | ✅ Incluído | `events.log` com metadata rico — base do learning loop |
-| Multi-feature | ✅ Incluído | `dependency_graph` + `/hes switch` |
-| Domínios DDD | ✅ Incluído | `.hes/domains/*/context.md + fitness/` |
-| Architecture Fitness | ✅ Novo em v3.1 | Dimensão de Fowler que estava ausente no v3 |
-| Harnessability assessment | ✅ Novo em v3.1 | Essencial para projetos legados (Fowler) |
-| Context compaction | ✅ Novo em v3.1 | Protocolo explícito para sessões longas |
-| Learning loop formal | ✅ Novo em v3.1 | Hot path + offline (LangChain continual learning) |
-| `/hes harness` | ✅ Novo em v3.1 | Diagnóstico das 3 dimensões de regulação |
+| Executable CLI (`hes-cli`) | ❌ Out of scope | Skill-file is LLM-agnostic; CLI is separate infrastructure |
+| `runtime/executor.sh` | ❌ Removed | Same — belongs to infrastructure layer |
+| "Semantic RAG" | 🔄 Adapted | Structured context loading by convention — works with any LLM |
+| Unlimited self-refinement | 🔄 Limited | Max 3-5 attempts + mandatory human escalation |
+| Complete event sourcing | ✅ Included | `events.log` with rich metadata — learning loop foundation |
+| Multi-feature | ✅ Included | `dependency_graph` + `/hes switch` |
+| DDD domains | ✅ Included | `.hes/domains/*/context.md + fitness/` |
+| Architecture Fitness | ✅ New in v3.1 | Fowler dimension missing from v3 |
+| Harnessability assessment | ✅ New in v3.1 | Essential for legacy projects (Fowler) |
+| Context compaction | ✅ New in v3.1 | Explicit protocol for long sessions |
+| Formal learning loop | ✅ New in v3.1 | Hot path + offline (LangChain continual learning) |
+| `/hes harness` | ✅ New in v3.1 | 3 regulation dimensions diagnostics |
 
 ---
 

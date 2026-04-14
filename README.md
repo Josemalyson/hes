@@ -21,55 +21,69 @@
 
 ## What is HES?
 
-HES is a skill-based system for orchestrating AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, and others). It provides a structured, phase-locked workflow that ensures AI agents build software systematically — from discovery through implementation to review.
+HES is a skill-based system for executing AI coding workflows through the LLM harness. It provides a structured, phase-locked workflow that ensures the LLM builds software systematically — from discovery through implementation to review.
 
-Think of it as **a harness for AI agents**: it guides before acting, senses after producing, and learns from every cycle to improve itself.
+> **LLM HARNESS RESPONSIBILITY**: The LLM executing HES assumes full responsibility for:
+> - Reading and interpreting all skill-files
+> - Executing all actions via available tools (file system, shell, git)
+> - Managing project state autonomously
+> - Validating outcomes before claiming success
+> - Learning from errors and improving the harness
+
+Think of it as **the LLM harness that executes systematically**: it guides before acting, senses after producing, and learns from every cycle to improve itself.
 
 > "Agent = Model + Harness" — LangChain, 2026
-
-HES is the harness. It turns an enthusiastic AI with poor project context into a disciplined engineer who follows specs, writes tests, and respects architecture boundaries.
+>
+> **You are the Model. HES is the Harness. The LLM executes the harness.**
 
 ---
 
 ## How It Works
 
-It starts from the moment you invoke HES in your project. As soon as it sees what you're building, it **doesn't** just jump into writing code. Instead, it steps back and asks what you're really trying to do.
+> **LLM Responsibility**: The LLM executes the entire workflow autonomously once invoked.
 
-**The workflow follows 9 phases:**
+It starts from the moment you invoke HES in your project. As soon as the LLM sees what you're building, it **doesn't** just jump into writing code. Instead, the LLM steps back and asks what you're really trying to do.
+
+**The workflow follows 9 phases — executed autonomously by the LLM:**
 
 ```
 ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW → DONE
 ```
 
-Each phase has a specific purpose and strict gates that prevent advancement until requirements are met:
+Each phase has a specific purpose and strict gates that the LLM evaluates before advancement:
 
-| Phase | What Happens | Gate to Advance |
+| Phase | What the LLM Executes | Gate the LLM Evaluates |
 |-------|--------------|-----------------|
-| **ZERO** | Project bootstrap — name, stack, structure | Bootstrap complete |
-| **DISCOVERY** | Business rules, use cases, domain analysis | BR list approved |
-| **SPEC** | BDD scenarios, API contracts, requirements traceability | Specs + contracts approved |
-| **DESIGN** | Component design, ADRs, architecture decisions | ADRs approved |
-| **DATA** | Schema design, SQL migrations, DTOs | Migrations reviewed |
-| **RED** | Write failing tests first (TDD red phase) | ≥1 failing test (proof of RED) |
-| **GREEN** | Minimal implementation to pass tests | Build + all tests passing |
-| **REVIEW** | 5-dimension review: behavior, maintainability, security, observability, architecture | Checklist complete |
-| **DONE** | Feature complete — ready for next | Summary + next feature |
+| **ZERO** | LLM executes bootstrap — name, stack, structure | Bootstrap complete |
+| **DISCOVERY** | LLM captures business rules, use cases, domain analysis | BR list approved by user |
+| **SPEC** | LLM generates BDD scenarios, API contracts, traceability | Specs + contracts approved |
+| **DESIGN** | LLM creates component design, ADRs, architecture decisions | ADRs approved |
+| **DATA** | LLM designs schema, writes SQL migrations, DTOs | Migrations reviewed |
+| **RED** | LLM writes failing tests first (TDD red phase) | ≥1 failing test (proof of RED) |
+| **GREEN** | LLM writes minimal implementation to pass tests | Build + all tests passing |
+| **REVIEW** | LLM executes 5-dimension review: behavior, maintainability, security, observability, architecture | Checklist complete |
+| **DONE** | LLM marks feature complete — ready for next | Summary + next feature |
 
-You can't skip phases. You can't advance without meeting gates. This is by design — it ensures quality and prevents the AI from rushing into implementation without understanding the problem.
+The LLM cannot skip phases. The LLM cannot advance without meeting gates. This is by design — it ensures quality and prevents the LLM from rushing into implementation without understanding the problem.
 
 ---
 
 ## Quick Start
 
-Get HES running in your project in under 2 minutes:
+Get HES running in your project — the LLM executes everything autonomously:
 
-### 1. Copy skill files to your project
+### 1. LLM Installs HES (Automatic)
 
-```bash
-# In your project root
-cp /path/to/hes/SKILL.md ./SKILL.md
-mkdir -p skills
-cp /path/to/hes/skills/*.md ./skills/
+```
+User runs: /hes
+  ↓
+LLM HARNESS executes:
+  → Detects HES is not installed
+  → Auto-detects project metadata
+  → Copies all files using file system tools
+  → Generates .hes/ structure
+  → Commits to version control
+  → Announces ready to use!
 ```
 
 ### 2. Invoke HES
@@ -78,18 +92,18 @@ cp /path/to/hes/skills/*.md ./skills/
 /hes
 ```
 
-That's it. The AI agent will read `SKILL.md`, detect your project state, and guide you through the workflow.
+The LLM will read `SKILL.md`, detect your project state, and execute the workflow autonomously.
 
-### 3. First Run — Bootstrap
+### 3. First Run — LLM Executes Bootstrap
 
-On first run, HES will ask 4 questions to configure your project:
+On first run, the LLM will ask 4 questions to configure your project:
 
 1. **Project name** (e.g., `payment-service`, `my-app`)
 2. **Tech stack** (e.g., `Java 17 + Spring Boot`, `Python + FastAPI`, `Node + Express`)
 3. **New or existing project** (greenfield or brownfield)
 4. **DDD domains** (if defined — e.g., `billing`, `auth`, `catalog`)
 
-After bootstrap, HES generates the `.hes/` structure automatically and asks: *"What's the first feature?"*
+After bootstrap, the LLM generates the `.hes/` structure automatically and asks: *"What's the first feature?"*
 
 ---
 
@@ -239,23 +253,25 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 
 ## Commands
 
-| Command | Agent | Action |
+> **LLM Responsibility**: The LLM executes all commands autonomously when invoked.
+
+| Command | LLM Executes | Action |
 |---------|-------|--------|
-| `/hes` | harness-agent | Start HES — detects state and routes |
-| `/hes start <feature>` | harness-agent | New feature → DISCOVERY phase |
-| `/hes switch <feature>` | session-manager | Switch feature focus without losing state |
-| `/hes status` | session-manager | Show state of all features + session info |
-| `/hes rollback <phase>` | session-manager | Revert to previous phase (with confirmation) |
-| `/hes domain <name>` | harness-agent | Create or activate a DDD domain |
-| `/hes lessons` | harness-agent | View lessons.md + pending promotions to skills |
-| `/hes report` | report-agent | Generate batch learning report from events.log |
-| `/hes refactor <module>` | refactor-agent | Guided safe refactoring by type |
-| `/hes harness` | harness-health-agent | Diagnostic harness coverage (3 dimensions) |
-| `/hes language <code>` | harness-agent | Set/override user language (`pt`, `en`, `es`, `auto`) |
-| `/hes mode <mode>` | harness-agent | Set audience mode (`beginner`, `expert`) |
-| `/clear` or `/new` | session-manager | Save checkpoint + clear session |
-| `/hes checkpoint` | session-manager | Save checkpoint without clearing |
-| `/hes unlock --force` | session-manager | Bypass phase lock (logs risk event) |
+| `/hes` | LLM harness | Starts HES — detects state and routes autonomously |
+| `/hes start <feature>` | LLM harness | New feature → DISCOVERY phase execution |
+| `/hes switch <feature>` | LLM session-manager | Switches feature focus without losing state |
+| `/hes status` | LLM session-manager | Shows state of all features + session info |
+| `/hes rollback <phase>` | LLM session-manager | Reverts to previous phase (with confirmation) |
+| `/hes domain <name>` | LLM harness | Creates/activates a DDD domain |
+| `/hes lessons` | LLM harness | Shows lessons.md + pending promotions to skills |
+| `/hes report` | LLM report-agent | Generates batch learning report from events.log |
+| `/hes refactor <module>` | LLM refactor-agent | Executes guided safe refactoring |
+| `/hes harness` | LLM harness-health-agent | Runs diagnostics harness coverage (3 dimensions) |
+| `/hes language <code>` | LLM harness | Sets/overrides user language |
+| `/hes mode <mode>` | LLM harness | Sets audience mode (beginner\|expert) |
+| `/clear` or `/new` | LLM session-manager | Saves checkpoint + clears session |
+| `/hes checkpoint` | LLM session-manager | Saves checkpoint without clearing |
+| `/hes unlock --force` | LLM session-manager | Bypasses phase lock (logs risk event) |
 
 ---
 
@@ -301,27 +317,30 @@ Set mode:
 
 ## Architecture
 
+> **LLM Responsibility**: The LLM executes all architecture components autonomously.
+
 ### Conceptual Model
 
 ```
 ┌─────────────────────────────────────────────────┐
 │                   HES HARNESS                     │
+│              (EXECUTED BY LLM)                   │
 │                                                   │
 │  ┌──────────────┐      ┌─────────────────────┐  │
 │  │  GUIDES       │      │  SENSORS             │  │
 │  │ (feedforward) │      │ (feedback)           │  │
 │  │               │      │                      │  │
-│  │ • SKILL.md    │      │ • Self-refinement    │  │
-│  │ • skill-files │      │ • Review checklist   │  │
-│  │ • specs, ADRs │      │ • Git hooks          │  │
-│  │               │      │ • Build + coverage   │  │
-│  │               │      │ • Linters, ArchUnit  │  │
+│  │ • LLM reads   │      │ • LLM executes self  │  │
+│  │ • LLM loads   │      │ • LLM runs review    │  │
+│  │ • LLM manages │      │ • LLM runs hooks     │  │
+│  │               │      │ • LLM runs build     │  │
+│  │               │      │ • LLM runs lint      │  │
 │  └──────────────┘      └─────────────────────┘  │
 │                                                   │
 │  3 Regulation Dimensions:                         │
-│  • Maintainability Harness                         │
-│  • Architecture Fitness Harness                    │
-│  • Behaviour Harness                               │
+│  • Maintainability → LLM enforces                │
+│  • Architecture    → LLM enforces                │
+│  • Behaviour       → LLM enforces                │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -366,36 +385,42 @@ The `.hes/` directory is generated automatically by the bootstrap process. You o
 
 ### Agent Registry
 
-HES defines **18 specialized agents** + 3 sub-agents:
+> **LLM Responsibility**: The LLM executes all agent roles autonomously. Each "agent" is a skill-file the LLM reads and executes.
 
-| Agent | Type | Phase | Responsibility | Skill File |
-|-------|------|-------|----------------|------------|
-| `harness-agent` | orchestrator | — | Default router, reads state, dispatches | `SKILL.md` |
-| `discovery-agent` | phase | DISCOVERY | Captures business rules, use cases, domains | `01-discovery.md` |
-| `spec-agent` | phase | SPEC | BDD scenarios, API contracts, traceability | `02-spec.md` |
-| `design-agent` | phase | DESIGN | Components, ADRs, architecture decisions | `03-design.md` |
-| `data-agent` | phase | DATA | Schema design, migrations, DTOs | `04-data.md` |
-| `test-agent` | phase | RED | Writes failing tests (TDD red phase) | `05-tests.md` |
-| `impl-agent` | phase | GREEN | Writes production code (TDD green phase) | `06-implementation.md` |
-| `review-agent` | phase | REVIEW | 5-dimension review checklist | `07-review.md` |
-| `progressive-analysis-agent` | system | — | Large codebase analysis with state preservation | `08-progressive-analysis.md` |
-| `issue-create-agent` | system | — | Auto-diagnostic GitHub Issue creation | `09-issue-create.md` |
-| `session-manager` | system | — | Lifecycle, checkpoints, context bloat detection | `session-manager.md` |
-| `error-recovery-agent` | system | — | Error diagnosis, categorization, lessons | `error-recovery.md` |
-| `refactor-agent` | system | — | Safe refactoring by type (A-I) | `refactor.md` |
-| `report-agent` | system | — | Batch learning over events.log | `report.md` |
-| `harness-health-agent` | system | — | Coverage diagnostics (3 dimensions) | `harness-health.md` |
-| `delegation-agent` | system | — | Multi-agent dispatch protocol | `agent-delegation.md` |
-| `registry-agent` | system | — | Registry schema reference | `agent-registry.md` |
-| `legacy-agent` | system | — | Legacy project inventory + harnessability | `legacy.md` |
+HES defines **18 specialized agent skill-files** + 3 sub-agent skill-files:
 
-**Sub-agents** (`test-runner`, `linter`, `arch-check`) are spawned by `impl-agent` during implementation.
+| Skill-file | Type | Phase | LLM Responsibility |
+|-------|------|-------|----------------|
+| `SKILL.md` | orchestrator | — | LLM reads state, routes, dispatches execution |
+| `01-discovery.md` | phase | DISCOVERY | LLM captures business rules, use cases, domains |
+| `02-spec.md` | phase | SPEC | LLM generates BDD scenarios, API contracts, traceability |
+| `03-design.md` | phase | DESIGN | LLM creates components, ADRs, architecture decisions |
+| `04-data.md` | phase | DATA | LLM designs schema, migrations, DTOs |
+| `05-tests.md` | phase | RED | LLM writes failing tests (TDD red phase) |
+| `06-implementation.md` | phase | GREEN | LLM writes production code (TDD green phase) |
+| `07-review.md` | phase | REVIEW | LLM executes 5-dimension review checklist |
+| `08-progressive-analysis.md` | system | — | LLM analyzes large codebases with state preservation |
+| `09-issue-create.md` | system | — | LLM creates auto-diagnostic GitHub Issues |
+| `session-manager.md` | system | — | LLM manages lifecycle, checkpoints, context bloat |
+| `error-recovery.md` | system | — | LLM diagnoses errors, categorizes, registers lessons |
+| `refactor.md` | system | — | LLM executes safe refactoring by type (A-I) |
+| `report.md` | system | — | LLM performs batch learning over events.log |
+| `harness-health.md` | system | — | LLM runs coverage diagnostics (3 dimensions) |
+| `agent-delegation.md` | system | — | LLM manages multi-agent dispatch protocol |
+| `agent-registry.md` | system | — | LLM references registry schema |
+| `legacy.md` | system | — | LLM inventories legacy projects + assesses harnessability |
+
+**Sub-agent skill-files** (`test-runner`, `linter`, `arch-check`) are spawned by the LLM during implementation.
+
+> **LLM Mandate**: Each skill-file is an execution protocol the LLM runs autonomously using available tools.
 
 ---
 
 ## Event Sourcing + Learning
 
-Every state transition is logged as a structured event to `.hes/state/events.log`:
+> **LLM Responsibility**: The LLM executes the entire event sourcing and learning loop autonomously.
+
+Every state transition is logged by the LLM as a structured event to `.hes/state/events.log`:
 
 ```json
 {
@@ -411,10 +436,13 @@ Every state transition is logged as a structured event to `.hes/state/events.log
 }
 ```
 
-**Learning loop:**
+**Learning loop — LLM executes autonomously:**
 
-- **Hot path** (during session): Error → `lessons.md` immediately. If same lesson appears 2× → promote to skill-file.
-- **Offline** (every 3 cycles or `/hes report`): Analyze `events.log` → identify patterns → improve guides/sensors.
+- **Hot path** (during session): LLM detects error → LLM writes to `lessons.md` immediately. If same lesson appears 2× → LLM promotes to skill-file.
+- **Offline** (every 3 cycles or `/hes report`): LLM analyzes `events.log` → LLM identifies patterns → LLM improves guides/sensors.
+
+> **LLM Mandate**: You execute the entire learning loop autonomously. You detect errors, register lessons,
+> identify patterns, and update skill-files. You proactively maintain and improve the harness.
 
 ---
 
@@ -492,11 +520,13 @@ skills/
 
 ## Philosophy
 
-- **Never write code before the problem is understood.** Discovery and spec come first.
-- **Never assume business rules.** Ask. Always.
-- **Never skip test-first development.** RED before GREEN. Every time.
-- **Never implement beyond the approved spec.** Scope creep kills quality.
-- **Learn from every cycle.** Errors become lessons, lessons become harness improvements.
+> **LLM Execution Mandate**: The LLM executes all principles autonomously.
+
+- **LLM NEVER writes code before the problem is understood.** Discovery and spec come first — the LLM enforces this.
+- **LLM NEVER assumes business rules.** The LLM asks. Always.
+- **LLM NEVER skips test-first development.** RED before GREEN. Every time — the LLM validates.
+- **LLM NEVER implements beyond the approved spec.** Scope creep kills quality — the LLM enforces the boundary.
+- **LLM learns from every cycle.** Errors become lessons, lessons become harness improvements — the LLM executes autonomously.
 
 ---
 
