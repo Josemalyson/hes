@@ -60,7 +60,7 @@ your-project/
 - **Git repository** (state tracking requires version control)
 - **AI coding agent** (Claude Code, Cursor, Copilot, etc.)
 - **Node.js 18+** (if using CLI tools)
-- **Language**: Auto-detected (pt, es, fr, de, en)
+- **Language**: Auto-detected (pt-br, es, fr, de, en)
 
 ---
 
@@ -466,7 +466,7 @@ Change the `version` field in `SKILL.md` header after significant evolution.
 **Language detection:**
 Auto-detected from first messages. Override with:
 ```bash
-/hes language pt     → Force Portuguese
+/hes language pt-br  → Force Portuguese Brazilian
 /hes language en     → Force English
 /hes language auto   → Re-enable auto-detection
 ```

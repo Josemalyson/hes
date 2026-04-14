@@ -88,7 +88,7 @@ On first user interaction:
    - English: default (all other patterns)
 
 3. LLM stores detected language in .hes/state/current.json:
-   "user_language": "pt" | "es" | "fr" | "de" | "en"
+   "user_language": "pt-br" | "es" | "fr" | "de" | "en"
 
 4. LLM adapts ALL responses to detected language:
    - Status messages
@@ -113,7 +113,7 @@ On first user interaction:
 Users can explicitly override auto-detection:
 
 ```
-/hes language pt     → Force Portuguese
+/hes language pt-br     → Force Portuguese Brazilian
 /hes language en     → Force English
 /hes language es     → Force Spanish
 /hes language auto   → Re-enable auto-detection

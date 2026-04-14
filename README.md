@@ -290,7 +290,7 @@ HES auto-detects your language from the first message and adapts all responses:
 Override auto-detection:
 
 ```
-/hes language pt     → Force Portuguese
+/hes language pt-br     → Force Portuguese Brazilian
 /hes language en     → Force English
 /hes language auto   → Re-enable auto-detection
 ```
