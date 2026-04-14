@@ -52,17 +52,17 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 
 Each phase has a specific purpose and strict gates that the LLM evaluates before advancement:
 
-| Phase | What the LLM Executes | Gate the LLM Evaluates |
-|-------|--------------|-----------------|
-| **ZERO** | LLM executes bootstrap — name, stack, structure | Bootstrap complete |
-| **DISCOVERY** | LLM captures business rules, use cases, domain analysis | BR list approved by user |
-| **SPEC** | LLM generates BDD scenarios, API contracts, traceability | Specs + contracts approved |
-| **DESIGN** | LLM creates component design, ADRs, architecture decisions | ADRs approved |
-| **DATA** | LLM designs schema, writes SQL migrations, DTOs | Migrations reviewed |
-| **RED** | LLM writes failing tests first (TDD red phase) | ≥1 failing test (proof of RED) |
-| **GREEN** | LLM writes minimal implementation to pass tests | Build + all tests passing |
-| **REVIEW** | LLM executes 5-dimension review: behavior, maintainability, security, observability, architecture | Checklist complete |
-| **DONE** | LLM marks feature complete — ready for next | Summary + next feature |
+| Phase         | What the LLM Executes                                                                             | Gate the LLM Evaluates         |
+| ------------- | ------------------------------------------------------------------------------------------------- | ------------------------------ |
+| **ZERO**      | LLM executes bootstrap — name, stack, structure                                                   | Bootstrap complete             |
+| **DISCOVERY** | LLM captures business rules, use cases, domain analysis                                           | BR list approved by user       |
+| **SPEC**      | LLM generates BDD scenarios, API contracts, traceability                                          | Specs + contracts approved     |
+| **DESIGN**    | LLM creates component design, ADRs, architecture decisions                                        | ADRs approved                  |
+| **DATA**      | LLM designs schema, writes SQL migrations, DTOs                                                   | Migrations reviewed            |
+| **RED**       | LLM writes failing tests first (TDD red phase)                                                    | ≥1 failing test (proof of RED) |
+| **GREEN**     | LLM writes minimal implementation to pass tests                                                   | Build + all tests passing      |
+| **REVIEW**    | LLM executes 5-dimension review: behavior, maintainability, security, observability, architecture | Checklist complete             |
+| **DONE**      | LLM marks feature complete — ready for next                                                       | Summary + next feature         |
 
 The LLM cannot skip phases. The LLM cannot advance without meeting gates. This is by design — it ensures quality and prevents the LLM from rushing into implementation without understanding the problem.
 
@@ -255,23 +255,23 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 
 > **LLM Responsibility**: The LLM executes all commands autonomously when invoked.
 
-| Command | LLM Executes | Action |
-|---------|-------|--------|
-| `/hes` | LLM harness | Starts HES — detects state and routes autonomously |
-| `/hes start <feature>` | LLM harness | New feature → DISCOVERY phase execution |
-| `/hes switch <feature>` | LLM session-manager | Switches feature focus without losing state |
-| `/hes status` | LLM session-manager | Shows state of all features + session info |
-| `/hes rollback <phase>` | LLM session-manager | Reverts to previous phase (with confirmation) |
-| `/hes domain <name>` | LLM harness | Creates/activates a DDD domain |
-| `/hes lessons` | LLM harness | Shows lessons.md + pending promotions to skills |
-| `/hes report` | LLM report-agent | Generates batch learning report from events.log |
-| `/hes refactor <module>` | LLM refactor-agent | Executes guided safe refactoring |
-| `/hes harness` | LLM harness-health-agent | Runs diagnostics harness coverage (3 dimensions) |
-| `/hes language <code>` | LLM harness | Sets/overrides user language |
-| `/hes mode <mode>` | LLM harness | Sets audience mode (beginner\|expert) |
-| `/clear` or `/new` | LLM session-manager | Saves checkpoint + clears session |
-| `/hes checkpoint` | LLM session-manager | Saves checkpoint without clearing |
-| `/hes unlock --force` | LLM session-manager | Bypasses phase lock (logs risk event) |
+| Command                  | LLM Executes             | Action                                             |
+| ------------------------ | ------------------------ | -------------------------------------------------- |
+| `/hes`                   | LLM harness              | Starts HES — detects state and routes autonomously |
+| `/hes start <feature>`   | LLM harness              | New feature → DISCOVERY phase execution            |
+| `/hes switch <feature>`  | LLM session-manager      | Switches feature focus without losing state        |
+| `/hes status`            | LLM session-manager      | Shows state of all features + session info         |
+| `/hes rollback <phase>`  | LLM session-manager      | Reverts to previous phase (with confirmation)      |
+| `/hes domain <name>`     | LLM harness              | Creates/activates a DDD domain                     |
+| `/hes lessons`           | LLM harness              | Shows lessons.md + pending promotions to skills    |
+| `/hes report`            | LLM report-agent         | Generates batch learning report from events.log    |
+| `/hes refactor <module>` | LLM refactor-agent       | Executes guided safe refactoring                   |
+| `/hes harness`           | LLM harness-health-agent | Runs diagnostics harness coverage (3 dimensions)   |
+| `/hes language <code>`   | LLM harness              | Sets/overrides user language                       |
+| `/hes mode <mode>`       | LLM harness              | Sets audience mode (beginner\|expert)              |
+| `/clear` or `/new`       | LLM session-manager      | Saves checkpoint + clears session                  |
+| `/hes checkpoint`        | LLM session-manager      | Saves checkpoint without clearing                  |
+| `/hes unlock --force`    | LLM session-manager      | Bypasses phase lock (logs risk event)              |
 
 ---
 
@@ -279,13 +279,13 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 
 HES auto-detects your language from the first message and adapts all responses:
 
-| Detected | Language | Example |
-|----------|----------|---------|
-| `pt-BR` | Português do Brasil | "📍 HES v3.3.0 — {{NOME_PROJETO}}" |
-| `en` | English | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
-| `es` | Spanish | "📍 HES v3.3.0 — {{NOMBRE_PROYECTO}}" |
-| `fr` | French | "📍 HES v3.3.0 — {{NOM_PROJET}}" |
-| `de` | German | "📍 HES v3.3.0 — {{PROJEKTNAME}}" |
+| Detected | Language            | Example                              |
+| -------- | ------------------- | ------------------------------------ |
+| `pt-BR`  | Português do Brasil | "📍 HES v3.3.0 — {{NOME_PROJETO}}"    |
+| `en`     | English             | "📍 HES v3.3.0 — {{PROJECT_NAME}}"    |
+| `es`     | Spanish             | "📍 HES v3.3.0 — {{NOMBRE_PROYECTO}}" |
+| `fr`     | French              | "📍 HES v3.3.0 — {{NOM_PROJET}}"      |
+| `de`     | German              | "📍 HES v3.3.0 — {{PROJEKTNAME}}"     |
 
 Override auto-detection:
 
@@ -301,10 +301,10 @@ Override auto-detection:
 
 HES adapts response complexity to your expertise level:
 
-| Mode | Behavior | Best For |
-|------|----------|----------|
+| Mode       | Behavior                                                   | Best For                            |
+| ---------- | ---------------------------------------------------------- | ----------------------------------- |
 | `beginner` | Simple language, minimal jargon, step-by-step explanations | Non-technical stakeholders, juniors |
-| `expert` | Technical language, concise, assumes domain knowledge | Senior engineers, architects |
+| `expert`   | Technical language, concise, assumes domain knowledge      | Senior engineers, architects        |
 
 Set mode:
 
@@ -323,24 +323,24 @@ Set mode:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                   HES HARNESS                     │
-│              (EXECUTED BY LLM)                   │
-│                                                   │
+│                   HES HARNESS                   │
+│              (EXECUTED BY LLM)                  │
+│                                                 │
 │  ┌──────────────┐      ┌─────────────────────┐  │
-│  │  GUIDES       │      │  SENSORS             │  │
-│  │ (feedforward) │      │ (feedback)           │  │
-│  │               │      │                      │  │
-│  │ • LLM reads   │      │ • LLM executes self  │  │
-│  │ • LLM loads   │      │ • LLM runs review    │  │
-│  │ • LLM manages │      │ • LLM runs hooks     │  │
-│  │               │      │ • LLM runs build     │  │
-│  │               │      │ • LLM runs lint      │  │
+│  │  GUIDES      │      │  SENSORS            │  │
+│  │ (feedforward)│      │ (feedback)          │  │
+│  │              │      │                     │  │
+│  │ • LLM reads  │      │ • LLM executes self │  │
+│  │ • LLM loads  │      │ • LLM runs review   │  │
+│  │ • LLM manages│      │ • LLM runs hooks    │  │
+│  │              │      │ • LLM runs build    │  │
+│  │              │      │ • LLM runs lint     │  │
 │  └──────────────┘      └─────────────────────┘  │
-│                                                   │
-│  3 Regulation Dimensions:                         │
-│  • Maintainability → LLM enforces                │
-│  • Architecture    → LLM enforces                │
-│  • Behaviour       → LLM enforces                │
+│                                                 │
+│  3 Regulation Dimensions:                       │
+│  • Maintainability → LLM enforces               │
+│  • Architecture    → LLM enforces               │
+│  • Behaviour       → LLM enforces               │
 └─────────────────────────────────────────────────┘
 ```
 

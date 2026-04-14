@@ -93,7 +93,7 @@ Refatoração baseada em leitura de literatura técnica:
 - Adicionado: `harness_version`, `completed_cycles`
 
 **Git hooks:**
-- Adicionados tipos `harness` e `fitness` ao sdd_commit_checker.py
+- Adicionados tipos `harness` e `fitness` ao commit checker (LLM-executed)
 
 ---
 
@@ -123,7 +123,7 @@ HES como arquivo monolítico (~1200 linhas).
 
 ### Adicionado
 - Pipeline SDD+TDD de 7 etapas
-- Git hooks: safety_validator.py, sdd_commit_checker.py
+- Git hooks: LLM-executed safety checks (v3.4+)
 - Template de discovery, spec, design, data, tests, review
 - lessons.md e context.md
 - Protocolo de retomada de sessão

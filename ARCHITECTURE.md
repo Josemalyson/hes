@@ -62,8 +62,8 @@ SENSORS (feedback — observe after acting and self-correct)
 │   → Harness health assessment (harness-health)              │
 │                                                             │
 │ Computational (deterministic)                               │
-│   → scripts/hooks/safety_validator.py (pre-commit)          │
-│   → scripts/hooks/sdd_commit_checker.py (commit-msg)        │
+│   → LLM-executed pre-commit safety check (secrets, destructive SQL) │
+│   → LLM-executed commit-msg validation (Conventional Commits) │
 │   → Build + coverage report (mvn/npm test)                  │
 │   → Linters (Checkstyle/ESLint/ruff)                        │
 │   → ArchUnit / dep-cruiser / import-linter                  │
@@ -319,9 +319,6 @@ hes/ (repository root)
 ├── .hes/                         ← HES state for HES development itself
 │   ├── state/current.json        ← Active feature being developed in HES
 │   └── state/events.log          ← Development cycle traces
-├── scripts/hooks/                ← Computational sensors (pre-commit, commit-msg)
-│   ├── safety_validator.py
-│   └── sdd_commit_checker.py
 └── images/                       ← Documentation assets
 ```
 

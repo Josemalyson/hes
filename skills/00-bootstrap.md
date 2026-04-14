@@ -149,7 +149,7 @@ If version < 3.2.0 → prompt for upgrade.
 
 ```bash
 # Base structure
-mkdir -p .claude/commands .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory scripts/hooks
+mkdir -p .claude/commands .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory
 
 # DDD domains (if provided)
 for domain in {{PROVIDED_DOMAINS}}; do
@@ -276,15 +276,11 @@ If **[A]**, load templates from `skills/reference/fitness-sensors.md` and genera
 
 ## ◈ STEP 10 — GENERATE GIT HOOKS
 
-Load scripts from `skills/reference/git-hooks.md` and generate:
-- `scripts/hooks/safety_validator.py` (pre-commit)
-- `scripts/hooks/sdd_commit_checker.py` (commit-msg)
-- `scripts/hooks/install.sh`
+Load `skills/reference/git-hooks.md` which contains LLM-executable sensors.
+The LLM will run these checks autonomously before each commit.
+No Python scripts to install — the LLM IS the sensor.
 
-**Install:**
-```bash
-bash scripts/hooks/install.sh
-```
+**Reference:** `skills/reference/git-hooks.md`
 
 ---
 
@@ -304,15 +300,14 @@ Guides installed (feedforward):
   {{.hes/domains/*/context.md}}        ← bounded contexts (if domains)
   {{.hes/domains/*/fitness/}}          ← architecture fitness sensors
 
-Sensors installed (feedback):
-  scripts/hooks/safety_validator.py    ← pre-commit
-  scripts/hooks/sdd_commit_checker.py  ← commit-msg
+Sensors installed (LLM-executed):
+  skills/reference/git-hooks.md     ← pre-commit (LLM-executed)
+  skills/reference/git-hooks.md   ← commit-msg (LLM-executed)
   {{fitness sensor per stack}}         ← architecture validation
 
 IDE detected: {{IDE}} → config: {{CONFIG_FILE}}
 
-To activate git hooks:
-  bash scripts/hooks/install.sh
+Git hooks are LLM-executed (skills/reference/git-hooks.md) — no install needed.
 ```
 
 ---

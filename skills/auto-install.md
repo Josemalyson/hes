@@ -115,7 +115,7 @@ else → "generic"
 ### Use shell commands to create directories:
 
 ```bash
-mkdir -p .claude/commands .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory scripts/hooks
+mkdir -p .claude/commands .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory
 ```
 
 ### Generate current.json with auto-detected values:

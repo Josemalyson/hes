@@ -14,15 +14,14 @@ Date: 2026-04-14
 
 | Debt | Location | Impact | Effort | Strategy |
 |--------|------------|---------|---------|-----------|
-| No test suite for hooks | scripts/hooks/ | Hooks could break silently | M | Add pytest to scripts/ |
 | No CI/CD pipeline | root | No automated validation | S | Add GitHub Actions |
 
 ## 🟢 MEDIUM — desirable improvement without urgency
 
 | Debt | Location | Impact | Effort | Strategy |
 |--------|------------|---------|---------|-----------|
-| Python type hints | scripts/hooks/*.py | Better maintainability | M | Add type annotations |
-| Unit test for safety_validator | scripts/hooks/safety_validator.py | Prevent regressions | M | Add pytest |
+| Python hooks removed in v3.4 | scripts/hooks/ | Hooks now LLM-executed | N/A | No action needed |
+| Python type hints | scripts/hooks/*.py | Better maintainability | M | Add type annotations (if hooks added back) |
 
 ---
 
@@ -31,5 +30,4 @@ Date: 2026-04-14
 | Module | Coverage | Harnessability | Recommended Strategy |
 |--------|----------|---------------|----------------------|
 | skills/ | N/A | High | Immediate use |
-| scripts/hooks/ | Low | High | Add tests |
 | .hes/state/ | N/A | High | Already operational |

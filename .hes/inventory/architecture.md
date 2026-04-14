@@ -28,7 +28,7 @@ Date: 2026-04-14 | Analyst: HES Auto-Discovery
 | Type | File | Route/Endpoint | Authentication |
 |------|---------|--------------|-------------|
 | CLI | SKILL.md | Root orchestrator | N/A |
-| Hooks | scripts/hooks/*.py | Pre-commit | N/A |
+| Hooks | skills/reference/git-hooks.md | LLM-executed | N/A |
 | Skills | skills/*.md | Phase-based | N/A |
 
 ## Critical Dependencies
@@ -52,7 +52,7 @@ Date: 2026-04-14 | Analyst: HES Auto-Discovery
 | Module | Responsibility | Health | Harnessable? |
 |--------|-----------------|-------|-------------|
 | skills/ | Phase-specific orchestration | 🟢 | Yes |
-| scripts/hooks/ | Safety validation + commit checking | 🟢 | Yes |
+| scripts/hooks/ | Safety validation + commit checking | N/A | Removed (LLM-executed) |
 | .hes/ | State management | 🟢 | Yes |
 | INSTALL.md | Auto-installation protocol | 🟢 | Yes |
 

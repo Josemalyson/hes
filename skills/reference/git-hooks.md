@@ -1,133 +1,134 @@
-# Git Hooks Reference
+# Git Hooks Reference — LLM-Executable Sensors
 
-> Used in: Step 10 — Generate Git hooks
-> All hooks are computational sensors that block invalid commits
+> **v3.4 Change**: All computational sensors are now LLM-executed instructions.
+> No Python scripts. The LLM runs these checks autonomously before each commit.
 
 ---
 
-## Pre-commit Hook: Safety Validator
+## Pre-commit: Safety Validator
 
-**File:** `scripts/hooks/safety_validator.py`
+**Trigger**: Before every `git commit`
 
-```python
-#!/usr/bin/env python3
-"""HES Safety Validator v3.3 — pre-commit hook
-Computational sensor: blocks secrets, destructive SQL, and pending tasks."""
-import subprocess, sys, re
+**The LLM MUST check staged files for:**
 
-BLOCKED_PATTERNS = [
-    (r'(?i)(password|secret|api_key|token)\s*=\s*["\'][^"\']{4,}', 'Hardcoded secret detected'),
-    (r'(?i)DROP\s+TABLE', 'DROP TABLE without explicit approval (HES RULE-04)'),
-    (r'(?i)DELETE\s+FROM\s+\w+\s*;', 'DELETE without WHERE clause'),
-    (r'(?i)TRUNCATE\s+TABLE', 'TRUNCATE without explicit approval (HES RULE-04)'),
-    (r'\bTODO\b|\bFIXME\b|\bHACK\b', 'Unresolved pending task in code'),
-]
-SKIP_EXTENSIONS = {'.lock', '.sum', '.mod', '.png', '.jpg', '.svg', '.ico'}
+```
+BLOCKED PATTERNS (commit BLOCKED if found):
+  (?i)(password|secret|api_key|token)\s*=\s*["\'][^"\']{4,}
+      → Hardcoded secret detected
+  (?i)DROP\s+TABLE
+      → DROP TABLE without explicit approval (HES RULE-04)
+  (?i)DELETE\s+FROM\s+\w+\s*;
+      → DELETE without WHERE clause
+  (?i)TRUNCATE\s+TABLE
+      → TRUNCATE without explicit approval (HES RULE-04)
+  \bTODO\b|\bFIXME\b|\bHACK\b
+      → Unresolved pending task in code
 
-def get_staged_files():
-    result = subprocess.run(['git', 'diff', '--cached', '--name-only'],
-                            capture_output=True, text=True)
-    return [f for f in result.stdout.strip().split('\n') if f]
+SKIP EXTENSIONS: .lock, .sum, .mod, .png, .jpg, .svg, .ico, .bin
+```
 
-def check_file(filepath):
-    import os
-    ext = os.path.splitext(filepath)[1]
-    if ext in SKIP_EXTENSIONS:
-        return []
-    violations = []
-    try:
-        with open(filepath, 'r', errors='ignore') as f:
-            for i, line in enumerate(f, 1):
-                for pattern, msg in BLOCKED_PATTERNS:
-                    if re.search(pattern, line):
-                        violations.append(
-                            f'  ⚠  {msg}\n     {filepath}:{i} → {line.strip()[:80]}'
-                        )
-    except Exception:
-        pass
-    return violations
-
-violations = []
-for f in get_staged_files():
-    violations.extend(check_file(f))
-
-if violations:
-    print('\n🚨 HES Safety Validator v3.3 — COMMIT BLOCKED\n')
-    for v in violations:
-        print(v)
-    print('\nFix the issues above before committing.')
-    print('Override (not recommended): git commit --no-verify\n')
-    sys.exit(1)
-
-print('✅ HES Safety Validator v3.3 — OK')
+**Execution:**
+```
+1. git diff --cached --name-only  → list staged files
+2. For each file (skipping SKIP_EXTENSIONS):
+   → Read file content
+   → Check each BLOCKED PATTERN
+   → If any match found → BLOCK COMMIT with details
+3. If no violations → proceed with commit
 ```
 
 ---
 
-## Commit-msg Hook: SDD Commit Checker
+## Commit-msg: SDD Commit Checker
 
-**File:** `scripts/hooks/sdd_commit_checker.py`
+**Trigger**: Before every `git commit`
 
-```python
-#!/usr/bin/env python3
-"""HES SDD Commit Checker v3.3 — commit-msg hook
-Computational sensor: validates Conventional Commits and HES stage."""
-import sys, re
+**The LLM MUST validate commit message:**
 
-VALID_TYPES = [
-    'feat', 'fix', 'docs', 'test', 'refactor',
-    'chore', 'spec', 'design', 'data', 'discovery', 'review',
-    'harness',   # ← NEW v3.2: harness improvement commits
-    'fitness',   # ← NEW v3.2: fitness function commits
-]
-PATTERN = re.compile(
-    r'^(' + '|'.join(VALID_TYPES) + r')(\(\w[\w-]*\))?!?: .{10,}$'
-)
+```
+VALID TYPES:
+  feat, fix, docs, test, refactor, chore, spec, design,
+  data, discovery, review, harness, fitness
 
-msg_file = sys.argv[1]
-with open(msg_file) as f:
-    msg = f.read().strip()
+PATTERN: ^(<type>)(<scope>)?!?:\s.{10,}$
+  → Type is required
+  → Scope is optional (wrapped in parentheses)
+  → Breaking change: ! before : (optional)
+  → Description: minimum 10 characters
 
-first_line = msg.split('\n')[0]
+VALID EXAMPLES:
+  feat(payment): implement PIX checkout flow
+  fix(auth): resolve token refresh race condition
+  docs: update API documentation for v2
+  harness: add ArchUnit rules for service layer
+  refactor!: break backward compatibility for v2 API
 
-if not PATTERN.match(first_line):
-    print('\n🚨 HES Commit Checker v3.3 — Invalid message\n')
-    print(f'  Received : {first_line}')
-    print(f'  Expected : <type>(<scope>): <description with 10+ chars>')
-    print(f'  Types    : {", ".join(VALID_TYPES)}')
-    print(f'  Examples : feat(payment): implement PIX endpoint')
-    print(f'             harness(arch): add ArchUnit rules for service layer\n')
-    sys.exit(1)
+INVALID EXAMPLES:
+  fixed bug              → missing type
+  feat: fix              → description too short
+  Feat(Payment): add X   → wrong casing
+```
 
-print('✅ HES Commit Checker v3.3 — OK')
+**Execution:**
+```
+1. Read .git/COMMIT_EDITMSG (commit message file)
+2. Extract first line
+3. Match against PATTERN
+4. If no match → BLOCK COMMIT with expected format
+5. If match → proceed with commit
 ```
 
 ---
 
-## Install Script
+## Pre-commit: File Size Check
 
-**File:** `scripts/hooks/install.sh`
+**Trigger**: Before every `git commit`
 
-```bash
-#!/usr/bin/env bash
-set -e
-echo "🔧 Installing HES Git Hooks v3.3..."
-HOOKS_DIR="$(git rev-parse --git-dir)/hooks"
-SCRIPTS_DIR="$(git rev-parse --show-toplevel)/scripts/hooks"
-ln -sf "$SCRIPTS_DIR/safety_validator.py"   "$HOOKS_DIR/pre-commit"
-ln -sf "$SCRIPTS_DIR/sdd_commit_checker.py" "$HOOKS_DIR/commit-msg"
-chmod +x "$SCRIPTS_DIR"/*.py
-echo "✅ Hooks installed (HES v3.3.0 computational sensors):"
-echo "   pre-commit  → safety_validator.py"
-echo "   commit-msg  → sdd_commit_checker.py"
-echo ""
-echo "Test: git commit --allow-empty -m 'harness: validate HES v3.3.0 hooks'"
+```
+MAX FILE SIZES:
+  → Source code: no limit
+  → Binary files (.png, .jpg, .pdf): max 1MB each
+  → Total diff size: warn if > 5MB
+
+Execution:
+1. git diff --cached --name-only --diff-filter=ACM
+2. For binary files > 1MB → WARN and suggest compression
+3. For total diff > 5MB → WARN about large commit
 ```
 
 ---
 
-## Installation
+## Pre-commit: Sensitive Data Scanner
 
-```bash
-bash scripts/hooks/install.sh
+**Trigger**: Before every `git commit`
+
+```
+SCAN FOR (in file content AND filename):
+  → .env, .pem, .key, .credentials, .p12
+  → password*, secret*, api_key*, token*
+  → AWS keys, GCP tokens, Stripe keys
+  → Database connection strings with credentials
+
+If any found in staged files:
+  → BLOCK COMMIT
+  → List: file, line, detected pattern
+  → Suggest: add to .gitignore and use env variables
+```
+
+---
+
+## ◈ LLM RESPONSIBILITY
+
+The LLM executes ALL sensors autonomously before each commit.
+No scripts required. The LLM IS the computational sensor.
+
+**Protocol:**
+```
+On git commit:
+  1. Run pre-commit sensors (secrets, size, sensitive data)
+  2. If BLOCKED → output violations and abort commit
+  3. If PASSED → proceed with commit
+  4. Run commit-msg sensor on commit message
+  5. If BLOCKED → output expected format and abort
+  6. If PASSED → commit completes
 ```

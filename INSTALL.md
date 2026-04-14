@@ -206,7 +206,7 @@ skills/reference/
 
 ```
 Tool call sequence:
-run_shell_command("mkdir -p .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory scripts/hooks")
+run_shell_command("mkdir -p .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory")
 ```
 
 Generated structure:

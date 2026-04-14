@@ -153,7 +153,7 @@ Examples:
 Harness action (ALWAYS — it is a sensor gap):
   → Identify which sensor should have detected it
   → If computational sensor: strengthen the rule or add new sensor
-    Examples: new ArchUnit rule, new regex in safety_validator
+    Examples: new ArchUnit rule, new regex pattern in git-hooks.md
   → If inferential sensor: add to the 07-review.md checklist
   → Record as Category D in lessons.md
 

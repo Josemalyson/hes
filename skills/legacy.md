@@ -241,7 +241,7 @@ Harnessability MEDIUM:
   → Install linter + coverage target ≥ 60% (evolve to 80%)
 
 Harnessability LOW:
-  → Install ONLY git hooks (safety_validator + commit_checker)
+  → Install ONLY git hooks (LLM-executed safety checks)
   → Create specs for the motivating feature BEFORE any code
   → Plan harnessability sprint before new features
   → Note in CLAUDE.md: "Codebase with low harnessability — review manually before implementing"

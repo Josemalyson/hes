@@ -43,7 +43,7 @@ Inferential:
 
 Computational:
   [ ] pom.xml / package.json / pyproject.toml present and versioned
-  [ ] scripts/hooks/install.sh present
+  [ ] Git hooks referenced in skills/reference/git-hooks.md (LLM-executed)
   [ ] Fitness functions defined in .hes/domains/*/fitness/ (if domains exist)
 
 Agent Registry Coverage (NEW in v3.2):
@@ -66,8 +66,8 @@ Inferential:
   [ ] Lessons.md updated with lessons from recent sessions
 
 Computational — Correctness:
-  [ ] pre-commit hook (safety_validator.py) installed and working
-  [ ] commit-msg hook (sdd_commit_checker.py) installed and working
+  [ ] Pre-commit safety check: LLM-executed (secrets, destructive SQL, TODO/FIXME)
+  [ ] Commit-msg validation: LLM-executed (Conventional Commits)
   [ ] Test suite with coverage >= 80% (check latest build)
 
 Computational — Quality (NEW in v3.1):
@@ -269,7 +269,7 @@ Proposal: add dep-cruiser
 3. Configure .dependency-cruiser.js with module boundary rules
 4. Add to package.json:
    "check:arch": "depcruise --validate src"
-5. Add to scripts/hooks/ as CI sensor
+5. Add to CI pipeline as architecture sensor
 ```
 
 ### If Behaviour Harness has traceability gaps:

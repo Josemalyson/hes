@@ -29,8 +29,8 @@
 ## ◈ "KEEP QUALITY LEFT" — SENSOR DISTRIBUTION (Fowler, 2026)
 
 ```
-Before commit (pre-commit hook — computational sensor):
-  → safety_validator.py: secrets, destructive SQL, TODO/FIXME
+Before commit (pre-commit — LLM-executed sensor):
+  → Secrets, destructive SQL, TODO/FIXME (from git-hooks.md)
 
 Along with development (runs on each change):
   → Unit tests (fast — < 1s per test)
