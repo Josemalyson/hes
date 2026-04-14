@@ -117,11 +117,11 @@ SCRIPTS_DIR="$(git rev-parse --show-toplevel)/scripts/hooks"
 ln -sf "$SCRIPTS_DIR/safety_validator.py"   "$HOOKS_DIR/pre-commit"
 ln -sf "$SCRIPTS_DIR/sdd_commit_checker.py" "$HOOKS_DIR/commit-msg"
 chmod +x "$SCRIPTS_DIR"/*.py
-echo "✅ Hooks installed (HES v3.3 computational sensors):"
+echo "✅ Hooks installed (HES v3.3.0 computational sensors):"
 echo "   pre-commit  → safety_validator.py"
 echo "   commit-msg  → sdd_commit_checker.py"
 echo ""
-echo "Test: git commit --allow-empty -m 'harness: validate HES v3.3 hooks'"
+echo "Test: git commit --allow-empty -m 'harness: validate HES v3.3.0 hooks'"
 ```
 
 ---

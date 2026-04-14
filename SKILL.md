@@ -104,11 +104,11 @@ On first user interaction:
 
 | Detected Language | Response Language | Example Greeting |
 |-------------------|-------------------|------------------|
-| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.3 — {{NOME_PROJETO}}" |
-| es (Spanish) | Spanish | "📍 HES v3.3 — {{PROJECT_NAME}}" |
-| fr (French) | French | "📍 HES v3.3 — {{PROJECT_NAME}}" |
-| de (German) | German | "📍 HES v3.3 — {{PROJECT_NAME}}" |
-| en (English) | English | "📍 HES v3.3 — {{PROJECT_NAME}}" |
+| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.3.0 — {{NOME_PROJETO}}" |
+| es (Spanish) | Spanish | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
+| fr (French) | French | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
+| de (German) | German | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
+| en (English) | English | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
 
 ### Override Mechanism
 
@@ -369,7 +369,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 ### PASSO 3 — ANNOUNCE
 
 ```
-📍 HES v3.3 — {{PROJECT_NAME}}
+📍 HES v3.3.0 — {{PROJECT_NAME}}
 Active feature : {{ACTIVE_FEATURE}}
 Current state  : {{CURRENT_STATE}}
 Agent          : {{AGENT_NAME}}

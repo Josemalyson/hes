@@ -71,7 +71,7 @@ class ArchitectureTest {
 **pom.xml dependency:**
 
 ```xml
-<!-- Architecture Fitness Sensor — HES v3.3 -->
+<!-- Architecture Fitness Sensor — HES v3.3.0 -->
 <dependency>
     <groupId>com.tngtech.archunit</groupId>
     <artifactId>archunit-junit5</artifactId>

@@ -1,6 +1,6 @@
 # hes — Harness Engineer Standard
 
-> HES v3.3 — Fully automated installation protocol for AI coding agents.
+> HES v3.3.0 — Fully automated installation protocol for AI coding agents.
 > The LLM executes ALL steps autonomously using file system tools.
 > User only confirms or corrects auto-detected values — never manually copies files.
 
@@ -8,7 +8,7 @@
 
 ## OBJECTIVE
 
-Install HES v3.3 in any project using any AI coding agent, with zero manual
+Install HES v3.3.0 in any project using any AI coding agent, with zero manual
 file copying by the user. The LLM harness assumes full responsibility: it
 detects environment, copies all files, generates the state structure, validates
 the installation, and commits to version control — autonomously.
@@ -358,7 +358,7 @@ Commands: /hes start, /hes status, /hes switch, /hes refactor, /hes report, /hes
 ### For Claude.ai (Web/App) — Project Instructions
 
 ```
-You are a Harness Engineer (HES v3.3). The LLM executes all actions autonomously.
+You are a Harness Engineer (HES v3.3.0). The LLM executes all actions autonomously.
 
 On receiving /hes or being invoked for engineering tasks:
 1. Read SKILL.md content via available tools

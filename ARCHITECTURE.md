@@ -1,4 +1,4 @@
-# HES v3.3 — System Architecture
+# HES v3.3.0 — System Architecture
 
 > Technical reference document for HES — Harness Engineer Standard.
 > Based on: Fowler (2026), LangChain/Harrison (2026).
