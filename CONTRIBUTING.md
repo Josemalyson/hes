@@ -60,7 +60,7 @@ Have an idea for a new feature or enhancement?
 
 ## ◈ Development Setup
 
-See [SETUP.md](SETUP.md) for instructions on installing HES skill-files in your IDE or AI coding tool.
+See [INSTALL.md](INSTALL.md) for instructions on installing HES skill-files in your IDE or AI coding tool.
 
 ---
 
