@@ -274,7 +274,7 @@ Low    → Minimal harness (only hooks + specs) + harnessability sprint
 project/
 ├── SKILL.md                      ← Orchestrator (read first always)
 ├── ARCHITECTURE.md               ← This document
-├── SETUP.md                      ← Installation by environment
+├── INSTALL.md                    ← Installation by environment (per agent: Claude Code, Cursor, web)
 │
 └── skills/
     ├── 00-bootstrap.md           ← HES structure + git hooks + domains
@@ -298,6 +298,32 @@ project/
 > The LLM MUST load skill-files based on the current state machine phase.
 > The LLM MUST execute the instructions in each skill-file without deviation.
 > The LLM MUST use tools to perform all file operations, test execution, and git commands.
+
+---
+
+## ◈ DEV HARNESS — Repository Self-Harness
+
+HES uses HES to develop itself. The repository root contains LLM-specific
+configuration directories alongside the distributable skill-files:
+
+```
+hes/ (repository root)
+├── .claude/                      ← Claude Code agent identity (CLAUDE.md)
+│   └── CLAUDE.md                 ← Loaded automatically by Claude Code on every session
+├── .qwen/                        ← Qwen agent identity (equivalent to CLAUDE.md)
+│   └── (agent config)
+├── .hes/                         ← HES state for HES development itself
+│   ├── state/current.json        ← Active feature being developed in HES
+│   └── state/events.log          ← Development cycle traces
+├── scripts/hooks/                ← Computational sensors (pre-commit, commit-msg)
+│   ├── safety_validator.py
+│   └── sdd_commit_checker.py
+└── images/                       ← Documentation assets
+```
+
+> **Note**: `.claude/` and `.qwen/` are platform-specific entry points.
+> They are NOT distributed to the user's project. Only `SKILL.md` and `skills/` are distributed.
+> The `.hes/` directory in the repository root tracks HES's own development state.
 
 ---
 
