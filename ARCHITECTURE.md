@@ -286,6 +286,8 @@ project/
     ├── 06-implementation.md      ← GREEN phase [Inferential Sensor]
     ├── 07-review.md              ← 5 dimensions + DONE [Inferential Sensor]
     ├── legacy.md                 ← Harnessability + inventory
+    ├── session-manager.md       ← Session lifecycle + checkpoints
+    ├── auto-install.md          ← Auto-install protocol (no .hes/ detected)
     ├── error-recovery.md         ← Diagnosis by category
     ├── refactor.md               ← Safe refactoring by type
     ├── report.md                 ← Batch learning (offline)
@@ -301,20 +303,18 @@ project/
 
 ## ◈ DESIGN DECISIONS — WHAT WAS LEFT OUT AND WHY
 
-| Proposal | Decision | Justification |
-|----------|---------|--------------|
-| Executable CLI (`hes-cli`) | ❌ Out of scope | Skill-file is LLM-agnostic; CLI is separate infrastructure |
-| `runtime/executor.sh` | ❌ Removed | Same — belongs to infrastructure layer |
-| "Semantic RAG" | 🔄 Adapted | Structured context loading by convention — works with any LLM |
-| Unlimited self-refinement | 🔄 Limited | Max 3-5 attempts + mandatory human escalation |
-| Complete event sourcing | ✅ Included | `events.log` with rich metadata — learning loop foundation |
-| Multi-feature | ✅ Included | `dependency_graph` + `/hes switch` |
-| DDD domains | ✅ Included | `.hes/domains/*/context.md + fitness/` |
-| Architecture Fitness | ✅ New in v3.1 | Fowler dimension missing from v3 |
-| Harnessability assessment | ✅ New in v3.1 | Essential for legacy projects (Fowler) |
-| Context compaction | ✅ New in v3.1 | Explicit protocol for long sessions |
-| Formal learning loop | ✅ New in v3.1 | Hot path + offline (LangChain continual learning) |
-| `/hes harness` | ✅ New in v3.1 | 3 regulation dimensions diagnostics |
+| Proposal                   | Decision       | Justification                                                  |
+| -------------------------- | -------------- | -------------------------------------------------------------  |
+| "Semantic RAG"             | 🔄 Adapted      | Structured context loading by convention — works with any LLM |
+| Unlimited self-refinement  | 🔄 Limited      | Max 3-5 attempts + mandatory human escalation                 |
+| Complete event sourcing    | ✅ Included     | `events.log` with rich metadata — learning loop foundation    |
+| Multi-feature              | ✅ Included     | `dependency_graph` + `/hes switch`                            |
+| DDD domains                | ✅ Included     | `.hes/domains/*/context.md + fitness/`                        |
+| Architecture Fitness       | ✅ New in v3.1  | Fowler dimension missing from v3                              |
+| Harnessability assessment  | ✅ New in v3.1  | Essential for legacy projects (Fowler)                        |
+| Context compaction         | ✅ New in v3.1  | Explicit protocol for long sessions                           |
+| Formal learning loop       | ✅ New in v3.1  | Hot path + offline (LangChain continual learning)             |
+| `/hes harness`             | ✅ New in v3.1  | 3 regulation dimensions diagnostics                           |
 
 ---
 

@@ -339,7 +339,7 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW →
 | Condition | Agent | Skill-file |
 |-----------|-------|-----------|
 | ZERO (no .hes/) | auto-install-agent | `skills/auto-install.md` |
-| ZERO (with .hes/) | harness-agent | `skills/00-bootstrap.md` |
+| ZERO (with .hes/) | harness-agent | `skills/legacy.md` |
 | LEGACY | harness-agent | `skills/legacy.md` |
 | feature = DISCOVERY | discovery-agent | `skills/01-discovery.md` |
 | feature = SPEC | spec-agent | `skills/02-spec.md` |

@@ -481,6 +481,7 @@ Each skill file is a specialized guide for one phase or system function:
 
 | File | Type | Purpose | Lines |
 |------|------|---------|-------|
+| `auto-install.md` | System | Auto-detects project metadata, copies HES files, generates `.hes/` structure, commits | — |
 | `error-recovery.md` | System | Error diagnosis by category (A-E), harness improvement on recurrence | ~209 |
 | `harness-health.md` | System | 3-dimension harness coverage diagnostics (Maintainability, Architecture, Behaviour) | ~351 |
 | `legacy.md` | System | Inventory + harnessability assessment for existing/legacy projects | ~272 |
@@ -490,11 +491,12 @@ Each skill file is a specialized guide for one phase or system function:
 
 ---
 
-## ◈ COMPLETE SKILL INVENTORY (18 files)
+## ◈ COMPLETE SKILL INVENTORY (19 files)
 
 ```
 skills/
 ├── 00-bootstrap.md            (794 lines) — Initial project setup
+├── auto-install.md            — Auto-install HES into a new project (no .hes/)
 ├── 01-discovery.md            — Business rules elicitation
 ├── 02-spec.md                 — BDD scenarios + API contracts
 ├── 03-design.md               — Architecture decisions (ADRs)
@@ -514,7 +516,7 @@ skills/
 └── session-manager.md         (274 lines) — Session lifecycle
 ```
 
-**Total:** 18 skill files covering 9 phases + 9 system functions
+**Total:** 19 skill files covering 9 phases + 9 system functions
 
 ---
 
