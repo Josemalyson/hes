@@ -111,13 +111,30 @@ After bootstrap, the LLM generates the `.hes/` structure automatically and asks:
 
 HES works with any AI coding agent. Choose your environment:
 
+### 🤖 Fastest: Agent Auto-Install
+
+Paste this message in your AI agent chat (Claude Code, Cursor, Copilot, Windsurf, etc.):
+
+```
+Read https://raw.githubusercontent.com/Josemalyson/hes/main/INSTALL.md and install HES in my project
+```
+
+The agent fetches the install protocol, auto-detects your project metadata, copies all files, generates the `.hes/` structure, and commits — fully autonomous.
+
+---
+
 <details>
 <summary><strong>Claude Code (CLI) — Recommended</strong></summary>
 
 ```bash
-# Copy files to project root
-cp /path/to/hes/SKILL.md ./SKILL.md
-cp /path/to/hes/skills/*.md ./skills/
+# Clone HES repository
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+
+# Copy files to your project root
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills
+cp /tmp/hes/skills/*.md ./skills/
+cp -r /tmp/hes/skills/reference ./skills/ 2>/dev/null || true
 ```
 
 Claude Code reads `SKILL.md` automatically. Use `/hes` to start, `/hes status` to check progress.
@@ -533,9 +550,13 @@ Or manually: [Create Improvement](../../issues/new)
 HES evolves through version updates to skill files. To update:
 
 ```bash
-# Copy new version files to your project
-cp /path/to/new/hes/SKILL.md ./SKILL.md
-cp /path/to/new/hes/skills/*.md ./skills/
+# Pull latest HES
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+
+# Copy updated files to your project
+cp /tmp/hes/SKILL.md ./SKILL.md
+cp /tmp/hes/skills/*.md ./skills/
+cp -r /tmp/hes/skills/reference ./skills/ 2>/dev/null || true
 
 # Commit the update
 git add SKILL.md skills/
