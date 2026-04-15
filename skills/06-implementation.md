@@ -1,3 +1,26 @@
+---
+name: implementation
+version: 3.4.0
+type: feature
+description: TDD GREEN phase - implement minimum code for tests to pass
+preconditions:
+  - current_state == "GREEN"
+  - tests_written_and_failing
+postconditions:
+  - implementation_complete
+  - tests_passing
+produces:
+  - src/main/java/{{package}}/*.java
+  - src/main/resources/*.sql
+requires:
+  - .hes/specs/{{feature}}/02-spec.md
+  - .hes/specs/{{feature}}/03-design.md
+  - .hes/specs/{{feature}}/04-data.md
+context:
+  include: [".hes/specs/{{feature}}/02-spec.md", ".hes/specs/{{feature}}/03-design.md", ".hes/specs/{{feature}}/04-data.md"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — 06: Implementation (GREEN Phase — TDD)
 
 > Skill loaded when: feature.state = GREEN

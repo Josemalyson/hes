@@ -1,3 +1,22 @@
+---
+name: error-recovery
+version: 3.4.0
+type: system
+description: Error diagnosis and recovery protocol
+preconditions:
+  - error_detected
+postconditions:
+  - error_resolved
+  - lessons_registered
+produces:
+  - .hes/tasks/lessons.md update
+requires:
+  - .hes/tasks/lessons.md
+context:
+  include: [".hes/tasks/lessons.md"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — Error Recovery
 
 > Skill loaded when: user reports an error in any pipeline phase.

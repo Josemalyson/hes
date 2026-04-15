@@ -1,6 +1,7 @@
 # hes — Harness Engineer Standard
 
-> HES v3.3.0 — Fully automated installation protocol for AI coding agents.
+> HES v3.4.0 — Deterministic Skill Engine (DSE)
+> Fully automated installation protocol for AI coding agents.
 > The LLM executes ALL steps autonomously using file system tools.
 > User only confirms or corrects auto-detected values — never manually copies files.
 
@@ -8,7 +9,7 @@
 
 ## OBJECTIVE
 
-Install HES v3.3.0 in any project using any AI coding agent, with zero manual
+Install HES v3.4 (DSE) in any project using any AI coding agent, with zero manual
 file copying by the user. The LLM harness assumes full responsibility: it
 detects environment, copies all files, generates the state structure, validates
 the installation, and commits to version control — autonomously.
@@ -21,12 +22,43 @@ The following conditions are ALL satisfied:
 
 ```
 [✓] SKILL.md exists in project root
-[✓] skills/ directory exists with all 18 skill files
-[✓] .hes/ directory exists with state/current.json (valid JSON)
+[✓] skills/ directory exists with all skill files
+[✓] core/ directory exists (dispatcher, state-validator, context-builder, output-validator)
+[✓] .hes/ directory exists with state/current.json (valid JSON, DSE format)
+[✓] .hes/state/schema/ exists with FSM and skill contract schemas
 [✓] .hes/agents/registry.json exists
 [✓] IDE config file generated (.claude/CLAUDE.md or .cursorrules or similar)
-[✓] Git commit created (chore: install HES v3.3.0)
+[✓] Git commit created (chore: install HES v3.4.0-dse)
 [✓] /hes status returns valid state (or equivalent command for the environment)
+```
+
+---
+
+## DSE Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    THIN DISPATCHER                       │
+│                   core/dispatcher.md                     │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                   STATE VALIDATOR                        │
+│                  core/state-validator.md                 │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│              CONTEXT BUILDER (per skill)                  │
+│                 core/context-builder.md                  │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                      SKILL EXECUTION                     │
+│              skills/XX-*.md (contract-based)             │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -36,8 +68,8 @@ The following conditions are ALL satisfied:
 - [ ] **STEP 1** — Detect project metadata (name, stack, IDE, language)
 - [ ] **STEP 2** — Identify source location of HES files
 - [ ] **STEP 3** — Copy SKILL.md to project root
-- [ ] **STEP 4** — Create skills/ and copy 18 skill files
-- [ ] **STEP 5** — Generate .hes/ directory structure
+- [ ] **STEP 4** — Copy core/ directory (dispatcher, validators)
+- [ ] **STEP 5** — Create skills/ and copy skill files
 - [ ] **STEP 6** — Generate .hes/state/current.json (auto-detected values)
 - [ ] **STEP 7** — Generate .hes/state/events.log (install event)
 - [ ] **STEP 8** — Generate .hes/agents/registry.json

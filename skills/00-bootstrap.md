@@ -1,3 +1,22 @@
+---
+name: bootstrap
+version: 3.4.0
+type: orchestrator
+description: Bootstrap new project or activate feature
+preconditions:
+  - project_state in ["ZERO", "LEGACY"]
+postconditions:
+  - current_state in ["DISCOVERY", "HARNESS_INSTALLED"]
+produces:
+  - .hes/state/current.json
+  - .hes/state/events.log
+requires:
+  - SKILL.md
+context:
+  include: ["SKILL.md"]
+  exclude: []
+---
+
 # HES Skill — 00: Bootstrap
 
 > **Skill loaded when:** global state = ZERO (new project) or HARNESS_INSTALLED (no active feature).

@@ -1,3 +1,24 @@
+---
+name: report
+version: 3.4.0
+type: system
+description: Batch learning and harness improvement from events
+preconditions:
+  - completed_cycles >= 3
+postconditions:
+  - patterns_identified
+  - improvements_proposed
+produces:
+  - .hes/tasks/lessons.md update
+  - skill-file improvements
+requires:
+  - .hes/state/events.log
+  - .hes/tasks/lessons.md
+context:
+  include: [".hes/state/events.log", ".hes/tasks/lessons.md"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — Report: Batch Learning + Harness Improvement
 
 > Skill invoked via: `/hes report`
