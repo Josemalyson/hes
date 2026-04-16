@@ -1,24 +1,3 @@
----
-name: discovery
-version: 3.4.0
-type: feature
-description: Requirements gathering and business rules capture
-preconditions:
-  - current_state == "DISCOVERY"
-  - active_feature is defined
-postconditions:
-  - .hes/specs/{{feature}}/01-discovery.md created
-  - business_rules identified
-produces:
-  - .hes/specs/{{feature}}/01-discovery.md
-requires:
-  - .hes/state/current.json
-  - SKILL.md
-context:
-  include: [".hes/state/current.json"]
-  exclude: ["skills/*"]
----
-
 # HES Skill — 01: Discovery
 
 > Skill loaded when: feature.state = DISCOVERY
