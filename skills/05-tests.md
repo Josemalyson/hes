@@ -1,26 +1,3 @@
----
-name: tests
-version: 3.4.0
-type: feature
-description: TDD RED phase - write failing tests first
-preconditions:
-  - current_state == "RED"
-  - .hes/specs/{{feature}}/04-data.md approved
-postconditions:
-  - tests_written
-  - tests_failing
-produces:
-  - tests/unit/{{feature}}/*.test.*
-  - tests/integration/{{feature}}/*.test.*
-requires:
-  - .hes/specs/{{feature}}/02-spec.md
-  - .hes/specs/{{feature}}/03-design.md
-  - .hes/specs/{{feature}}/04-data.md
-context:
-  include: [".hes/specs/{{feature}}/02-spec.md", ".hes/specs/{{feature}}/03-design.md", ".hes/specs/{{feature}}/04-data.md"]
-  exclude: ["skills/*"]
----
-
 # HES Skill — 05: Tests (RED Phase — TDD)
 
 > Skill loaded when: feature.state = RED

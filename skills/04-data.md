@@ -1,25 +1,3 @@
----
-name: data
-version: 3.4.0
-type: feature
-description: Data layer schema and migrations
-preconditions:
-  - current_state == "DATA"
-  - .hes/specs/{{feature}}/03-design.md approved
-postconditions:
-  - migration_file created
-  - schema_defined
-produces:
-  - .hes/specs/{{feature}}/04-data.md
-  - src/main/resources/db/migration/*.sql
-requires:
-  - .hes/specs/{{feature}}/02-spec.md
-  - .hes/specs/{{feature}}/03-design.md
-context:
-  include: [".hes/specs/{{feature}}/02-spec.md", ".hes/specs/{{feature}}/03-design.md"]
-  exclude: ["skills/*"]
----
-
 # HES Skill — 04: Data Layer (Schema + Migrations)
 
 > Skill loaded when: feature.state = DATA

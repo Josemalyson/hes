@@ -1,24 +1,3 @@
----
-name: legacy
-version: 3.4.0
-type: system
-description: Legacy project inventory and harnessability assessment
-preconditions:
-  - project_state == "ORPHAN"
-  - .hes/ exists but current.json missing
-postconditions:
-  - inventory_created
-  - harnessability_scored
-produces:
-  - .hes/inventory/architecture.md
-  - .hes/inventory/tech-debt.md
-requires:
-  - SKILL.md
-context:
-  include: ["SKILL.md"]
-  exclude: []
----
-
 # HES Skill — Legacy: Inventory + Harnessability Assessment
 
 > Skill loaded when: global state = LEGACY

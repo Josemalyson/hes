@@ -1,27 +1,3 @@
----
-name: review
-version: 3.4.0
-type: feature
-description: Code review and cycle closure
-preconditions:
-  - current_state == "REVIEW"
-  - tests_passing
-  - coverage >= 80%
-postconditions:
-  - review_complete
-  - feature_state == "DONE"
-produces:
-  - .hes/state/events.log update
-  - .hes/tasks/lessons.md update
-requires:
-  - .hes/specs/{{feature}}/02-spec.md
-  - .hes/specs/{{feature}}/03-design.md
-  - .hes/decisions/ADR-{{NNN}}.md
-context:
-  include: [".hes/specs/{{feature}}/02-spec.md", ".hes/specs/{{feature}}/03-design.md"]
-  exclude: ["skills/*"]
----
-
 # HES Skill — 07: Review + Cycle Closure
 
 > Skill loaded when: feature.state = REVIEW
