@@ -1,3 +1,21 @@
+---
+name: session-manager
+version: 3.4.0
+type: system
+description: Session lifecycle management and checkpoint
+preconditions:
+  - session_active
+postconditions:
+  - checkpoint_saved or status_displayed
+produces:
+  - .hes/state/session-checkpoint.json
+requires:
+  - .hes/state/current.json
+context:
+  include: [".hes/state/current.json"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — Session Manager
 
 > Skill invoked via: `/hes status`, context bloat detection, phase lock violation, `/clear`, `/new`

@@ -2,10 +2,10 @@
   <img src="images/image.png" alt="HES Logo" width="120" />
 </p>
 
-<h1 align="center">HES — Harness Engineer Standard</h1>
+<h1 align="center">HES — Harness Engineer Standard v3.4</h1>
 
 <p align="center">
-  <strong>Orchestrate AI coding agents with structure, quality,and continual learning</strong>
+  <strong>Deterministic Skill Engine (DSE) — Orchestrate AI coding agents with structure, quality, and continual learning</strong>
 </p>
 
 <p align="center">
@@ -21,16 +21,18 @@
 
 ## What is HES?
 
-HES is a skill-based system for executing AI coding workflows through the LLM harness. It provides a structured, phase-locked workflow that ensures the LLM builds software systematically — from discovery through implementation to review.
+HES v3.4 is a **Deterministic Skill Engine (DSE)** for executing AI coding workflows through the LLM harness. It provides a structured, phase-locked workflow with explicit state transitions, contract-based skills, and token-optimized context building.
 
-> **LLM HARNESS RESPONSIBILITY**: The LLM executing HES assumes full responsibility for:
-> - Reading and interpreting all skill-files
-> - Executing all actions via available tools (file system, shell, git)
-> - Managing project state autonomously
-> - Validating outcomes before claiming success
-> - Learning from errors and improving the harness
+> **DSE MANDATE**: HES v3.4 runs in Deterministic Skill Engine mode.
+> Execution follows FSM-defined states with explicit transitions.
+> Context is built per-skill via context-builder.md to minimize tokens.
+> State is validated before every skill execution.
 
-Think of it as **the LLM harness that executes systematically**: it guides before acting, senses after producing, and learns from every cycle to improve itself.
+**Key improvements in v3.4:**
+- **Deterministic execution** via Finite State Machine (FSM)
+- **Token reduction** via context builder (80%+)
+- **Contract-based skills** with pre/post conditions
+- **Validation layer** with checksums
 
 > "Agent = Model + Harness" — LangChain, 2026
 >

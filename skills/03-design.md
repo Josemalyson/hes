@@ -1,3 +1,24 @@
+---
+name: design
+version: 3.4.0
+type: feature
+description: Architecture design and component specification
+preconditions:
+  - current_state == "DESIGN"
+  - .hes/specs/{{feature}}/02-spec.md approved
+postconditions:
+  - components defined
+  - adr_created
+produces:
+  - .hes/specs/{{feature}}/03-design.md
+  - .hes/decisions/ADR-{{NNN}}.md
+requires:
+  - .hes/specs/{{feature}}/02-spec.md
+context:
+  include: [".hes/specs/{{feature}}/02-spec.md"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — 03: Design + ADR
 
 > Skill loaded when: feature.state = DESIGN

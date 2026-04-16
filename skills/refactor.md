@@ -1,3 +1,23 @@
+---
+name: refactor
+version: 3.4.0
+type: utility
+description: Guided refactoring protocol for safe structural changes
+preconditions:
+  - tests_green
+  - coverage_available
+postconditions:
+  - refactoring_complete
+  - tests_still_green
+produces:
+  - refactored code
+requires:
+  - .hes/state/current.json
+context:
+  include: [".hes/state/current.json"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — Refactor: Guided Refactoring Protocol
 
 > Skill invoked via: "I want to refactor [module]" or `/hes refactor <module>`

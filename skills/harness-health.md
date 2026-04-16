@@ -1,3 +1,23 @@
+---
+name: harness-health
+version: 3.4.0
+type: system
+description: Harness health diagnosis across 3 regulation dimensions
+preconditions:
+  - harness_installed
+postconditions:
+  - diagnosis_complete
+  - improvements_proposed
+produces:
+  - diagnostic report
+requires:
+  - .hes/state/current.json
+  - .hes/state/events.log
+context:
+  include: [".hes/state/current.json", ".hes/state/events.log"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — Harness Health
 
 > Skill invoked via: `/hes harness`

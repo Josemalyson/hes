@@ -1,3 +1,23 @@
+---
+name: spec
+version: 3.4.0
+type: feature
+description: BDD scenarios and API contract specification
+preconditions:
+  - current_state == "SPEC"
+  - .hes/specs/{{feature}}/01-discovery.md approved
+postconditions:
+  - bdd_scenarios defined
+  - api_contract defined
+produces:
+  - .hes/specs/{{feature}}/02-spec.md
+requires:
+  - .hes/specs/{{feature}}/01-discovery.md
+context:
+  include: [".hes/specs/{{feature}}/01-discovery.md"]
+  exclude: ["skills/*"]
+---
+
 # HES Skill — 02: Spec (BDD + API Contract)
 
 > Skill loaded when: feature.state = SPEC
