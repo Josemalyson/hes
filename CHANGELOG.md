@@ -1,5 +1,71 @@
 # HES — Changelog
 
+## v3.4.0 (2026-04-18)
+
+Foco em segurança automatizada e rastreabilidade de execução intra-fase.
+
+### Adicionado
+
+**Nova fase SECURITY (entre GREEN e REVIEW):**
+- `skills/10-security.md` — skill completa de security scan
+- Integra **Bandit** (Python, primário) + **Semgrep** (Shell, secundário)
+- Auto-fix loop por test_id (B105, B301, B311, B324, B601, B608...)
+- Gate bloqueante: zero HIGH findings obrigatório para avançar para REVIEW
+- Exceções MEDIUM/LOW documentadas em `.hes/state/security-exceptions.json`
+- Comando `/hes security` adicionado
+
+**Action Event Protocol — debug tracking intra-fase:**
+- `scripts/hooks/log-action.sh` — logger de ações do LLM no events.log
+- `skills/reference/action-event-protocol.md` — especificação completa do protocolo
+- `session-id` UUID gerado no bootstrap (`00-bootstrap.md` STEP 2)
+- Schema de evento expandido: session_id, action_id, action_type, status por ação
+
+**Infraestrutura:**
+- `.hes/scripts/check-security-gate.py` — gate checker de segurança
+- `docs/HES-v3.4-SPEC.md` — spec completo da implementação
+
+### Atualizado
+
+**State machine:**
+- `ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE`
+- Dois novos gates: `GREEN → SECURITY` e `SECURITY → REVIEW`
+
+**SKILL.md (v3.3.0 → v3.4.0):**
+- Routing table: `feature = SECURITY → security-agent → skills/10-security.md`
+- Phase lock gates: `GREEN → SECURITY` e `SECURITY → REVIEW`
+- RULE-24: obrigatoriedade de logging de ações via log-action.sh
+- RULE-25: obrigatoriedade de fase SECURITY antes de REVIEW
+- Schema `current.json`: campo `security` com last_scan, last_gate_result
+- Versão bumped: 3.3.0 → 3.4.0
+
+**skills/00-bootstrap.md:**
+- STEP 2: criação de `.hes/state/session-id` (UUID único por sessão)
+- STEP 2: criação de `.hes/scripts/` directory
+- STEP 3: schema current.json com campo `security`
+
+**skills/06-implementation.md:**
+- NEXT ACTION aponta para SECURITY (não mais diretamente para REVIEW)
+- Gate explícito: GREEN → SECURITY → REVIEW
+
+**skills/07-review.md:**
+- DIMENSION 3 (Security manual) substituída por verificação do scan automatizado
+- Referencia `.hes/state/security-report-final.json` e `security-exceptions.json`
+- Checklist de revisão complementar (aspectos não cobertos por Bandit/Semgrep)
+
+**.hes/agents/registry.json:**
+- `security-agent` adicionado ao array principal (entre GREEN e REVIEW)
+- `security-agent` adicionado ao system_agents (trigger: `/hes security`)
+- `harness_version` bumped: 3.3.0 → 3.4.0
+
+### Regras adicionadas ao SKILL.md
+
+```
+RULE-24  LLM LOGS every significant action via scripts/hooks/log-action.sh
+RULE-25  LLM EXECUTES security scan before REVIEW — no exceptions
+```
+
+---
+
 ## v3.3.0 (2026)
 
 Refatoração focada em consistência e modernização técnica:

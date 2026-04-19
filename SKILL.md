@@ -1,6 +1,6 @@
 ---
 name: harness-engineer
-version: 3.3.0
+version: 3.4.0
 trigger: /hes | /harness | "iniciar projeto" | "analisar projeto" | "nova feature" | "hes start" | "hes status" | "hes switch"
 author: Josemalyson Oliveira | 2026
 framework: HES — Harness Engineer Standard v3.3
@@ -12,7 +12,7 @@ references:
   - "LangChain 2026: The Anatomy of an Agent Harness"
 ---
 
-# HES SKILL v3.3 — LLM HARNESS ORCHESTRATOR
+# HES SKILL v3.4 — LLM HARNESS ORCHESTRATOR
 
 > **LLM HARNESS MANDATE**: You ARE the harness. Read this file IN FULL before taking any action.
 > This is your entry point and execution protocol. After detecting state, YOU execute the correct agent via registry.
@@ -104,11 +104,11 @@ On first user interaction:
 
 | Detected Language | Response Language | Example Greeting |
 |-------------------|-------------------|------------------|
-| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.3.0 — {{NOME_PROJETO}}" |
-| es (Spanish) | Spanish | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
-| fr (French) | French | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
-| de (German) | German | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
-| en (English) | English | "📍 HES v3.3.0 — {{PROJECT_NAME}}" |
+| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.4.0 — {{NOME_PROJETO}}" |
+| es (Spanish) | Spanish | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
+| fr (French) | French | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
+| de (German) | German | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
+| en (English) | English | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
 
 ### Override Mechanism
 
@@ -268,7 +268,7 @@ State resides in `.hes/state/current.json`:
   "features": { "payment": "DESIGN", "auth": "DONE" },
   "domains": ["billing", "auth"],
   "dependency_graph": { "payment": ["auth"] },
-  "harness_version": "3.3.0",
+  "harness_version": "3.4.0",
   "agent_model": "multi-agent",
   "user_language": "en",
   "audience_mode": "expert",
@@ -278,13 +278,18 @@ State resides in `.hes/state/current.json`:
     "checkpoint": null,
     "phase_lock": "DESIGN",
     "messages_in_session": 0
+  },
+  "security": {
+    "last_scan": null,
+    "last_gate_result": null,
+    "exceptions_count": 0
   }
 }
 ```
 
 **Possible states per feature:**
 ```
-ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW → DONE
+ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
 ```
 
 **Project-level bootstrap states (resolved before feature state machine):**
@@ -357,6 +362,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 | feature = DATA | data-agent | `skills/04-data.md` |
 | feature = RED | test-agent | `skills/05-tests.md` |
 | feature = GREEN | impl-agent | `skills/06-implementation.md` |
+| feature = SECURITY | security-agent | `skills/10-security.md` |
 | feature = REVIEW | review-agent | `skills/07-review.md` |
 | feature = DONE | harness-agent | Summary + ask next |
 | `/hes refactor` | refactor-agent | `skills/refactor.md` |
@@ -369,7 +375,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 ### PASSO 3 — ANNOUNCE
 
 ```
-📍 HES v3.3.0 — {{PROJECT_NAME}}
+📍 HES v3.4.0 — {{PROJECT_NAME}}
 Active feature : {{ACTIVE_FEATURE}}
 Current state  : {{CURRENT_STATE}}
 Agent          : {{AGENT_NAME}}
@@ -403,7 +409,8 @@ PHASE LOCK GATES:
 | DESIGN → DATA     | ADRs approved                            |
 | DATA → RED        | Migrations reviewed                      |
 | RED → GREEN       | ≥1 failing test (proof of RED)           |
-| GREEN → REVIEW    | Build + all tests passing                |
+| GREEN → SECURITY  | Build + all tests passing                |
+| SECURITY → REVIEW | Zero HIGH security findings (Bandit gate)|
 | REVIEW → DONE     | 5-dimension checklist complete           |
 
 LLM evaluates:
@@ -500,6 +507,7 @@ OFFLINE (every 3 cycles / /hes report — LLM executes autonomously):
 | `/hes mode <mode>` | harness-agent | Set audience mode (beginner|expert) |
 | `/clear` or `/new` | session-manager | Save checkpoint + clear session |
 | `/hes checkpoint` | session-manager | Save checkpoint without clearing |
+| `/hes security` | security-agent | Executa security scan (Bandit + Semgrep) |
 | `/hes unlock --force` | session-manager | Bypass phase lock (logs risk event) |
 
 ### `/hes status` (via session-manager):
@@ -572,6 +580,18 @@ RULE-23   LLM EXECUTES skill-files as execution protocols:
           → LLM uses tools to perform all actions the skill-file requires
           → LLM does NOT delegate skill-file execution to the user
           → LLM reports results back to user after execution
+```
+
+```
+RULE-24   LLM LOGS every significant action via scripts/hooks/log-action.sh
+          YOU call log-action.sh BEFORE (STARTED) and AFTER (SUCCESS|FAILED) each action
+          Minimum: every EXEC_CMD, WRITE_FILE, GENERATE_ARTIFACT, GATE_CHECK must be logged
+          Reference: skills/reference/action-event-protocol.md
+
+RULE-25   LLM EXECUTES security scan before REVIEW — no exceptions
+          Phase machine: GREEN → SECURITY → REVIEW (never GREEN → REVIEW directly)
+          Gate: zero HIGH findings from Bandit required to advance
+          Tool: skills/10-security.md | Agent: security-agent
 ```
 
 ---

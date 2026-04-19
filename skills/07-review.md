@@ -51,17 +51,26 @@
 
 ---
 
-## ◈ DIMENSION 3 — SECURITY
+## ◈ DIMENSION 3 — SECURITY (Automated Scan Verification)
+
+> **HES v3.4.0**: O scan automatizado (Bandit + Semgrep) já foi executado na fase SECURITY.
+> Esta dimensão verifica o resultado do scan e complementa com revisão conceitual de segurança
+> em aspectos que ferramentas estáticas não cobrem.
 
 ```
-[ ] No sensitive data logged (passwords, tokens, SSN, PAN, personal data)
-[ ] Inputs validated BEFORE persisting (DTO validation)
-[ ] No hardcoded secrets — zero credential strings in code
-[ ] Parameterized SQL — zero concatenation in queries
-[ ] Authorization checked before accessing resources
-[ ] Security headers maintained (not removed)
-[ ] Data from external APIs sanitized before internal use
+[ ] security-report-final.json existe em .hes/state/ ?
+[ ] gate SECURITY passou (zero HIGH findings) ?
+[ ] Exceções documentadas em security-exceptions.json têm justificativas válidas?
+
+--- Revisão complementar (não coberta por Bandit/Semgrep) ---
+[ ] Authorization logic correta — recursos verificados antes de acesso
+[ ] Princípio do menor privilégio aplicado nas queries e operações
+[ ] Rate limiting / throttling considerado em endpoints públicos
+[ ] Logs de segurança (tentativas de acesso, falhas de auth) instrumentados
+[ ] Dados externos sanitizados antes de uso interno
 ```
+
+**Referência:** `.hes/state/security-report-final.json` | `.hes/state/security-exceptions.json`
 
 ---
 
@@ -206,6 +215,7 @@ curl -X {{METHOD}} {{URL}} \
   "agent": "hes-v3.3",
   "metadata": {
     "review_dimensions_passed": 5,
+    "security_scan_passed": true,
     "architecture_fitness_checked": true,
     "lessons_added": {{N}},
     "pr_ready": true,

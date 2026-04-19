@@ -1,27 +1,125 @@
 {
   "agents": [
-    { "agent": "harness-agent",    "phase": "ZERO",  "skill_file": "skills/00-bootstrap.md" },
-    { "agent": "discovery-agent", "phase": "DISCOVERY", "skill_file": "skills/01-discovery.md" },
-    { "agent": "spec-agent",      "phase": "SPEC",     "skill_file": "skills/02-spec.md" },
-    { "agent": "design-agent",    "phase": "DESIGN",   "skill_file": "skills/03-design.md" },
-    { "agent": "data-agent",      "phase": "DATA",     "skill_file": "skills/04-data.md" },
-    { "agent": "test-agent",      "phase": "RED",      "skill_file": "skills/05-tests.md" },
-    { "agent": "impl-agent",      "phase": "GREEN",    "skill_file": "skills/06-implementation.md" },
-    { "agent": "review-agent",    "phase": "REVIEW",   "skill_file": "skills/07-review.md" }
+    {
+      "agent": "harness-agent",
+      "phase": "ZERO",
+      "skill_file": "skills/00-bootstrap.md"
+    },
+    {
+      "agent": "discovery-agent",
+      "phase": "DISCOVERY",
+      "skill_file": "skills/01-discovery.md"
+    },
+    {
+      "agent": "spec-agent",
+      "phase": "SPEC",
+      "skill_file": "skills/02-spec.md"
+    },
+    {
+      "agent": "design-agent",
+      "phase": "DESIGN",
+      "skill_file": "skills/03-design.md"
+    },
+    {
+      "agent": "data-agent",
+      "phase": "DATA",
+      "skill_file": "skills/04-data.md"
+    },
+    {
+      "agent": "test-agent",
+      "phase": "RED",
+      "skill_file": "skills/05-tests.md"
+    },
+    {
+      "agent": "impl-agent",
+      "phase": "GREEN",
+      "skill_file": "skills/06-implementation.md"
+    },
+    {
+      "agent": "security-agent",
+      "phase": "SECURITY",
+      "skill_file": "skills/10-security.md"
+    },
+    {
+      "agent": "review-agent",
+      "phase": "REVIEW",
+      "skill_file": "skills/07-review.md"
+    }
   ],
   "system_agents": [
-    { "agent": "auto-install-agent",    "type": "system", "skill_file": "skills/auto-install.md",        "trigger": "/hes auto-install" },
-    { "agent": "error-recovery-agent",   "type": "system", "skill_file": "skills/error-recovery.md",     "trigger": "/hes error" },
-    { "agent": "harness-health-agent",  "type": "system", "skill_file": "skills/harness-health.md",      "trigger": "/hes harness" },
-    { "agent": "legacy-agent",          "type": "system", "skill_file": "skills/legacy.md",             "trigger": "LEGACY state" },
-    { "agent": "refactor-agent",         "type": "system", "skill_file": "skills/refactor.md",           "trigger": "/hes refactor" },
-    { "agent": "report-agent",           "type": "system", "skill_file": "skills/report.md",            "trigger": "/hes report" },
-    { "agent": "session-manager",        "type": "system", "skill_file": "skills/session-manager.md",   "trigger": "/hes status" },
-    { "agent": "issue-create-agent",     "type": "system", "skill_file": "skills/09-issue-create.md",   "trigger": "/hes bug" },
-    { "agent": "progressive-analysis-agent", "type": "system", "skill_file": "skills/08-progressive-analysis.md", "trigger": ">50 files" },
-    { "agent": "delegation-agent",       "type": "system", "skill_file": "skills/tool-dispatch.md",     "trigger": "multi-agent" },
-    { "agent": "registry-agent",         "type": "system", "skill_file": "skills/agent-registry.md",    "trigger": "registry ref" }
+    {
+      "agent": "auto-install-agent",
+      "type": "system",
+      "skill_file": "skills/auto-install.md",
+      "trigger": "/hes auto-install"
+    },
+    {
+      "agent": "error-recovery-agent",
+      "type": "system",
+      "skill_file": "skills/error-recovery.md",
+      "trigger": "/hes error"
+    },
+    {
+      "agent": "harness-health-agent",
+      "type": "system",
+      "skill_file": "skills/harness-health.md",
+      "trigger": "/hes harness"
+    },
+    {
+      "agent": "legacy-agent",
+      "type": "system",
+      "skill_file": "skills/legacy.md",
+      "trigger": "LEGACY state"
+    },
+    {
+      "agent": "refactor-agent",
+      "type": "system",
+      "skill_file": "skills/refactor.md",
+      "trigger": "/hes refactor"
+    },
+    {
+      "agent": "report-agent",
+      "type": "system",
+      "skill_file": "skills/report.md",
+      "trigger": "/hes report"
+    },
+    {
+      "agent": "session-manager",
+      "type": "system",
+      "skill_file": "skills/session-manager.md",
+      "trigger": "/hes status"
+    },
+    {
+      "agent": "issue-create-agent",
+      "type": "system",
+      "skill_file": "skills/09-issue-create.md",
+      "trigger": "/hes bug"
+    },
+    {
+      "agent": "progressive-analysis-agent",
+      "type": "system",
+      "skill_file": "skills/08-progressive-analysis.md",
+      "trigger": ">50 files"
+    },
+    {
+      "agent": "delegation-agent",
+      "type": "system",
+      "skill_file": "skills/tool-dispatch.md",
+      "trigger": "multi-agent"
+    },
+    {
+      "agent": "registry-agent",
+      "type": "system",
+      "skill_file": "skills/agent-registry.md",
+      "trigger": "registry ref"
+    },
+    {
+      "agent": "security-agent",
+      "type": "system",
+      "skill_file": "skills/10-security.md",
+      "trigger": "/hes security"
+    }
   ],
-  "harness_version": "3.3.0",
-  "generated_at": "2026-04-14T22:19:05Z"
+  "harness_version": "3.4.0",
+  "generated_at": "2026-04-18T16:20:59.830396+00:00"
 }
