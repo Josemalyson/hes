@@ -1,0 +1,19 @@
+{
+  "task_id": "disc-001",
+  "phase": "DISCOVERY",
+  "description": "Feature: autenticação com JWT — capturar business rules",
+  "input": "Quero implementar autenticação com JWT para minha API REST. Usuários devem fazer login com email e senha.",
+  "expected": {
+    "min_business_rules": 4,
+    "required_topics": ["expiração", "token", "senha", "email"],
+    "forbidden_in_discovery": ["implementar", "código", "função", "classe", "método"]
+  },
+  "graders": [
+    { "type": "deterministic", "check": "count_rn_items >= 4", "description": "Mínimo 4 business rules numeradas" },
+    { "type": "deterministic", "check": "has_keywords(['RN-', 'token', 'senha'])", "description": "Formato RN-xx e tópicos de autenticação" },
+    { "type": "llm-judge", "rubric": "As regras de negócio capturam o caso de expiração do token e renovação?", "weight": 0.3 },
+    { "type": "llm-judge", "rubric": "As regras são declarativas (O QUÊ), não prescritivas (COMO implementar)?", "weight": 0.3 }
+  ],
+  "baseline_score": 0.80,
+  "tags": ["auth", "jwt", "basic"]
+}

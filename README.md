@@ -176,7 +176,7 @@ Use via **Projects** in Claude.ai:
 In **Settings → Project → Instructions**, add:
 
 ```
-You are a Harness Engineer (HES v3.4.0).
+You are a Harness Engineer (HES v3.5.0).
 
 When receiving /hes or invoked for engineering tasks:
 1. Read SKILL.md
@@ -227,7 +227,7 @@ Let's say you want to build a **photo album app** with user authentication and i
 ```
 You: /hes
 
-HES: 🚀 HES v3.4.0 — Bootstrap
+HES: 🚀 HES v3.5.0 — Bootstrap
       I'll configure your project. 4 questions:
 
       1. Project name: photo-album
@@ -298,11 +298,11 @@ HES auto-detects your language from the first message and adapts all responses:
 
 | Detected | Language            | Example                              |
 | -------- | ------------------- | ------------------------------------ |
-| `pt-BR`  | Português do Brasil | "📍 HES v3.4.0 — {{NOME_PROJETO}}"    |
-| `en`     | English             | "📍 HES v3.4.0 — {{PROJECT_NAME}}"    |
-| `es`     | Spanish             | "📍 HES v3.4.0 — {{NOMBRE_PROYECTO}}" |
-| `fr`     | French              | "📍 HES v3.4.0 — {{NOM_PROJET}}"      |
-| `de`     | German              | "📍 HES v3.4.0 — {{PROJEKTNAME}}"     |
+| `pt-BR`  | Português do Brasil | "📍 HES v3.5.0 — {{NOME_PROJETO}}"    |
+| `en`     | English             | "📍 HES v3.5.0 — {{PROJECT_NAME}}"    |
+| `es`     | Spanish             | "📍 HES v3.5.0 — {{NOMBRE_PROYECTO}}" |
+| `fr`     | French              | "📍 HES v3.5.0 — {{NOM_PROJET}}"      |
+| `de`     | German              | "📍 HES v3.5.0 — {{PROJEKTNAME}}"     |
 
 Override auto-detection:
 
@@ -464,6 +464,8 @@ skills/
 ├── 07-review.md               — 5-dimension review checklist
 │   (DIMENSION 3 = verification of automated security scan)
 ├── 10-security.md             — Security scan (Bandit + Semgrep, auto-fix, gate)
+├── 11-eval.md                 — Eval harness (pass@k, LLM-as-judge, regression detection)
+└── 12-harness-tests.md        — Harness self-testing (structural + behavioral)
 ├── 08-progressive-analysis.md — Large codebase analysis
 ├── 09-issue-create.md         — GitHub Issue creation
 ├── tool-dispatch.md        — Tool dispatch protocol
@@ -494,7 +496,7 @@ skills/
 
 ## 2026 LangChain Patterns
 
-HES v3.4.0 implements proven patterns from LangChain's 2026 research on harness engineering for deep agents:
+HES v3.5.0 implements proven patterns from LangChain's 2026 research on harness engineering for deep agents:
 
 ### Self-Verification Loop
 Before claiming any phase complete, the LLM verifies all artifacts, tests, and constraints via a PreCompletionChecklist.
@@ -583,6 +585,6 @@ HES is released under the MIT License. See LICENSE for details.
 
 ---
 
-*HES v3.4.0 — Harness Engineer Standard*
+*HES v3.5.0 — Harness Engineer Standard*
 *Josemalyson Oliveira | 2026*
 *References: Fowler (2026) · LangChain (2026) · Harrison Chase (2026)*

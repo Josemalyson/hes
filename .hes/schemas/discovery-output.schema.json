@@ -1,0 +1,18 @@
+{
+  "phase": "DISCOVERY",
+  "description": "O que o discovery-agent deve entregar antes do handoff para spec-agent",
+  "artifacts_required": [
+    ".hes/specs/{feature}/01-discovery.md"
+  ],
+  "gate_fields": {
+    "min_business_rules": { "operator": ">=", "value": 3 },
+    "user_approved": { "operator": "==", "value": true }
+  },
+  "validation_command": null,
+  "checklist": [
+    "BR list tem >= 3 itens numerados (RN-01, RN-02...)",
+    "Casos de uso identificados (pelo menos 1)",
+    "Domínio DDD mapeado (se projeto tem domains)",
+    "Usuário aprovou a lista de BRs"
+  ]
+}

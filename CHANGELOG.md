@@ -1,5 +1,93 @@
 # HES — Changelog
 
+## v3.5.0 (2026-04-18)
+
+Implementação completa do PLAN.md — 15 gaps vs. padrões de mercado 2026.
+
+### TIER 1 — Crítico
+
+**P1-A: Eval Harness + LLM-as-judge**
+- `skills/11-eval.md` — skill completa de eval com pass@k e pass^k
+- `.hes/evals/tasks/` — golden dataset (discovery, spec, security, review)
+- `.hes/evals/baselines/` — baseline scores para comparação de regressão
+- Graders: determinísticos (rápidos) + LLM-as-judge (qualitativos)
+- Comandos: `/hes eval`, `/hes eval --phase`, `/hes eval --llm-judge`
+
+**P1-B: Telemetria Estruturada**
+- `skills/reference/telemetry-protocol.md` — spec OpenTelemetry-compatible
+- `scripts/hooks/telemetry.sh` — span manager (start_phase, end_phase, timeline, cost)
+- `.hes/state/telemetry.jsonl` — arquivo de spans (JSONL)
+- Schema: trace_id, span_id, parent_span_id, duration_ms, tokens_estimated, cost_usd
+
+**P1-C: Step Budget + Token Tracking**
+- `skills/reference/step-budget-protocol.md` — protocolo completo
+- `scripts/hooks/step-budget.sh` — manager (decrement, status, reset, set-tokens)
+- Schema em current.json: step_budget por fase + token_tracking
+- RULE-26: LLM decrementa budget a cada chamada, escalona ao esgotar
+
+### TIER 2 — Alto Valor
+
+**P2-A: CI/CD GitHub Actions**
+- `.github/workflows/harness-validation.yml` — validação em todo PR/push
+- `scripts/ci/validate-harness.py` — validator (skills, versions, state-machine, headers)
+- Checks: registry válido, skill-files existem, versões consistentes, Python compila
+
+**P2-B: Typed Handoff Schemas**
+- `skills/reference/handoff-schemas.md` — spec completo
+- `.hes/schemas/discovery-output.schema.json`
+- `.hes/schemas/spec-output.schema.json`
+- `.hes/schemas/design-output.schema.json`
+- `.hes/schemas/security-output.schema.json`
+- `.hes/schemas/review-output.schema.json`
+- RULE-27: LLM valida schema antes de toda transição de fase
+
+**P2-C: Context Engineering (Tool Output Offloading)**
+- `skills/reference/context-engineering.md` — spec + threshold + padrões por ferramenta
+- `scripts/hooks/context-offload.sh` — save, summary, clean
+- Threshold: > 8.000 chars → offload para `.hes/context/tool-outputs/`
+- RULE-28: LLM offloads tool outputs grandes, usa head+tail no contexto
+
+### TIER 3 — Diferenciação
+
+**P3-A: Multi-Model Support**
+- `.hes/models/claude.md` — quirks Claude (context window, tools, CLAUDE.md)
+- `.hes/models/gpt-4o.md` — quirks GPT-4o (function_calling, AGENTS.md)
+- `.hes/models/default.md` — defaults model-agnostic
+- `model` field adicionado ao schema de current.json
+
+**P3-C: Skill Versioning**
+- `skills/reference/skill-versioning.md` — guide completo
+- Schema de header obrigatório para skill-files
+- `.hes/state/skill-versions.json` para rastreio de versões instaladas
+
+**P3-D: Harness Self-Testing**
+- `skills/12-harness-tests.md` — 10 structural tests + 5 behavioral tests
+- Comandos: `/hes test`, `/hes test --structural`, `/hes test --behavioral`
+- Integrado ao CI via `validate-harness.py`
+
+### Atualizações core
+
+**SKILL.md v3.4.0 → v3.5.0:**
+- RULE-26, RULE-27, RULE-28 adicionadas
+- Commands: `/hes eval`, `/hes test`
+- Routing: eval-agent, harness-test-agent
+- Schema current.json: step_budget, token_tracking, model
+- ANNOUNCE block: step budget + telemetria
+
+**.hes/agents/registry.json:**
+- eval-agent + harness-test-agent
+- harness_version: 3.5.0
+
+### Regras adicionadas ao SKILL.md
+
+```
+RULE-26  LLM MANAGES step budget per phase via step-budget.sh
+RULE-27  LLM VALIDATES handoff schema before every phase transition
+RULE-28  LLM OFFLOADS tool outputs > 8000 chars to .hes/context/
+```
+
+---
+
 ## v3.4.0 (2026-04-18)
 
 Foco em segurança automatizada e rastreabilidade de execução intra-fase.

@@ -1,0 +1,66 @@
+# HES v3.5.0 — Harness Validation CI
+# Valida estrutura do harness em todo PR e push para main
+name: HES Harness Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-structure:
+    name: Validate Harness Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate registry.json (valid JSON)
+        run: python3 -m json.tool .hes/agents/registry.json > /dev/null
+
+      - name: Validate all skill files in registry exist
+        run: python3 scripts/ci/validate-harness.py --check skills
+
+      - name: Validate version consistency
+        run: python3 scripts/ci/validate-harness.py --check versions
+
+      - name: Validate state machine consistency
+        run: python3 scripts/ci/validate-harness.py --check state-machine
+
+      - name: Validate Python scripts compile
+        run: |
+          python3 -m py_compile .hes/scripts/check-security-gate.py
+          python3 -m py_compile scripts/ci/validate-harness.py
+
+      - name: Check scripts are executable
+        run: |
+          test -x scripts/hooks/log-action.sh   || (echo "log-action.sh not executable" && exit 1)
+          test -x scripts/hooks/step-budget.sh  || (echo "step-budget.sh not executable" && exit 1)
+
+      - name: Validate handoff schemas (valid JSON)
+        run: |
+          for f in .hes/schemas/*.json; do
+            echo "Validating $f..."
+            python3 -m json.tool "$f" > /dev/null
+          done
+
+      - name: Validate eval tasks (valid JSON)
+        run: |
+          find .hes/evals/tasks -name "*.json" | while read f; do
+            echo "Validating $f..."
+            python3 -m json.tool "$f" > /dev/null
+          done
+
+      - name: Validate skill headers
+        run: python3 scripts/ci/validate-harness.py --check skill-headers
+
+      - name: Report summary
+        if: always()
+        run: python3 scripts/ci/validate-harness.py --report

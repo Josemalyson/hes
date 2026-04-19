@@ -1,0 +1,20 @@
+{
+  "phase": "SECURITY",
+  "description": "O que o security-agent deve entregar antes do handoff para review-agent",
+  "artifacts_required": [
+    ".hes/state/security-report-final.json",
+    ".hes/state/security-exceptions.json"
+  ],
+  "gate_fields": {
+    "high_findings": { "operator": "==", "value": 0 },
+    "gate_passed": { "operator": "==", "value": true }
+  },
+  "validation_command": "python3 .hes/scripts/check-security-gate.py",
+  "checklist": [
+    "bandit executado e security-report-final.json gerado",
+    "zero HIGH findings no report final",
+    "MEDIUM findings: corrigidos OU com exceção documentada",
+    "security-exceptions.json existe (pode ser [])",
+    "Gate validado pelo check-security-gate.py"
+  ]
+}

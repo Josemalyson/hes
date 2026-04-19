@@ -118,8 +118,20 @@
       "type": "system",
       "skill_file": "skills/10-security.md",
       "trigger": "/hes security"
+    },
+    {
+      "agent": "eval-agent",
+      "type": "system",
+      "skill_file": "skills/11-eval.md",
+      "trigger": "/hes eval"
+    },
+    {
+      "agent": "harness-test-agent",
+      "type": "system",
+      "skill_file": "skills/12-harness-tests.md",
+      "trigger": "/hes test"
     }
   ],
-  "harness_version": "3.4.0",
-  "generated_at": "2026-04-18T16:20:59.830396+00:00"
+  "harness_version": "3.5.0",
+  "generated_at": "2026-04-19T10:11:27.683051+00:00"
 }

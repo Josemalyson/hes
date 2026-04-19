@@ -1,6 +1,6 @@
 ---
 name: harness-engineer
-version: 3.4.0
+version: 3.5.0
 trigger: /hes | /harness | "iniciar projeto" | "analisar projeto" | "nova feature" | "hes start" | "hes status" | "hes switch"
 author: Josemalyson Oliveira | 2026
 framework: HES — Harness Engineer Standard v3.3
@@ -12,7 +12,7 @@ references:
   - "LangChain 2026: The Anatomy of an Agent Harness"
 ---
 
-# HES SKILL v3.4 — LLM HARNESS ORCHESTRATOR
+# HES SKILL v3.5 — LLM HARNESS ORCHESTRATOR
 
 > **LLM HARNESS MANDATE**: You ARE the harness. Read this file IN FULL before taking any action.
 > This is your entry point and execution protocol. After detecting state, YOU execute the correct agent via registry.
@@ -104,11 +104,11 @@ On first user interaction:
 
 | Detected Language | Response Language | Example Greeting |
 |-------------------|-------------------|------------------|
-| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.4.0 — {{NOME_PROJETO}}" |
-| es (Spanish) | Spanish | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
-| fr (French) | French | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
-| de (German) | German | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
-| en (English) | English | "📍 HES v3.4.0 — {{PROJECT_NAME}}" |
+| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.5.0 — {{NOME_PROJETO}}" |
+| es (Spanish) | Spanish | "📍 HES v3.5.0 — {{PROJECT_NAME}}" |
+| fr (French) | French | "📍 HES v3.5.0 — {{PROJECT_NAME}}" |
+| de (German) | German | "📍 HES v3.5.0 — {{PROJECT_NAME}}" |
+| en (English) | English | "📍 HES v3.5.0 — {{PROJECT_NAME}}" |
 
 ### Override Mechanism
 
@@ -268,7 +268,7 @@ State resides in `.hes/state/current.json`:
   "features": { "payment": "DESIGN", "auth": "DONE" },
   "domains": ["billing", "auth"],
   "dependency_graph": { "payment": ["auth"] },
-  "harness_version": "3.4.0",
+  "harness_version": "3.5.0",
   "agent_model": "multi-agent",
   "user_language": "en",
   "audience_mode": "expert",
@@ -283,7 +283,22 @@ State resides in `.hes/state/current.json`:
     "last_scan": null,
     "last_gate_result": null,
     "exceptions_count": 0
-  }
+  },
+  "step_budget": {
+    "DISCOVERY": { "max": 15, "used": 0 },
+    "SPEC":      { "max": 20, "used": 0 },
+    "DESIGN":    { "max": 20, "used": 0 },
+    "DATA":      { "max": 15, "used": 0 },
+    "RED":       { "max": 25, "used": 0 },
+    "GREEN":     { "max": 30, "used": 0 },
+    "SECURITY":  { "max": 10, "used": 0 },
+    "REVIEW":    { "max": 15, "used": 0 }
+  },
+  "token_tracking": {
+    "tokens_estimated": 0,
+    "cost_usd_estimated": 0.0
+  },
+  "model": null
 }
 ```
 
@@ -371,11 +386,13 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 | `/hes error` or error | error-recovery-agent | `skills/error-recovery.md` |
 | `/hes auto-install` | auto-install-agent | `skills/auto-install.md` |
 | Session management | session-manager | `skills/session-manager.md` |
+| `/hes eval` | eval-agent | `skills/11-eval.md` |
+| `/hes test` | harness-test-agent | `skills/12-harness-tests.md` |
 
 ### PASSO 3 — ANNOUNCE
 
 ```
-📍 HES v3.4.0 — {{PROJECT_NAME}}
+📍 HES v3.5.0 — {{PROJECT_NAME}}
 Active feature : {{ACTIVE_FEATURE}}
 Current state  : {{CURRENT_STATE}}
 Agent          : {{AGENT_NAME}}
@@ -508,6 +525,8 @@ OFFLINE (every 3 cycles / /hes report — LLM executes autonomously):
 | `/clear` or `/new` | session-manager | Save checkpoint + clear session |
 | `/hes checkpoint` | session-manager | Save checkpoint without clearing |
 | `/hes security` | security-agent | Executa security scan (Bandit + Semgrep) |
+| `/hes eval` | eval-agent | Roda eval harness — regression testing dos skill-files |
+| `/hes test` | harness-test-agent | Self-testing do harness (structural + behavioral) |
 | `/hes unlock --force` | session-manager | Bypass phase lock (logs risk event) |
 
 ### `/hes status` (via session-manager):
@@ -592,6 +611,22 @@ RULE-25   LLM EXECUTES security scan before REVIEW — no exceptions
           Phase machine: GREEN → SECURITY → REVIEW (never GREEN → REVIEW directly)
           Gate: zero HIGH findings from Bandit required to advance
           Tool: skills/10-security.md | Agent: security-agent
+
+RULE-26   LLM MANAGES step budget per phase via scripts/hooks/step-budget.sh
+          At 80% capacity → warn user | At 100% → CHECKPOINT + ESCALATE
+          Reset budget when advancing to next phase
+          Reference: skills/reference/step-budget-protocol.md
+
+RULE-27   LLM VALIDATES handoff schema before every phase transition
+          Load .hes/schemas/{phase}-output.schema.json
+          Verify artifacts_required, execute validation_command if defined
+          Never advance phase without schema validation
+          Reference: skills/reference/handoff-schemas.md
+
+RULE-28   LLM OFFLOADS tool outputs > 8000 chars to .hes/context/tool-outputs/
+          Inject head (40 lines) + offload marker + tail (20 lines) in context
+          Access full output via file read only when specifically needed
+          Reference: skills/reference/context-engineering.md
 ```
 
 ---
