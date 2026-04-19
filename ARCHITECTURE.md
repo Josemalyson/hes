@@ -1,4 +1,4 @@
-# HES v3.3.0 — System Architecture
+# HES v3.4.0 — System Architecture
 
 > Technical reference document for HES — Harness Engineer Standard.
 > Based on: Fowler (2026), LangChain/Harrison (2026).
@@ -348,3 +348,52 @@ hes/ (repository root)
 *HES v3.3.0 — Architecture Document*
 *Referências: Fowler (2026) · LangChain Harrison (2026)*
 *Josemalyson Oliveira | 2026*
+
+---
+
+## ◈ ACTION EVENT PROTOCOL (v3.4.0)
+
+> Resolve o gap de rastreabilidade intra-fase: eventos agora cobrem ações individuais,
+> não apenas transições de fase.
+
+```
+events.log (antes v3.3):
+  { "from": "SPEC", "to": "DESIGN", ... }   ← apenas transições
+
+events.log (v3.4 — Action Event Protocol):
+  { "action_type": "EXEC_CMD", "status": "STARTED", "target": "bandit -r .", ... }
+  { "action_type": "EXEC_CMD", "status": "SUCCESS", "target": "bandit -r .", ... }
+  { "action_type": "GATE_CHECK", "status": "SUCCESS", "target": "security-gate", ... }
+  { "from": "SECURITY", "to": "REVIEW", ... }   ← transição de fase
+```
+
+**Componentes:**
+- `scripts/hooks/log-action.sh` — executa o log de cada ação
+- `skills/reference/action-event-protocol.md` — protocolo e schema completo
+- `.hes/state/session-id` — UUID único por sessão (gerado no bootstrap)
+
+---
+
+## ◈ SECURITY PHASE (v3.4.0)
+
+Nova fase **SECURITY** entre GREEN e REVIEW na state machine.
+
+```
+GREEN → SECURITY → REVIEW
+         ↑
+    Bandit + Semgrep
+    (LLM-orchestrated)
+    Auto-fix loop
+    Gate: 0 HIGH findings
+```
+
+**Fluxo:**
+```
+bandit -r . → parse JSON → triage (HIGH/MEDIUM/LOW)
+  → auto-fix HIGH (max 2 tentativas/finding)
+  → documenta MEDIUM/LOW como exceções
+  → re-scan final → gate check
+  → avança para REVIEW se gate passou
+```
+
+**Ferramenta:** `skills/10-security.md` | **Agente:** `security-agent`
