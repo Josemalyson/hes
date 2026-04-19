@@ -1,0 +1,7 @@
+{
+  "phase": "DATA",
+  "description": "Schema de saída obrigatória antes do handoff do data-agent",
+  "artifacts_required": [],
+  "gate_fields": {},
+  "validation_command": null
+}

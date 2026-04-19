@@ -1,0 +1,21 @@
+{
+  "phase": "DESIGN",
+  "description": "O que o design-agent deve entregar antes do handoff para data-agent",
+  "artifacts_required": [
+    ".hes/specs/{feature}/03-design.md",
+    ".hes/decisions/ADR-{NNN}.md"
+  ],
+  "gate_fields": {
+    "adr_created": { "operator": "==", "value": true },
+    "components_defined": { "operator": ">=", "value": 1 },
+    "user_approved": { "operator": "==", "value": true }
+  },
+  "validation_command": null,
+  "checklist": [
+    "Componentes definidos (Controller, Service, Repository...)",
+    "ADR criado com trade-offs documentados",
+    "Fluxo de chamadas entre componentes descrito",
+    "Harnessability avaliada por componente",
+    "Usuário aprovou design"
+  ]
+}

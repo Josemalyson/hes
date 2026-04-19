@@ -1,0 +1,21 @@
+{
+  "task_id": "spec-001",
+  "phase": "SPEC",
+  "description": "Gerar BDD scenarios para login com JWT",
+  "input": "RN-01: Sistema deve autenticar usuário com email e senha válidos\nRN-02: Token JWT deve expirar em 24 horas\nRN-03: Senha incorreta deve retornar erro 401",
+  "expected": {
+    "min_bdd_scenarios": 3,
+    "required_keywords": ["Given", "When", "Then", "Scenario"],
+    "required_status_codes": ["200", "401"],
+    "api_contract_required": true
+  },
+  "graders": [
+    { "type": "deterministic", "check": "count_scenarios >= 3" },
+    { "type": "deterministic", "check": "has_keywords(['Given', 'When', 'Then'])" },
+    { "type": "deterministic", "check": "has_keywords(['401', '200'])" },
+    { "type": "llm-judge", "rubric": "Cada RN-xx tem pelo menos 1 cenário de teste mapeado?", "weight": 0.4 },
+    { "type": "llm-judge", "rubric": "As mensagens de erro no spec são exatas (não genéricas)?", "weight": 0.3 }
+  ],
+  "baseline_score": 0.80,
+  "tags": ["auth", "bdd", "basic"]
+}

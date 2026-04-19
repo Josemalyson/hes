@@ -1,0 +1,16 @@
+{
+  "task_id": "sec-001",
+  "phase": "SECURITY",
+  "description": "Verificar que código Python sem vulnerabilidades passa no gate",
+  "input_file_content": "import hashlib\nimport os\n\ndef hash_password(password: str) -> str:\n    salt = os.urandom(32)\n    key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)\n    return salt.hex() + ':' + key.hex()\n",
+  "expected": {
+    "high_findings": 0,
+    "gate_should_pass": true
+  },
+  "graders": [
+    { "type": "deterministic", "check": "bandit_high_count == 0", "description": "Zero HIGH findings" },
+    { "type": "deterministic", "check": "gate_exit_code == 0", "description": "Gate script passa" }
+  ],
+  "baseline_score": 1.0,
+  "tags": ["security", "bandit", "basic"]
+}

@@ -1,0 +1,20 @@
+{
+  "phase": "REVIEW",
+  "description": "O que o review-agent deve entregar antes de marcar DONE",
+  "artifacts_required": [],
+  "gate_fields": {
+    "dimensions_checked": { "operator": "==", "value": 5 },
+    "security_scan_verified": { "operator": "==", "value": true },
+    "pr_template_generated": { "operator": "==", "value": true }
+  },
+  "validation_command": null,
+  "checklist": [
+    "DIMENSION 1 (Behaviour): todos BDD scenarios cobertos",
+    "DIMENSION 2 (Maintainability): sem magic numbers, duplicação, dead code",
+    "DIMENSION 3 (Security): scan automatizado verificado",
+    "DIMENSION 4 (Observability): structured logs com context",
+    "DIMENSION 5 (Architecture Fitness): ArchUnit/dep-cruiser verde",
+    "PR template gerado",
+    "lessons.md atualizado"
+  ]
+}

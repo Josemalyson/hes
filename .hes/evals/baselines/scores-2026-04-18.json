@@ -1,0 +1,11 @@
+{
+  "baseline_date": "2026-04-18",
+  "harness_version": "3.5.0",
+  "scores": {
+    "DISCOVERY": { "pass_at_k": null, "pass_all_k": null, "note": "Baseline pendente — rodar /hes eval --phase DISCOVERY" },
+    "SPEC":      { "pass_at_k": null, "pass_all_k": null, "note": "Baseline pendente" },
+    "SECURITY":  { "pass_at_k": null, "pass_all_k": null, "note": "Baseline pendente" },
+    "REVIEW":    { "pass_at_k": null, "pass_all_k": null, "note": "Baseline pendente" }
+  },
+  "instructions": "Rodar: /hes eval --all --k 3 para gerar baseline real"
+}

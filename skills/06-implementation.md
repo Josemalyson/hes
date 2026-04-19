@@ -209,19 +209,20 @@ pytest --cov=src --cov-report=term-missing -v
 
 ---
 
-▶ NEXT ACTION — REVIEW
+▶ NEXT ACTION — SECURITY (obrigatório antes de REVIEW)
 
 ```
 🟢 Implementation completed?
 
-Confirm before proceeding:
+Confirm before proceeding to SECURITY phase:
   1. Green build (all tests passing)?
   2. Coverage ≥ 80%?
   3. No TODO/FIXME?
   4. ArchUnit passing (if configured)?
 
   [A] "green build, coverage ok"
-      → Starting structured review (skills/07-review.md)
+      → Load skills/10-security.md — executar security scan (Bandit + Semgrep)
+      → Gate SECURITY → REVIEW: zero HIGH findings
 
   [B] "test X failing: [error]"
       → Self-refinement attempt {{N}} — analyzing the issue
@@ -229,8 +230,10 @@ Confirm before proceeding:
   [C] "coverage at {{X}}%"
       → Evaluate if acceptable or add tests for gaps
 
-📄 Next skill file: skills/07-review.md
-💡 Tip: coverage measures quantity of lines executed, not quality.
-   A test without assertions protects nothing.
-   Prefer tests that fail when logic is wrong (effective sensor).
+📄 Next skill file: skills/10-security.md
+🤖 Next agent: security-agent
+💡 Tip: Security scan executa ANTES de code review.
+   Não faz sentido revisar código com vulnerabilidades conhecidas (Bandit B-findings).
+   Tool-first → review-second.
+   Após gate SECURITY passar → skills/07-review.md
 ```
