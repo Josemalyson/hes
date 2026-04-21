@@ -1,0 +1,185 @@
+#!/usr/bin/env bash
+# HES — Harness Engineer Standard
+# Automated installer for AI coding tools
+# Usage: ./setup [--host claude|codex|cursor|windsurf|copilot|kiro|gemini|all]
+
+set -euo pipefail
+
+HES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HOST="${1:-auto}"
+
+# ── Color output ────────────────────────────────────────────────────────────────
+GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'; RESET='\033[0m'
+ok()   { echo -e "${GREEN}✓${RESET} $*"; }
+info() { echo -e "${BLUE}→${RESET} $*"; }
+warn() { echo -e "${YELLOW}!${RESET} $*"; }
+
+# ── Detect installed tools ──────────────────────────────────────────────────────
+INSTALL_CLAUDE=0; INSTALL_CODEX=0; INSTALL_KIRO=0
+INSTALL_OPENCODE=0; INSTALL_CURSOR=0
+
+if [ "$HOST" = "auto" ]; then
+  command -v claude    >/dev/null 2>&1 && INSTALL_CLAUDE=1
+  command -v codex     >/dev/null 2>&1 && INSTALL_CODEX=1
+  command -v kiro-cli  >/dev/null 2>&1 && INSTALL_KIRO=1
+  command -v opencode  >/dev/null 2>&1 && INSTALL_OPENCODE=1
+  # Cursor/Windsurf/Copilot detected by config dirs
+  [ -d "$HOME/.cursor" ] && INSTALL_CURSOR=1
+
+  # Default to Claude Code if nothing found
+  if [ $INSTALL_CLAUDE -eq 0 ] && [ $INSTALL_CODEX -eq 0 ] && \
+     [ $INSTALL_KIRO -eq 0 ] && [ $INSTALL_OPENCODE -eq 0 ]; then
+    INSTALL_CLAUDE=1
+    warn "No AI tool detected — defaulting to Claude Code setup"
+  fi
+else
+  case "$HOST" in
+    claude)   INSTALL_CLAUDE=1 ;;
+    codex)    INSTALL_CODEX=1 ;;
+    kiro)     INSTALL_KIRO=1 ;;
+    opencode) INSTALL_OPENCODE=1 ;;
+    cursor)   INSTALL_CURSOR=1 ;;
+    all)      INSTALL_CLAUDE=1; INSTALL_CODEX=1; INSTALL_KIRO=1
+              INSTALL_OPENCODE=1; INSTALL_CURSOR=1 ;;
+    *)        echo "Usage: ./setup [--host claude|codex|cursor|kiro|opencode|all]"; exit 1 ;;
+  esac
+fi
+
+TARGET_DIR="${2:-$(pwd)}"
+echo ""
+echo "Installing HES v3.5.0 → $TARGET_DIR"
+echo ""
+
+# ── Core files (always installed) ──────────────────────────────────────────────
+install_core() {
+  info "Installing core files..."
+  cp "$HES_DIR/SKILL.md"   "$TARGET_DIR/SKILL.md"
+  cp "$HES_DIR/AGENTS.md"  "$TARGET_DIR/AGENTS.md"
+  mkdir -p "$TARGET_DIR/skills"
+  cp "$HES_DIR/skills/"*.md "$TARGET_DIR/skills/"
+  cp -r "$HES_DIR/skills/reference" "$TARGET_DIR/skills/" 2>/dev/null || true
+  ok "SKILL.md + AGENTS.md + skills/ ($(ls "$HES_DIR/skills/"*.md | wc -l | tr -d ' ') skill files)"
+}
+
+# ── Claude Code ─────────────────────────────────────────────────────────────────
+install_claude() {
+  info "Installing for Claude Code..."
+  mkdir -p "$TARGET_DIR/.claude"
+  cp "$HES_DIR/.claude/CLAUDE.md" "$TARGET_DIR/.claude/CLAUDE.md"
+
+  # Append HES reference to existing CLAUDE.md or create it
+  if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
+    if ! grep -q "HES" "$TARGET_DIR/CLAUDE.md" 2>/dev/null; then
+      echo -e "\n\n# HES Integration\nSee AGENTS.md and SKILL.md for the HES workflow protocol." >> "$TARGET_DIR/CLAUDE.md"
+    fi
+  else
+    cp "$HES_DIR/.claude/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
+  fi
+  ok "Claude Code: .claude/CLAUDE.md + CLAUDE.md"
+}
+
+# ── Codex CLI / OpenCode ────────────────────────────────────────────────────────
+install_codex() {
+  info "Installing for Codex CLI / OpenCode..."
+  # Both read AGENTS.md natively — already installed via core
+  ok "Codex/OpenCode: AGENTS.md (already installed)"
+}
+
+# ── Cursor ──────────────────────────────────────────────────────────────────────
+install_cursor() {
+  info "Installing for Cursor..."
+  mkdir -p "$TARGET_DIR/.cursor/rules"
+  cp "$HES_DIR/.cursor/rules/hes.mdc" "$TARGET_DIR/.cursor/rules/hes.mdc"
+  ok "Cursor: .cursor/rules/hes.mdc (alwaysApply: true)"
+}
+
+# ── Windsurf ────────────────────────────────────────────────────────────────────
+install_windsurf() {
+  info "Installing for Windsurf..."
+  cp "$HES_DIR/.windsurfrules" "$TARGET_DIR/.windsurfrules"
+  ok "Windsurf: .windsurfrules"
+}
+
+# ── GitHub Copilot / VS Code ────────────────────────────────────────────────────
+install_copilot() {
+  info "Installing for GitHub Copilot / VS Code..."
+  mkdir -p "$TARGET_DIR/.github"
+  cp "$HES_DIR/.github/copilot-instructions.md" "$TARGET_DIR/.github/copilot-instructions.md"
+  ok "Copilot/VSCode: .github/copilot-instructions.md"
+}
+
+# ── Kiro ────────────────────────────────────────────────────────────────────────
+install_kiro() {
+  info "Installing for Kiro (AWS)..."
+  mkdir -p "$TARGET_DIR/.kiro/steering"
+  cp "$HES_DIR/.kiro/steering/hes.md" "$TARGET_DIR/.kiro/steering/hes.md"
+  ok "Kiro: .kiro/steering/hes.md (inclusion: always)"
+}
+
+# ── .hes/ state structure ───────────────────────────────────────────────────────
+install_hes_state() {
+  info "Generating .hes/ state structure..."
+  mkdir -p "$TARGET_DIR/.hes/state"
+  mkdir -p "$TARGET_DIR/.hes/agents"
+  mkdir -p "$TARGET_DIR/.hes/context/tool-outputs"
+  mkdir -p "$TARGET_DIR/.hes/schemas"
+  mkdir -p "$TARGET_DIR/.hes/evals/tasks"
+
+  # Copy schemas and registry
+  cp "$HES_DIR/.hes/schemas/"*.json "$TARGET_DIR/.hes/schemas/" 2>/dev/null || true
+  cp "$HES_DIR/.hes/agents/registry.json" "$TARGET_DIR/.hes/agents/registry.json" 2>/dev/null || true
+
+  # Create empty state files
+  echo '{"phase":"ZERO","active_feature":null,"features":{},"harness_version":"3.5.0"}' \
+    > "$TARGET_DIR/.hes/state/current.json"
+  touch "$TARGET_DIR/.hes/state/events.log"
+
+  ok ".hes/ state structure initialized"
+}
+
+# ── .gitignore ──────────────────────────────────────────────────────────────────
+update_gitignore() {
+  GITIGNORE="$TARGET_DIR/.gitignore"
+  if ! grep -q ".hes/state/current.json" "$GITIGNORE" 2>/dev/null; then
+    cat >> "$GITIGNORE" << 'GITEOF'
+
+# HES — generated state files (project-specific, not committed)
+.hes/state/current.json
+.hes/state/events.log
+.hes/state/session-checkpoint.json
+GITEOF
+    ok ".gitignore updated"
+  fi
+}
+
+# ── Run installs ────────────────────────────────────────────────────────────────
+install_core
+install_hes_state
+update_gitignore
+
+[ $INSTALL_CLAUDE   -eq 1 ] && install_claude
+[ $INSTALL_CODEX    -eq 1 ] && install_codex
+[ $INSTALL_CURSOR   -eq 1 ] && { install_cursor; install_copilot; }
+[ $INSTALL_KIRO     -eq 1 ] && install_kiro
+[ $INSTALL_OPENCODE -eq 1 ] && install_codex  # same as codex (AGENTS.md)
+
+# Always install Windsurf/Copilot shims — low cost, high compat
+install_windsurf
+install_copilot
+
+# ── Commit ──────────────────────────────────────────────────────────────────────
+echo ""
+if [ -d "$TARGET_DIR/.git" ]; then
+  cd "$TARGET_DIR"
+  git add -A
+  git commit -m "chore: install HES v3.5.0" --quiet 2>/dev/null && \
+    ok "Git commit created: chore: install HES v3.5.0" || \
+    warn "Nothing to commit (already up to date)"
+fi
+
+echo ""
+echo -e "${GREEN}HES v3.5.0 installed.${RESET}"
+echo ""
+echo "  Start:  /hes"
+echo "  Docs:   SKILL.md (full spec) · AGENTS.md (quick ref)"
+echo ""
