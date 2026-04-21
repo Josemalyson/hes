@@ -112,7 +112,24 @@ After bootstrap, the LLM generates the `.hes/` structure automatically and asks:
 
 ## Installation
 
-HES works with any AI coding agent. Choose your environment:
+HES v3.5.0 inclui arquivos de configuração nativos para **9 ferramentas** — zero configuração manual.
+
+### Suporte Nativo por Ferramenta
+
+| Ferramenta         | Arquivo Nativo                             | Também Lê    |
+|--------------------|--------------------------------------------|--------------|
+| **Claude Code**    | `CLAUDE.md` + `.claude/CLAUDE.md`          | `SKILL.md`   |
+| **OpenAI Codex**   | `AGENTS.md`                                | —            |
+| **OpenCode**       | `AGENTS.md`                                | —            |
+| **Gemini CLI**     | `GEMINI.md`                                | `AGENTS.md`  |
+| **Cursor**         | `.cursor/rules/hes.mdc` + `.cursorrules`   | `AGENTS.md`  |
+| **GitHub Copilot** | `.github/copilot-instructions.md`          | `AGENTS.md`  |
+| **VS Code**        | `.github/copilot-instructions.md`          | `AGENTS.md`  |
+| **Windsurf**       | `.windsurfrules`                           | `AGENTS.md`  |
+| **Kiro (AWS)**     | `.kiro/steering/hes.md`                    | `SKILL.md`   |
+
+> **AGENTS.md é o hub cross-tool**: lido nativamente por Codex, OpenCode, Cursor, Windsurf e Copilot.
+> **SKILL.md é a fonte da verdade**: o orquestrador completo (673 linhas, 33 regras, state machine).
 
 ### 🤖 Fastest: Agent Auto-Install
 
@@ -122,61 +139,123 @@ Paste this message in your AI agent chat (Claude Code, Cursor, Copilot, Windsurf
 Read https://raw.githubusercontent.com/Josemalyson/hes/main/INSTALL.md and install HES in my project
 ```
 
-The agent fetches the install protocol, auto-detects your project metadata, copies all files, generates the `.hes/` structure, and commits — fully autonomous.
-
----
+The agent fetches the install protocol, auto-detects your project metadata, copies all files
+(including native tool configs), generates the `.hes/` structure, and commits — fully autonomous.
 
 <details>
-<summary><strong>Claude Code (CLI) — Recommended</strong></summary>
+<summary><strong>Claude Code (CLI)</strong></summary>
 
 ```bash
-# Clone HES repository
 git clone https://github.com/Josemalyson/hes.git /tmp/hes
-
-# Copy files to your project root
 cp /tmp/hes/SKILL.md ./SKILL.md
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/CLAUDE.md ./CLAUDE.md
+cp -r /tmp/hes/.claude/ ./.claude/
 mkdir -p skills
 cp /tmp/hes/skills/*.md ./skills/
 cp -r /tmp/hes/skills/reference ./skills/ 2>/dev/null || true
 ```
 
-Claude Code reads `SKILL.md` automatically. Use `/hes` to start, `/hes status` to check progress.
-
-The bootstrap generates `.claude/CLAUDE.md` to ensure HES is loaded on every session.
+`CLAUDE.md` carrega o HES via `@SKILL.md` import. `.claude/CLAUDE.md` é auto-lido no início de cada sessão.
 
 </details>
 
 <details>
-<summary><strong>Cursor / Windsurf / Copilot</strong></summary>
+<summary><strong>Cursor</strong></summary>
 
-Same file structure. Configure the agent to read HES:
+HES vem com suporte nativo — zero configuração:
 
-**Option 1: `.cursorrules` file**
+- `.cursor/rules/hes.mdc` — formato MDC com `alwaysApply: true` (moderno)
+- `.cursorrules` — formato legacy (mantido para compatibilidade)
+- `AGENTS.md` — lido automaticamente pelo Cursor
 
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/.cursorrules ./.cursorrules
+cp -r /tmp/hes/.cursor/ ./.cursor/
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
-# .cursorrules
-When receiving /hes or any engineering task:
-1. Read SKILL.md in project root
-2. Read .hes/state/current.json
-3. Load the corresponding skill-file
-4. Follow instructions without deviations
+
+</details>
+
+<details>
+<summary><strong>GitHub Copilot / VS Code</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+mkdir -p .github
+cp /tmp/hes/.github/copilot-instructions.md ./.github/copilot-instructions.md
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
 
-**Option 2: System prompt**
+Copilot lê `.github/copilot-instructions.md` automaticamente. Também lê `AGENTS.md`.
 
-In Settings → AI → System Prompt:
+</details>
+
+<details>
+<summary><strong>Windsurf</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/.windsurfrules ./.windsurfrules
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
-When I say /hes, read SKILL.md and execute the HES protocol
+
+Windsurf lê `.windsurfrules` e `AGENTS.md` nativamente.
+
+</details>
+
+<details>
+<summary><strong>OpenAI Codex CLI / OpenCode</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
+
+Codex CLI e OpenCode leem `AGENTS.md` como arquivo primário de instrução.
+
+</details>
+
+<details>
+<summary><strong>Gemini CLI</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/GEMINI.md ./GEMINI.md
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
+```
+
+</details>
+
+<details>
+<summary><strong>Kiro (AWS)</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp -r /tmp/hes/.kiro/ ./.kiro/
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
+```
+
+Kiro lê `.kiro/steering/hes.md` e `hes-phases.md` automaticamente (`inclusion: always`).
 
 </details>
 
 <details>
 <summary><strong>Claude.ai (Web / App)</strong></summary>
 
-Use via **Projects** in Claude.ai:
-
-In **Settings → Project → Instructions**, add:
+Em **Settings → Project → Instructions**, adicione:
 
 ```
 You are a Harness Engineer (HES v3.5.0).
@@ -185,29 +264,11 @@ When receiving /hes or invoked for engineering tasks:
 1. Read SKILL.md
 2. Check .hes/state/current.json
 3. Load the appropriate skill-file
-4. Execute the current phase
-```
-
-In chat (without Project), paste `SKILL.md` content at the start of the conversation.
-
-</details>
-
-<details>
-<summary><strong>OpenHands / Codex CLI / Gemini CLI</strong></summary>
-
-```bash
-# OpenHands — via AGENT.md
-cp SKILL.md AGENT.md
-
-# Codex CLI — via --system-prompt flag
-codex --system-prompt "$(cat SKILL.md)"
-
-# Gemini CLI — via .gemini/system.md
-mkdir -p .gemini
-cp SKILL.md .gemini/system.md
+4. Execute the current phase autonomously
 ```
 
 </details>
+
 
 ### Verify Installation
 

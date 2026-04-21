@@ -1,6 +1,6 @@
 # hes — Harness Engineer Standard
 
-> HES v3.3.0 — Fully automated installation protocol for AI coding agents.
+> HES v3.5.0 — Fully automated installation protocol for AI coding agents.
 > The LLM executes ALL steps autonomously using file system tools.
 > User only confirms or corrects auto-detected values — never manually copies files.
 
@@ -8,7 +8,7 @@
 
 ## OBJECTIVE
 
-Install HES v3.3.0 in any project using any AI coding agent, with zero manual
+Install HES v3.5.0 in any project using any AI coding agent, with zero manual
 file copying by the user. The LLM harness assumes full responsibility: it
 detects environment, copies all files, generates the state structure, validates
 the installation, and commits to version control — autonomously.
@@ -21,11 +21,12 @@ The following conditions are ALL satisfied:
 
 ```
 [✓] SKILL.md exists in project root
-[✓] skills/ directory exists with all 18 skill files
+[✓] skills/ directory exists with all 24 skill files (19 stable + 5 v4.0 stubs)
 [✓] .hes/ directory exists with state/current.json (valid JSON)
 [✓] .hes/agents/registry.json exists
-[✓] IDE config file generated (.claude/CLAUDE.md or .cursorrules or similar)
-[✓] Git commit created (chore: install HES v3.3.0)
+[✓] Native tool configs generated (AGENTS.md, CLAUDE.md, GEMINI.md, .cursor/rules/hes.mdc,
+         .windsurfrules, .github/copilot-instructions.md, .kiro/steering/, .claude/CLAUDE.md)
+[✓] Git commit created (chore: install HES v3.5.0)
 [✓] /hes status returns valid state (or equivalent command for the environment)
 ```
 
@@ -41,7 +42,7 @@ The following conditions are ALL satisfied:
 - [ ] **STEP 6** — Generate .hes/state/current.json (auto-detected values)
 - [ ] **STEP 7** — Generate .hes/state/events.log (install event)
 - [ ] **STEP 8** — Generate .hes/agents/registry.json
-- [ ] **STEP 9** — Generate IDE-specific config file
+- [ ] **STEP 9** — Generate native config for ALL supported tools
 - [ ] **STEP 10** — Validate all files installed and state is valid
 - [ ] **STEP 11** — Commit to git version control
 - [ ] **STEP 12** — Announce completion to user
@@ -321,69 +322,83 @@ Generated structure:
 
 ---
 
-## STEP 9 — GENERATE IDE-SPECIFIC CONFIG
+## STEP 9 — GENERATE NATIVE CONFIGS FOR ALL SUPPORTED TOOLS
 
-### For Claude Code (.claude/CLAUDE.md)
+HES v3.5.0 ships with native config files for every major AI coding tool.
+During install, the LLM copies ALL of them to the project root — no manual setup required.
 
-```markdown
-# HES — Harness Engineer Standard
+### Files to copy (from HES repo → project root)
 
-On session start:
-1. Read SKILL.md completely via file system tools
-2. Identify state via .hes/state/current.json
-3. Load correct skill-file based on current phase
-4. Execute phase-specific instructions autonomously
+```bash
+# Cross-tool standard (read by Codex, OpenCode, Cursor, Windsurf, Copilot)
+cp HES_SOURCE/AGENTS.md       ./AGENTS.md
 
-On receiving /hes:
-- Check if .hes/ exists → resume from current state
-- If no .hes/ → execute auto-install protocol
-- Execute commands: /hes start, /hes status, /hes switch, etc.
+# Claude Code native entry point
+cp HES_SOURCE/CLAUDE.md       ./CLAUDE.md
+cp -r HES_SOURCE/.claude/     ./.claude/
+
+# Gemini CLI
+cp HES_SOURCE/GEMINI.md       ./GEMINI.md
+
+# Cursor (legacy + modern MDC)
+cp HES_SOURCE/.cursorrules    ./.cursorrules
+cp -r HES_SOURCE/.cursor/     ./.cursor/
+
+# Windsurf
+cp HES_SOURCE/.windsurfrules  ./.windsurfrules
+
+# GitHub Copilot / VS Code
+mkdir -p .github
+cp HES_SOURCE/.github/copilot-instructions.md ./.github/copilot-instructions.md
+
+# Kiro (AWS)
+cp -r HES_SOURCE/.kiro/       ./.kiro/
 ```
 
-### For Cursor / Windsurf (.cursorrules)
+### Tool → File Mapping
+
+| Tool               | Native Config File                          | Also Reads       |
+|--------------------|---------------------------------------------|------------------|
+| Claude Code        | `CLAUDE.md` + `.claude/CLAUDE.md`           | SKILL.md         |
+| OpenAI Codex CLI   | `AGENTS.md`                                 | —                |
+| OpenCode           | `AGENTS.md`                                 | —                |
+| Gemini CLI         | `GEMINI.md`                                 | AGENTS.md        |
+| Cursor             | `.cursor/rules/hes.mdc` (+ `.cursorrules`)  | AGENTS.md        |
+| GitHub Copilot     | `.github/copilot-instructions.md`           | AGENTS.md        |
+| VS Code (Copilot)  | `.github/copilot-instructions.md`           | AGENTS.md        |
+| Windsurf           | `.windsurfrules`                            | AGENTS.md        |
+| Kiro (AWS)         | `.kiro/steering/hes.md` + `hes-phases.md`  | SKILL.md         |
+
+### Architecture
 
 ```
-# HES Auto-Config
-
-On receiving /hes or any engineering task:
-1. Read SKILL.md in project root via file system tools
-2. Read .hes/state/current.json
-3. Load skill-file corresponding to current state
-4. Follow skill-file instructions without deviation
-5. Use agentic tools for all file operations
-
-Commands: /hes start, /hes status, /hes switch, /hes refactor, /hes report, /hes harness
+AGENTS.md               ← Source of truth for cross-tool (Codex, Cursor, Windsurf, Copilot)
+CLAUDE.md               ← Thin Claude Code shim → @imports SKILL.md
+GEMINI.md               ← Gemini bootstrap → references SKILL.md
+.cursor/rules/hes.mdc   ← Cursor MDC format with YAML frontmatter (alwaysApply: true)
+.cursorrules            ← Cursor legacy (kept for compatibility)
+.windsurfrules          ← Windsurf bootstrap (also reads AGENTS.md)
+.github/copilot-instructions.md ← Copilot/VS Code (also reads AGENTS.md)
+.kiro/steering/hes.md   ← Kiro main steering (inclusion: always)
+.kiro/steering/hes-phases.md    ← Phase reference (inclusion: always)
+.kiro/steering/hes-commands.md  ← Command reference (inclusion: manual)
+.claude/CLAUDE.md       ← Claude Code auto-loaded identity file
 ```
 
 ### For Claude.ai (Web/App) — Project Instructions
 
-```
-You are a Harness Engineer (HES v3.3.0). The LLM executes all actions autonomously.
-
-On receiving /hes or being invoked for engineering tasks:
-1. Read SKILL.md content via available tools
-2. Read and follow orchestrator instructions in SKILL.md
-3. Read skill-file content indicated by orchestrator
-4. Execute corresponding phase autonomously
-5. Report results back to user
-
-If user pastes a skill-file directly, execute it immediately.
-```
-
-### For OpenHands / Codex / Gemini CLI
+In **Settings → Project → Instructions**, paste:
 
 ```
-# OpenHands — AGENT.md
-→ Copy SKILL.md content to AGENT.md
-→ LLM executes HES protocol autonomously
+You are a Harness Engineer (HES v3.5.0). Read SKILL.md and execute the HES protocol.
 
-# Codex CLI — via --system-prompt flag
-→ Pass SKILL.md content as system prompt
-→ LLM executes protocol autonomously
+Triggers: /hes | nova feature | new feature | hes start
 
-# Gemini CLI — .gemini/system.md
-→ Copy SKILL.md content to .gemini/system.md
-→ LLM reads and executes protocol autonomously
+On receiving /hes:
+1. Read SKILL.md in full
+2. Check .hes/state/current.json for current phase
+3. Load the skill-file for that phase
+4. Execute autonomously
 ```
 
 ---
