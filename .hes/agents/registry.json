@@ -130,8 +130,49 @@
       "type": "system",
       "skill_file": "skills/12-harness-tests.md",
       "trigger": "/hes test"
+    },
+    {
+      "agent": "planner-agent",
+      "type": "system",
+      "skill_file": "skills/planner.md",
+      "trigger": "/hes start --parallel",
+      "status": "stub",
+      "target_version": "3.6.0"
+    },
+    {
+      "agent": "orchestrator-agent",
+      "type": "system",
+      "skill_file": "skills/orchestrator.md",
+      "trigger": "/hes fleet",
+      "status": "stub",
+      "target_version": "3.7.0"
+    },
+    {
+      "agent": "harness-evolver-agent",
+      "type": "system",
+      "skill_file": "skills/harness-evolver.md",
+      "trigger": "/hes insights --evolve",
+      "status": "stub",
+      "target_version": "3.8.0"
+    },
+    {
+      "agent": "reviewer-agent",
+      "type": "system",
+      "skill_file": "skills/reviewer.md",
+      "trigger": "/hes review",
+      "status": "stub",
+      "target_version": "4.0.0"
+    },
+    {
+      "agent": "optimizer-agent",
+      "type": "system",
+      "skill_file": "skills/optimizer.md",
+      "trigger": "/hes optimize",
+      "status": "stub",
+      "target_version": "3.9.0"
     }
   ],
   "harness_version": "3.5.0",
-  "generated_at": "2026-04-19T10:11:27.683051+00:00"
+  "generated_at": "2026-04-20T00:00:00.000000+00:00",
+  "plan_version": "4.0.0-alpha"
 }

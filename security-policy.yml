@@ -1,0 +1,100 @@
+# security-policy.yml — Políticas de Segurança como Código (HES v4.0)
+# version: 1.0.0-alpha
+# status: STUB — v3.6 implementation target
+# Referência: skills/10-security.md (fase SECURITY)
+
+---
+
+version: "1.0"
+description: "HES Security Gate Policy — define os critérios de bloqueio e aviso para a fase SECURITY"
+
+# ============================================================
+# MODO PADRÃO (default para todos os projetos)
+# ============================================================
+default:
+  gate_name: "security-scan-gate"
+  enabled: true
+
+  block_on_severity:
+    - HIGH
+    - CRITICAL
+
+  warn_on_severity:
+    - MEDIUM
+    - LOW
+
+  allow_exceptions: true
+  exception_requires_approval: true   # humano deve aprovar toda exceção
+  exception_expiry_days: 30           # exceções expiram após 30 dias
+
+  tools:
+    bandit:
+      enabled: true
+      config: ".bandit"
+    semgrep:
+      enabled: true
+      ruleset: "p/owasp-top-ten"
+
+  # Regras específicas que podem ser ignoradas (justificativa obrigatória)
+  ignored_rules: []
+  # Exemplo:
+  # ignored_rules:
+  #   - rule_id: "B101"     # assert used
+  #     justification: "Assertions usadas apenas em test helpers"
+  #     approved_by: "josemalyson"
+  #     expires_at: "2026-07-01"
+
+# ============================================================
+# MODO ENTERPRISE (projetos com requisitos de compliance)
+# ============================================================
+enterprise:
+  gate_name: "security-scan-gate-enterprise"
+  enabled: false   # ativar explicitamente no projeto
+
+  block_on_severity:
+    - HIGH
+    - CRITICAL
+    - MEDIUM        # mais restritivo que o default
+
+  warn_on_severity:
+    - LOW
+    - INFO
+
+  allow_exceptions: false             # nenhuma exceção permitida
+  exception_requires_approval: true
+  exception_expiry_days: 0
+
+  audit:
+    sign_transitions: true            # assinatura criptográfica de transições
+    immutable_log: true               # log imutável (append-only)
+    log_path: ".hes/state/audit-trail.jsonl"
+
+  compliance:
+    frameworks:
+      - SOC2
+      - OWASP-ASVS-L2
+    report_format: "json"
+    report_path: ".hes/state/compliance-report.json"
+
+# ============================================================
+# MODO RELAXADO (projetos em fase inicial / POC)
+# ============================================================
+relaxed:
+  gate_name: "security-scan-gate-relaxed"
+  enabled: false
+
+  block_on_severity:
+    - CRITICAL      # apenas critical bloqueia
+
+  warn_on_severity:
+    - HIGH
+    - MEDIUM
+    - LOW
+
+  allow_exceptions: true
+  exception_requires_approval: false  # exceções automáticas (apenas warn)
+
+# ============================================================
+# CONFIGURAÇÃO ATIVA DO PROJETO
+# ============================================================
+active_policy: default   # altere para: enterprise | relaxed | default

@@ -284,3 +284,58 @@ HES como arquivo monolítico (~1200 linhas).
 - Bloco PRÓXIMA AÇÃO obrigatório
 - Detecção de estado por existência de arquivos
 - REGRAS ABSOLUTAS (01–10)
+
+
+---
+
+## v4.0.0-alpha (2026-04-20)
+
+Plano arquitetural para transformação do HES de orquestrador sequencial em fábrica de software autônoma. Esta versão contém os **stubs e especificações** para os agentes e features do roadmap v3.6 → v4.0.
+
+### Adicionado
+
+**PLAN-v4.0.md — Plano Arquitetural Completo**
+- Validação do estado atual do v3.5.0 contra o repositório real
+- 5 melhorias maiores com impacto arquitetural documentado
+- Roadmap v3.6 (Q2 2026) → v4.0 (Q2 2027)
+- Tabela de impacto: single-agent → multi-agent, 23 → 30+ agentes
+
+**Novos Skill-File Stubs (planejados para v3.6 → v4.0)**
+- `skills/planner.md` — Agente de decomposição de tarefas (target: v3.6)
+- `skills/orchestrator.md` — Maestro da frota de agentes (target: v3.7)
+- `skills/harness-evolver.md` — Auto-evolução do harness (target: v3.8)
+- `skills/optimizer.md` — Otimização para legibilidade de agente (target: v3.9)
+- `skills/reviewer.md` — Revisão autônoma de PR (target: v4.0)
+
+**Novos Arquivos de Configuração (planejados para v3.6)**
+- `security-policy.yml` — Políticas de segurança como código (3 modos: default, enterprise, relaxed)
+- `.hes/state/trust-policy.yml` — Política de confiança para auto-modificação do harness
+
+**Registry Atualizado**
+- 5 novos agentes stub adicionados ao system_agents
+- Campo `status: stub` e `target_version` para cada novo agente
+- `plan_version: 4.0.0-alpha` adicionado ao registry
+
+### Comandos Planejados (não implementados — stubs apenas)
+
+```
+/hes start --parallel <feature>   — orquestração multi-agente (v3.7)
+/hes fleet status                  — estado da frota de agentes (v3.7)
+/hes insights [--evolve]           — dashboard de aprendizado (v3.8)
+/hes optimize [--dry-run] [path]   — otimização para agentes (v3.9)
+/hes review <PR_URL|branch>        — revisão autônoma de PR (v4.0)
+```
+
+### Impacto Arquitetural
+
+```
+Estado atual (v3.5.0):   Single-agent sequencial | 23 agentes
+Estado alvo (v4.0):      Multi-agent paralelo + sequencial | 30+ agentes
+```
+
+### Próximos Passos (v3.6 — Q2 2026)
+
+1. Implementação completa de `skills/planner.md` com geração de `execution-plan.json`
+2. Suporte a Git worktrees no SKILL.md (RULE-29 proposta)
+3. Ativação de `security-policy.yml` na fase SECURITY (skills/10-security.md)
+4. Verificação criptográfica de transições de fase no telemetry.jsonl
