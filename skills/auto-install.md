@@ -276,10 +276,10 @@ When user runs /hes and .hes/ exists:
 
 ## ◈ INTEGRATION WITH SKILL.md
 
-Add to SKILL.md PASSO 0:
+Add to SKILL.md STEP 0:
 
 ```
-PASSO 0 — READ STATE AND AUTO-INSTALL
+STEP 0 — READ STATE AND AUTO-INSTALL
 
 1. Check .hes/state/current.json
 2. No file AND no .hes/ directory → RUN AUTO-INSTALL
