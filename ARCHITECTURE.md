@@ -1,7 +1,8 @@
-# HES v3.3.0 — System Architecture
+# HES v3.5.0 — System Architecture
+# v4.0 Roadmap: PLAN-v4.0.md
 
 > Technical reference document for HES — Harness Engineer Standard.
-> Based on: Fowler (2026), LangChain/Harrison (2026).
+> Based on: Fowler (2026), LangChain/Harrison (2026), OpenAI (2026), Google Research (2026).
 
 ---
 
@@ -159,6 +160,19 @@ Project bootstrap states (resolved before feature state machine):
           └───────────┬───────────┘
                       │
                       ▼
+         ┌────────────────────────────────────┐
+         │  PRÉ-FLIGHT (v4.0 — /hes start --parallel)     │
+         │                                    │
+         │  planner.md ← analisa escopo       │
+         │       │                            │
+         │       ├── single-agent mode ───────┼──→ fluxo sequencial (padrão)
+         │       │                            │
+         │       └── multi-agent mode ────────┼──→ orchestrator.md
+         │               │                   │        │
+         │               └───────────────────┘    [Agent Fleet em worktrees]
+         └────────────────────────────────────┘        │
+                      │ (single-agent ou após integração multi-agent)
+                      ▼
                01-discovery.md    ← Inferential guide
                       │ approved
                       ▼
@@ -177,6 +191,9 @@ Project bootstrap states (resolved before feature state machine):
              06-implementation.md (GREEN)
                       │ build green
                       ▼
+                 10-security.md   ← SECURITY phase (Bandit + Semgrep)
+                      │ 0 HIGH findings (security-policy.yml)
+                      ▼
                  07-review.md     ← Inferential sensor (5 dimensions)
                       │ ArchUnit + coverage + checklist ok
                       ▼
@@ -185,9 +202,13 @@ Project bootstrap states (resolved before feature state machine):
                       ├─ (every 3 cycles)
                       ▼
                  report.md        ← Batch learning (offline)
-                      │ improvements identified
+                      │
                       ▼
              harness-health.md    ← 3 dimensions diagnostics
+                      │
+                      ├─ (v3.8+ background)
+                      ▼
+             harness-evolver.md   ← Auto-evolução (LOW_RISK auto | HIGH_RISK human approval)
                       │
                       ▼
                  [improved harness]
@@ -278,7 +299,9 @@ Low    → Minimal harness (only hooks + specs) + harnessability sprint
 project/
 ├── SKILL.md                      ← Orchestrator (read first always)
 ├── ARCHITECTURE.md               ← This document
-├── INSTALL.md                    ← Installation by environment (per agent: Claude Code, Cursor, web)
+├── INSTALL.md                    ← Installation by environment
+├── PLAN-v4.0.md                  ← Roadmap arquitetural v3.6 → v4.0
+├── security-policy.yml           ← Políticas de segurança como código (v3.6+)
 │
 └── skills/
     ├── 00-bootstrap.md           ← HES structure + git hooks + domains
@@ -289,13 +312,28 @@ project/
     ├── 05-tests.md               ← RED phase [Inferential Sensor]
     ├── 06-implementation.md      ← GREEN phase [Inferential Sensor]
     ├── 07-review.md              ← 5 dimensions + DONE [Inferential Sensor]
+    ├── 08-progressive-analysis.md← Large codebase (>50 files)
+    ├── 09-issue-create.md        ← GitHub Issue creation
+    ├── 10-security.md            ← SECURITY phase [Computational Sensor]
+    ├── 11-eval.md                ← Eval harness (pass@k + LLM-as-judge)
+    ├── 12-harness-tests.md       ← Harness self-testing (structural + behavioral)
     ├── legacy.md                 ← Harnessability + inventory
-    ├── session-manager.md       ← Session lifecycle + checkpoints
-    ├── auto-install.md          ← Auto-install protocol (no .hes/ detected)
-    ├── error-recovery.md         ← Diagnosis by category
+    ├── session-manager.md        ← Session lifecycle + checkpoints
+    ├── auto-install.md           ← Auto-install protocol
+    ├── error-recovery.md         ← Diagnosis by category (A-E)
     ├── refactor.md               ← Safe refactoring by type
     ├── report.md                 ← Batch learning (offline)
-    └── harness-health.md         ← 3 dimensions diagnostics [NEW]
+    ├── harness-health.md         ← 3 dimensions diagnostics
+    ├── tool-dispatch.md          ← Tool dispatch protocol
+    ├── agent-registry.md         ← Registry reference + schema
+    │
+    │   ── v4.0 ROADMAP STUBS ──────────────────────────────────────────
+    │
+    ├── planner.md                ← (v3.6) PRÉ-FLIGHT: decomposição de tarefas
+    ├── orchestrator.md           ← (v3.7) Maestro da frota de agentes paralelos
+    ├── harness-evolver.md        ← (v3.8) Auto-evolução do harness via events.log
+    ├── optimizer.md              ← (v3.9) Otimização código para legibilidade de agente
+    └── reviewer.md               ← (v4.0) Revisão autônoma de PR — 5 dimensões
 ```
 
 > **LLM Responsibility**: The LLM MUST read SKILL.md first on every session.
@@ -342,9 +380,166 @@ hes/ (repository root)
 | Context compaction         | ✅ New in v3.1  | Explicit protocol for long sessions                           |
 | Formal learning loop       | ✅ New in v3.1  | Hot path + offline (LangChain continual learning)             |
 | `/hes harness`             | ✅ New in v3.1  | 3 regulation dimensions diagnostics                           |
+| SECURITY phase             | ✅ New in v3.4  | Bandit + Semgrep gate antes do REVIEW — bloqueante            |
+| Action Event Protocol      | ✅ New in v3.4  | Debug tracking intra-fase com session_id UUID                 |
+| Eval harness               | ✅ New in v3.5  | pass@k + LLM-as-judge + golden dataset + regressão            |
+| Telemetria OTel-compatible | ✅ New in v3.5  | Spans com trace_id, cost_usd, duration_ms                     |
+| Step + Token budget        | ✅ New in v3.5  | Hard limit por fase, escalada ao esgotar                       |
+| Typed handoff schemas      | ✅ New in v3.5  | 6 JSON schemas validados em toda transição de fase            |
+| Harness self-testing       | ✅ New in v3.5  | 10 structural + 5 behavioral tests do próprio harness         |
+| Multi-model support        | ✅ New in v3.5  | claude.md + gpt-4o.md + default.md                            |
+| Multi-agent / parallelism  | 📋 Planned v3.7 | planner.md + orchestrator.md + Git worktrees                  |
+| Harness auto-evolution     | 📋 Planned v3.8 | harness-evolver.md + trust-policy LOW/MEDIUM/HIGH_RISK        |
+| Autonomous PR review       | 📋 Planned v4.0 | reviewer.md — 5 dimensões, integração GitHub/GitLab           |
+| Agent-readable code        | 📋 Planned v3.9 | optimizer.md — nomenclatura semântica, logs JSON, hints       |
+| Security policies-as-code  | 📋 Planned v3.6 | security-policy.yml — 3 modos: default, enterprise, relaxed   |
+| MCP integration            | 📋 Planned v3.9 | Protocolo padrão para ferramentas e fontes de dados            |
+| LangSmith observability    | 📋 Planned v3.9 | Spans do telemetry.jsonl → grafo de decisão visual            |
+| Cryptographic audit trail  | 📋 Planned v4.0 | Assinatura sha256 em cada transição de fase                   |
 
 ---
 
-*HES v3.3.0 — Architecture Document*
-*Referências: Fowler (2026) · LangChain Harrison (2026)*
+*HES v3.5.0 — Architecture Document*
+*v4.0 Roadmap: PLAN-v4.0.md*
+*Referências: Fowler (2026) · LangChain Harrison (2026) · OpenAI (2026) · Google Research (2026)*
 *Josemalyson Oliveira | 2026*
+
+---
+
+## ◈ ACTION EVENT PROTOCOL (v3.4.0)
+
+> Resolve o gap de rastreabilidade intra-fase: eventos agora cobrem ações individuais,
+> não apenas transições de fase.
+
+```
+events.log (antes v3.3):
+  { "from": "SPEC", "to": "DESIGN", ... }   ← apenas transições
+
+events.log (v3.4 — Action Event Protocol):
+  { "action_type": "EXEC_CMD", "status": "STARTED", "target": "bandit -r .", ... }
+  { "action_type": "EXEC_CMD", "status": "SUCCESS", "target": "bandit -r .", ... }
+  { "action_type": "GATE_CHECK", "status": "SUCCESS", "target": "security-gate", ... }
+  { "from": "SECURITY", "to": "REVIEW", ... }   ← transição de fase
+```
+
+**Componentes:**
+- `scripts/hooks/log-action.sh` — executa o log de cada ação
+- `skills/reference/action-event-protocol.md` — protocolo e schema completo
+- `.hes/state/session-id` — UUID único por sessão (gerado no bootstrap)
+
+---
+
+## ◈ SECURITY PHASE (v3.4.0)
+
+Nova fase **SECURITY** entre GREEN e REVIEW na state machine.
+
+```
+GREEN → SECURITY → REVIEW
+         ↑
+    Bandit + Semgrep
+    (LLM-orchestrated)
+    Auto-fix loop
+    Gate: 0 HIGH findings
+```
+
+**Fluxo:**
+```
+bandit -r . → parse JSON → triage (HIGH/MEDIUM/LOW)
+  → auto-fix HIGH (max 2 tentativas/finding)
+  → documenta MEDIUM/LOW como exceções
+  → re-scan final → gate check
+  → avança para REVIEW se gate passou
+```
+
+**Ferramenta:** `skills/10-security.md` | **Agente:** `security-agent`
+
+---
+
+## ◈ v4.0 MULTI-AGENT ARCHITECTURE (Roadmap)
+
+### Visão Geral
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    HES v4.0 HARNESS                         │
+│                                                             │
+│  ┌─────────────┐     /hes start --parallel                  │
+│  │  planner.md │ ── analisa escopo ──→ execution-plan.json  │
+│  └──────┬──────┘                                            │
+│         │                                                   │
+│         ▼ multi-agent mode                                  │
+│  ┌──────────────────┐                                       │
+│  │ orchestrator.md  │  ← O Maestro                         │
+│  └──────┬───────────┘                                       │
+│         │ despacha em paralelo                              │
+│         ├──→ [designer]    worktree: .worktrees/designer    │
+│         ├──→ [data-modeler] worktree: .worktrees/data       │
+│         └──→ [spec-writer]  worktree: .worktrees/spec       │
+│                   │                                         │
+│                   ▼ integração + merge                      │
+│         fluxo sequencial padrão (RED → GREEN → SECURITY…)  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Camada de Auto-Evolução (v3.8+)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│               HARNESS EVOLUTION LAYER                       │
+│                                                             │
+│   events.log ──→ harness-evolver.md ──→ proposals.json     │
+│                         │                                   │
+│                         ▼                                   │
+│              trust-policy.yml                               │
+│                │             │                              │
+│         LOW_RISK          HIGH_RISK                         │
+│       auto-apply         human approval                     │
+│           │                   │                             │
+│           ▼                   ▼                             │
+│    skill-files.md      review → approve → apply             │
+│           │                                                 │
+│           └──→ harness-evolution-log.md                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Novos Componentes de Estado (v4.0)
+
+```json
+// .hes/state/execution-plan.json — gerado pelo planner.md
+{
+  "feature": "payment-gateway",
+  "mode": "multi-agent",
+  "parallel_groups": [
+    { "group": 1, "tasks": ["DESIGN", "DATA"], "depends_on": [] },
+    { "group": 2, "tasks": ["RED"], "depends_on": [1] }
+  ]
+}
+
+// .hes/state/fleet-status.json — gerenciado pelo orchestrator.md
+{
+  "agents": [
+    { "agent": "designer", "status": "completed", "worktree": ".worktrees/designer" },
+    { "agent": "data-modeler", "status": "running", "worktree": ".worktrees/data" }
+  ]
+}
+
+// .hes/state/harness-proposals.json — gerado pelo harness-evolver.md
+{
+  "proposals": [
+    { "id": "prop-001", "risk_level": "LOW_RISK", "target_file": "skills/02-spec.md",
+      "description": "Adicionar checklist de ambiguidades ao STEP 3" }
+  ]
+}
+```
+
+### Novos RULES Propostos (v4.0)
+
+```
+RULE-29  LLM INVOKES planner.md before multi-agent execution — /hes start --parallel
+RULE-30  LLM USES orchestrator.md to dispatch and monitor Agent Fleet
+RULE-31  LLM READS trust-policy.yml before any harness-evolver auto-modification
+RULE-32  LLM VALIDATES security-policy.yml active_policy before SECURITY gate
+RULE-33  LLM APPLIES optimizer.md transformations only after test suite passes
+```
+
+> Ver [PLAN-v4.0.md](PLAN-v4.0.md) para especificação completa de cada componente.

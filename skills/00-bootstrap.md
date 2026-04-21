@@ -149,7 +149,11 @@ If version < 3.2.0 → prompt for upgrade.
 
 ```bash
 # Base structure
-mkdir -p .claude/commands .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory
+mkdir -p .claude/commands .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory .hes/scripts
+
+# Generate session-id (único por sessão, usado pelo Action Event Protocol)
+python3 -c "import uuid; print(str(uuid.uuid4()))" > .hes/state/session-id
+echo "Session ID gerado: $(cat .hes/state/session-id)" 
 
 # DDD domains (if provided)
 for domain in {{PROVIDED_DOMAINS}}; do
@@ -171,7 +175,12 @@ done
   "dependency_graph": {},
   "harness_version": "3.3.0",
   "completed_cycles": 0,
-  "last_updated": "{{CURRENT_ISO_DATE}}"
+  "last_updated": "{{CURRENT_ISO_DATE}}",
+  "security": {
+    "last_scan": null,
+    "last_gate_result": null,
+    "exceptions_count": 0
+  }
 }
 ```
 

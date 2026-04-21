@@ -1,0 +1,87 @@
+# trust-policy.yml — Política de Confiança para Auto-Modificação do Harness
+# version: 1.0.0-alpha
+# status: STUB — v3.8 implementation target
+# Consumido por: skills/harness-evolver.md
+
+---
+
+version: "1.0"
+description: "Define quais modificações o harness-evolver pode aplicar automaticamente
+              e quais requerem aprovação humana explícita."
+
+# ============================================================
+# NÍVEL LOW_RISK — Aplicação automática permitida
+# ============================================================
+# Mudanças que não alteram comportamento do fluxo de controle
+# e têm reversibilidade trivial via git revert
+low_risk:
+  auto_apply: true
+  notification: true    # notifica usuário mas não aguarda confirmação
+  changes_allowed:
+    - "Ajuste de texto em prompts de skill-files"
+    - "Adição de exemplos em seções de skill-files"
+    - "Adição de checklist items não-bloqueantes"
+    - "Atualização de comentários de documentação"
+    - "Correção de typos em qualquer arquivo .md"
+    - "Adição de dicas ou hints em seções NEXT ACTION"
+    - "Atualização de links ou referências cruzadas entre arquivos"
+
+# ============================================================
+# NÍVEL MEDIUM_RISK — Aprovação humana requerida (review + confirm)
+# ============================================================
+# Mudanças que afetam comportamento mas de forma controlada
+medium_risk:
+  auto_apply: false
+  notification: true
+  approval_required: true
+  approval_timeout_hours: 48    # se não aprovado em 48h, proposta é descartada
+  changes_allowed:
+    - "Adição de novos STEP em um skill-file existente"
+    - "Adição de novos campos opcionais ao schema current.json"
+    - "Modificação de thresholds de alerta (não bloqueantes)"
+    - "Adição de novo agente ao system_agents no registry.json"
+    - "Criação de novo arquivo de skill não existente"
+    - "Modificação de critérios de WARN (não de BLOCK) em security-policy"
+
+# ============================================================
+# NÍVEL HIGH_RISK — Aprovação humana obrigatória + justificativa
+# ============================================================
+# Mudanças que podem alterar o fluxo principal ou remover proteções
+high_risk:
+  auto_apply: false
+  notification: true
+  approval_required: true
+  justification_required: true
+  approval_timeout_hours: 0     # sem timeout — deve ser explicitamente decidido
+  changes_allowed:
+    - "Alteração da ordem de fases na state machine"
+    - "Modificação de condições de gate (bloqueadores)"
+    - "Remoção de qualquer fase existente"
+    - "Modificação de skills/10-security.md"
+    - "Alteração de RULE-* existentes no SKILL.md"
+    - "Modificação de critérios de BLOCK em security-policy"
+    - "Alteração de agentes de fase no registry.json"
+    - "Qualquer mudança em .hes/schemas/*.json"
+
+# ============================================================
+# ALWAYS FORBIDDEN — Nunca permitido, independente de aprovação
+# ============================================================
+# O harness-evolver NUNCA pode propor ou aplicar estas mudanças
+forbidden:
+  changes:
+    - "Remoção de qualquer gate de segurança"
+    - "Desabilitação da fase SECURITY"
+    - "Remoção de RULE-25 (SECURITY obrigatório antes de REVIEW)"
+    - "Modificação de arquivos .hes/state/ (estado em execução)"
+    - "Deleção de arquivos de audit trail ou telemetria"
+    - "Modificação de scripts/hooks/telemetry.sh"
+    - "Remoção de qualquer schema de handoff"
+
+# ============================================================
+# CONFIGURAÇÕES GERAIS
+# ============================================================
+settings:
+  max_proposals_per_session: 10       # máximo de propostas por rodada de análise
+  min_evidence_occurrences: 3         # mínimo de ocorrências para gerar proposta
+  evolution_log_path: "docs/harness-evolution-log.md"
+  proposals_path: ".hes/state/harness-proposals.json"

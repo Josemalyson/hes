@@ -5,7 +5,8 @@
 <h1 align="center">HES — Harness Engineer Standard</h1>
 
 <p align="center">
-  <strong>Orchestrate AI coding agents with structure, quality,and continual learning</strong>
+  <strong>Orchestrate AI coding agents with structure, quality, and continual learning</strong><br/>
+  <em>v3.5.0 stable · v4.0 roadmap in progress</em>
 </p>
 
 <p align="center">
@@ -47,8 +48,10 @@ It starts from the moment you invoke HES in your project. As soon as the LLM see
 **The workflow follows 9 phases — executed autonomously by the LLM:**
 
 ```
-ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW → DONE
+ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
 ```
+
+> **v4.0 Roadmap**: A fase pré-flight `PLANNER` permitirá que o HES decomponha features em subtarefas paralelas, despachando uma frota de agentes especializados via `orchestrator.md`. O fluxo sequencial continua disponível como padrão. Veja [PLAN-v4.0.md](PLAN-v4.0.md).
 
 Each phase has a specific purpose and strict gates that the LLM evaluates before advancement:
 
@@ -109,7 +112,24 @@ After bootstrap, the LLM generates the `.hes/` structure automatically and asks:
 
 ## Installation
 
-HES works with any AI coding agent. Choose your environment:
+HES v3.5.0 inclui arquivos de configuração nativos para **9 ferramentas** — zero configuração manual.
+
+### Suporte Nativo por Ferramenta
+
+| Ferramenta         | Arquivo Nativo                             | Também Lê    |
+|--------------------|--------------------------------------------|--------------|
+| **Claude Code**    | `CLAUDE.md` + `.claude/CLAUDE.md`          | `SKILL.md`   |
+| **OpenAI Codex**   | `AGENTS.md`                                | —            |
+| **OpenCode**       | `AGENTS.md`                                | —            |
+| **Gemini CLI**     | `GEMINI.md`                                | `AGENTS.md`  |
+| **Cursor**         | `.cursor/rules/hes.mdc` + `.cursorrules`   | `AGENTS.md`  |
+| **GitHub Copilot** | `.github/copilot-instructions.md`          | `AGENTS.md`  |
+| **VS Code**        | `.github/copilot-instructions.md`          | `AGENTS.md`  |
+| **Windsurf**       | `.windsurfrules`                           | `AGENTS.md`  |
+| **Kiro (AWS)**     | `.kiro/steering/hes.md`                    | `SKILL.md`   |
+
+> **AGENTS.md é o hub cross-tool**: lido nativamente por Codex, OpenCode, Cursor, Windsurf e Copilot.
+> **SKILL.md é a fonte da verdade**: o orquestrador completo (673 linhas, 33 regras, state machine).
 
 ### 🤖 Fastest: Agent Auto-Install
 
@@ -119,92 +139,136 @@ Paste this message in your AI agent chat (Claude Code, Cursor, Copilot, Windsurf
 Read https://raw.githubusercontent.com/Josemalyson/hes/main/INSTALL.md and install HES in my project
 ```
 
-The agent fetches the install protocol, auto-detects your project metadata, copies all files, generates the `.hes/` structure, and commits — fully autonomous.
-
----
+The agent fetches the install protocol, auto-detects your project metadata, copies all files
+(including native tool configs), generates the `.hes/` structure, and commits — fully autonomous.
 
 <details>
-<summary><strong>Claude Code (CLI) — Recommended</strong></summary>
+<summary><strong>Claude Code (CLI)</strong></summary>
 
 ```bash
-# Clone HES repository
 git clone https://github.com/Josemalyson/hes.git /tmp/hes
-
-# Copy files to your project root
 cp /tmp/hes/SKILL.md ./SKILL.md
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/CLAUDE.md ./CLAUDE.md
+cp -r /tmp/hes/.claude/ ./.claude/
 mkdir -p skills
 cp /tmp/hes/skills/*.md ./skills/
 cp -r /tmp/hes/skills/reference ./skills/ 2>/dev/null || true
 ```
 
-Claude Code reads `SKILL.md` automatically. Use `/hes` to start, `/hes status` to check progress.
-
-The bootstrap generates `.claude/CLAUDE.md` to ensure HES is loaded on every session.
+`CLAUDE.md` carrega o HES via `@SKILL.md` import. `.claude/CLAUDE.md` é auto-lido no início de cada sessão.
 
 </details>
 
 <details>
-<summary><strong>Cursor / Windsurf / Copilot</strong></summary>
+<summary><strong>Cursor</strong></summary>
 
-Same file structure. Configure the agent to read HES:
+HES vem com suporte nativo — zero configuração:
 
-**Option 1: `.cursorrules` file**
+- `.cursor/rules/hes.mdc` — formato MDC com `alwaysApply: true` (moderno)
+- `.cursorrules` — formato legacy (mantido para compatibilidade)
+- `AGENTS.md` — lido automaticamente pelo Cursor
 
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/.cursorrules ./.cursorrules
+cp -r /tmp/hes/.cursor/ ./.cursor/
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
-# .cursorrules
-When receiving /hes or any engineering task:
-1. Read SKILL.md in project root
-2. Read .hes/state/current.json
-3. Load the corresponding skill-file
-4. Follow instructions without deviations
+
+</details>
+
+<details>
+<summary><strong>GitHub Copilot / VS Code</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+mkdir -p .github
+cp /tmp/hes/.github/copilot-instructions.md ./.github/copilot-instructions.md
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
 
-**Option 2: System prompt**
+Copilot lê `.github/copilot-instructions.md` automaticamente. Também lê `AGENTS.md`.
 
-In Settings → AI → System Prompt:
+</details>
+
+<details>
+<summary><strong>Windsurf</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/.windsurfrules ./.windsurfrules
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
-When I say /hes, read SKILL.md and execute the HES protocol
+
+Windsurf lê `.windsurfrules` e `AGENTS.md` nativamente.
+
+</details>
+
+<details>
+<summary><strong>OpenAI Codex CLI / OpenCode</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
 ```
+
+Codex CLI e OpenCode leem `AGENTS.md` como arquivo primário de instrução.
+
+</details>
+
+<details>
+<summary><strong>Gemini CLI</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp /tmp/hes/GEMINI.md ./GEMINI.md
+cp /tmp/hes/AGENTS.md ./AGENTS.md
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
+```
+
+</details>
+
+<details>
+<summary><strong>Kiro (AWS)</strong></summary>
+
+```bash
+git clone https://github.com/Josemalyson/hes.git /tmp/hes
+cp -r /tmp/hes/.kiro/ ./.kiro/
+cp /tmp/hes/SKILL.md ./SKILL.md
+mkdir -p skills && cp /tmp/hes/skills/*.md ./skills/
+```
+
+Kiro lê `.kiro/steering/hes.md` e `hes-phases.md` automaticamente (`inclusion: always`).
 
 </details>
 
 <details>
 <summary><strong>Claude.ai (Web / App)</strong></summary>
 
-Use via **Projects** in Claude.ai:
-
-In **Settings → Project → Instructions**, add:
+Em **Settings → Project → Instructions**, adicione:
 
 ```
-You are a Harness Engineer (HES v3.3.0).
+You are a Harness Engineer (HES v3.5.0).
 
 When receiving /hes or invoked for engineering tasks:
 1. Read SKILL.md
 2. Check .hes/state/current.json
 3. Load the appropriate skill-file
-4. Execute the current phase
-```
-
-In chat (without Project), paste `SKILL.md` content at the start of the conversation.
-
-</details>
-
-<details>
-<summary><strong>OpenHands / Codex CLI / Gemini CLI</strong></summary>
-
-```bash
-# OpenHands — via AGENT.md
-cp SKILL.md AGENT.md
-
-# Codex CLI — via --system-prompt flag
-codex --system-prompt "$(cat SKILL.md)"
-
-# Gemini CLI — via .gemini/system.md
-mkdir -p .gemini
-cp SKILL.md .gemini/system.md
+4. Execute the current phase autonomously
 ```
 
 </details>
+
 
 ### Verify Installation
 
@@ -227,7 +291,7 @@ Let's say you want to build a **photo album app** with user authentication and i
 ```
 You: /hes
 
-HES: 🚀 HES v3.3.0 — Bootstrap
+HES: 🚀 HES v3.5.0 — Bootstrap
       I'll configure your project. 4 questions:
 
       1. Project name: photo-album
@@ -272,23 +336,34 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 
 > **LLM Responsibility**: The LLM executes all commands autonomously when invoked.
 
-| Command                  | LLM Executes             | Action                                             |
-| ------------------------ | ------------------------ | -------------------------------------------------- |
-| `/hes`                   | LLM harness              | Starts HES — detects state and routes autonomously |
-| `/hes start <feature>`   | LLM harness              | New feature → DISCOVERY phase execution            |
-| `/hes switch <feature>`  | LLM session-manager      | Switches feature focus without losing state        |
-| `/hes status`            | LLM session-manager      | Shows state of all features + session info         |
-| `/hes rollback <phase>`  | LLM session-manager      | Reverts to previous phase (with confirmation)      |
-| `/hes domain <name>`     | LLM harness              | Creates/activates a DDD domain                     |
-| `/hes lessons`           | LLM harness              | Shows lessons.md + pending promotions to skills    |
-| `/hes report`            | LLM report-agent         | Generates batch learning report from events.log    |
-| `/hes refactor <module>` | LLM refactor-agent       | Executes guided safe refactoring                   |
-| `/hes harness`           | LLM harness-health-agent | Runs diagnostics harness coverage (3 dimensions)   |
-| `/hes language <code>`   | LLM harness              | Sets/overrides user language                       |
-| `/hes mode <mode>`       | LLM harness              | Sets audience mode (beginner\|expert)              |
-| `/clear` or `/new`       | LLM session-manager      | Saves checkpoint + clears session                  |
-| `/hes checkpoint`        | LLM session-manager      | Saves checkpoint without clearing                  |
-| `/hes unlock --force`    | LLM session-manager      | Bypasses phase lock (logs risk event)              |
+| Command                           | LLM Executes             | Action                                                       |
+| --------------------------------- | ------------------------ | ------------------------------------------------------------ |
+| `/hes`                            | LLM harness              | Starts HES — detects state and routes autonomously           |
+| `/hes start <feature>`            | LLM harness              | New feature → DISCOVERY phase execution                      |
+| `/hes start --parallel <feature>` | LLM planner-agent        | *(v3.7)* Decomposes feature e inicia frota de agentes        |
+| `/hes fleet status`               | LLM orchestrator-agent   | *(v3.7)* Estado da frota de agentes em execução              |
+| `/hes switch <feature>`           | LLM session-manager      | Switches feature focus without losing state                  |
+| `/hes status`                     | LLM session-manager      | Shows state of all features + session info                   |
+| `/hes rollback <phase>`           | LLM session-manager      | Reverts to previous phase (with confirmation)                |
+| `/hes domain <n>`                 | LLM harness              | Creates/activates a DDD domain                               |
+| `/hes lessons`                    | LLM harness              | Shows lessons.md + pending promotions to skills              |
+| `/hes report`                     | LLM report-agent         | Generates batch learning report from events.log              |
+| `/hes insights`                   | LLM harness-evolver      | *(v3.8)* Dashboard de aprendizado e métricas de evolução      |
+| `/hes insights --evolve`          | LLM harness-evolver      | *(v3.8)* Propõe melhorias ao harness a partir do events.log  |
+| `/hes refactor <module>`          | LLM refactor-agent       | Executes guided safe refactoring                             |
+| `/hes harness`                    | LLM harness-health-agent | Runs harness diagnostics (3 dimensions)                      |
+| `/hes review <PR\|branch>`        | LLM reviewer-agent       | *(v4.0)* Revisão autônoma de PR — 5 dimensões                |
+| `/hes optimize [path]`            | LLM optimizer-agent      | *(v3.9)* Refatora código para legibilidade de agente         |
+| `/hes security`                   | LLM security-agent       | Security scan manual (Bandit + Semgrep)                      |
+| `/hes eval`                       | LLM eval-agent           | Eval harness (pass@k + LLM-as-judge)                         |
+| `/hes test`                       | LLM harness-test-agent   | Harness self-tests (structural + behavioral)                 |
+| `/hes language <code>`            | LLM harness              | Sets/overrides user language                                 |
+| `/hes mode <mode>`                | LLM harness              | Sets audience mode (beginner\|expert)                        |
+| `/clear` or `/new`                | LLM session-manager      | Saves checkpoint + clears session                            |
+| `/hes checkpoint`                 | LLM session-manager      | Saves checkpoint without clearing                            |
+| `/hes unlock --force`             | LLM session-manager      | Bypasses phase lock (logs risk event)                        |
+
+> **Legenda**: *(vX.Y)* = planejado para essa versão — stub disponível, implementação completa em roadmap. Ver [PLAN-v4.0.md](PLAN-v4.0.md).
 
 ---
 
@@ -298,11 +373,11 @@ HES auto-detects your language from the first message and adapts all responses:
 
 | Detected | Language            | Example                              |
 | -------- | ------------------- | ------------------------------------ |
-| `pt-BR`  | Português do Brasil | "📍 HES v3.3.0 — {{NOME_PROJETO}}"    |
-| `en`     | English             | "📍 HES v3.3.0 — {{PROJECT_NAME}}"    |
-| `es`     | Spanish             | "📍 HES v3.3.0 — {{NOMBRE_PROYECTO}}" |
-| `fr`     | French              | "📍 HES v3.3.0 — {{NOM_PROJET}}"      |
-| `de`     | German              | "📍 HES v3.3.0 — {{PROJEKTNAME}}"     |
+| `pt-BR`  | Português do Brasil | "📍 HES v3.5.0 — {{NOME_PROJETO}}"    |
+| `en`     | English             | "📍 HES v3.5.0 — {{PROJECT_NAME}}"    |
+| `es`     | Spanish             | "📍 HES v3.5.0 — {{NOMBRE_PROYECTO}}" |
+| `fr`     | French              | "📍 HES v3.5.0 — {{NOM_PROJET}}"      |
+| `de`     | German              | "📍 HES v3.5.0 — {{PROJEKTNAME}}"     |
 
 Override auto-detection:
 
@@ -366,6 +441,8 @@ Set mode:
 ```
 your-project/
 ├── SKILL.md                       ← Entry point (orchestrator)
+├── PLAN-v4.0.md                   ← Roadmap arquitetural v3.6 → v4.0
+├── security-policy.yml            ← Políticas de segurança como código (v3.6+)
 ├── skills/                        ← Skill files (one per phase/agent)
 │   ├── 00-bootstrap.md
 │   ├── 01-discovery.md
@@ -377,6 +454,9 @@ your-project/
 │   ├── 07-review.md
 │   ├── 08-progressive-analysis.md
 │   ├── 09-issue-create.md
+│   ├── 10-security.md
+│   ├── 11-eval.md
+│   ├── 12-harness-tests.md
 │   ├── tool-dispatch.md
 │   ├── agent-registry.md
 │   ├── error-recovery.md
@@ -384,18 +464,27 @@ your-project/
 │   ├── legacy.md
 │   ├── refactor.md
 │   ├── report.md
-│   └── session-manager.md
+│   ├── session-manager.md
+│   │
+│   ├── planner.md                 ← (stub v3.6) Agente de decomposição de tarefas
+│   ├── orchestrator.md            ← (stub v3.7) Maestro da frota de agentes
+│   ├── harness-evolver.md         ← (stub v3.8) Auto-evolução do harness
+│   ├── optimizer.md               ← (stub v3.9) Otimização para legibilidade de agente
+│   └── reviewer.md                ← (stub v4.0) Revisão autônoma de PR
 │
 └── .hes/                          ← Generated by bootstrap
     ├── agents/
-    │   └── registry.json          ← Agent definitions (generated at bootstrap)
+    │   └── registry.json          ← Agent definitions (28+ agents em v4.0)
     ├── state/
     │   ├── current.json           ← Current project state
     │   ├── events.log             ← Event sourcing log
+    │   ├── telemetry.jsonl        ← OpenTelemetry-compatible spans
+    │   ├── trust-policy.yml       ← (stub v3.8) Política de auto-modificação do harness
     │   └── session-checkpoint.json← Session checkpoints
-    └── templates/
-        ├── issue-bug.md           ← Bug report template
-        └── issue-improvement.md   ← Improvement proposal template
+    ├── schemas/                   ← Typed handoff schemas (6 JSON schemas)
+    ├── evals/                     ← Golden dataset + baselines
+    ├── models/                    ← Multi-model quirks (claude, gpt-4o, default)
+    └── context/tool-outputs/      ← Context offload (>8000 chars)
 ```
 
 The `.hes/` directory is generated automatically by the bootstrap process. You only need to install `SKILL.md` and `skills/`.
@@ -404,11 +493,14 @@ The `.hes/` directory is generated automatically by the bootstrap process. You o
 
 > **LLM Responsibility**: The LLM executes all agent roles autonomously. Each "agent" is a skill-file the LLM reads and executes.
 
-HES defines **19 registered agent skill-files** (all skill-files are agent execution protocols):
+HES defines **28 registered agent skill-files** (v3.5.0 + v4.0 stubs):
 
-- Phase agents: 9 (00-bootstrap through 07-review)
-- System agents: 8 (legacy, error-recovery, refactor, report, harness-health, tool-dispatch, agent-registry, session-manager, auto-install)
-- Analysis agents: 2 (08-progressive-analysis, 09-issue-create)
+- **Phase agents**: 9 (00-bootstrap through 10-security + 07-review)
+- **Quality agents**: 3 (11-eval, 12-harness-tests, 10-security)
+- **System agents**: 11 (legacy, error-recovery, refactor, report, harness-health, tool-dispatch, agent-registry, session-manager, auto-install, issue-create, progressive-analysis)
+- **v4.0 Stub agents**: 5 (planner, orchestrator, harness-evolver, optimizer, reviewer)
+
+> **v4.0 Vision**: O orchestrator coordenará uma frota de agentes especializados executando em Git worktrees paralelas. O harness-evolver analisará o `events.log` e proporá melhorias ao próprio harness com base em um sistema de confiança LOW/MEDIUM/HIGH_RISK.
 
 > **Note**: Each skill-file is an execution protocol for a registered agent.
 > Sub-agents (test-runner, linter, arch-check) run TOOLS only during implementation — they are not separate skill-files.
@@ -449,7 +541,7 @@ Every state transition is logged by the LLM as a structured event to `.hes/state
 > identify patterns, and update skill-files. You proactively maintain and improve the harness.
 
 
-## ◈ COMPLETE SKILL INVENTORY (19 files)
+## ◈ COMPLETE SKILL INVENTORY (24 files — v3.5.0 + v4.0 stubs)
 
 ```
 skills/
@@ -462,19 +554,30 @@ skills/
 ├── 05-tests.md                — Test-first implementation (RED)
 ├── 06-implementation.md       — Code implementation (GREEN)
 ├── 07-review.md               — 5-dimension review checklist
-├── 08-progressive-analysis.md — Large codebase analysis
+├── 08-progressive-analysis.md — Large codebase analysis (>50 files)
 ├── 09-issue-create.md         — GitHub Issue creation
-├── tool-dispatch.md        — Tool dispatch protocol
-├── agent-registry.md          — Registry reference
-├── error-recovery.md          — Error diagnosis & recovery
-├── harness-health.md          — Coverage diagnostics
-├── legacy.md                  — Legacy project onboarding
-├── refactor.md                — Safe refactoring
+├── 10-security.md             — Security scan (Bandit + Semgrep, auto-fix, gate)
+├── 11-eval.md                 — Eval harness (pass@k, LLM-as-judge, regression)
+├── 12-harness-tests.md        — Harness self-testing (10 structural + 5 behavioral)
+├── tool-dispatch.md           — Tool dispatch protocol
+├── agent-registry.md          — Registry reference + schema
+├── error-recovery.md          — Error diagnosis & recovery (categories A-E)
+├── harness-health.md          — Coverage diagnostics (3 Fowler dimensions)
+├── legacy.md                  — Legacy project onboarding + harnessability
+├── refactor.md                — Safe refactoring by type
 ├── report.md                  — Batch learning reports
-└── session-manager.md         — Session lifecycle
+├── session-manager.md         — Session lifecycle + checkpoints
+│
+│   ── v4.0 ROADMAP STUBS (protocolo completo, implementação em progresso) ──
+│
+├── planner.md                 — (v3.6) Decompõe features em subtarefas paralelas
+├── orchestrator.md            — (v3.7) Maestro da frota de agentes especializados
+├── harness-evolver.md         — (v3.8) Auto-evolução do harness via events.log
+├── optimizer.md               — (v3.9) Otimiza código para legibilidade de agente
+└── reviewer.md                — (v4.0) Revisão autônoma de PR — 5 dimensões
 ```
 
-**Total:** 19 skill files covering 9 phases + 9 system functions
+**Total:** 19 skill files estáveis (v3.5.0) + 5 stubs (v4.0 roadmap)
 
 ---
 
@@ -492,7 +595,7 @@ skills/
 
 ## 2026 LangChain Patterns
 
-HES v3.3.0 implements proven patterns from LangChain's 2026 research on harness engineering for deep agents:
+HES v3.5.0 implements proven patterns from LangChain's 2026 research on harness engineering for deep agents:
 
 ### Self-Verification Loop
 Before claiming any phase complete, the LLM verifies all artifacts, tests, and constraints via a PreCompletionChecklist.
@@ -508,6 +611,22 @@ High reasoning for planning → medium for implementation → high for verificat
 
 ### Context Compaction Protocol
 When session exceeds 100 messages, context is offloaded to checkpoint files and resumed in a fresh session.
+
+---
+
+## v4.0 Roadmap
+
+HES está evoluindo de orquestrador sequencial para fábrica de software autônoma. Os stubs já estão disponíveis no repositório.
+
+| Versão | Target | Feature Principal |
+|---|---|---|
+| **v3.6** | Q2 2026 | `planner.md` + Git worktrees + `security-policy.yml` |
+| **v3.7** | Q3 2026 | `orchestrator.md` + frota de agentes paralelos |
+| **v3.8** | Q4 2026 | `harness-evolver.md` + auto-evolução com trust policy |
+| **v3.9** | Q1 2027 | `optimizer.md` + MCP + LangSmith |
+| **v4.0** | Q2 2027 | `reviewer.md` + sandbox + auditoria criptográfica |
+
+Ver detalhes completos em [PLAN-v4.0.md](PLAN-v4.0.md).
 
 ---
 
@@ -581,6 +700,6 @@ HES is released under the MIT License. See LICENSE for details.
 
 ---
 
-*HES v3.3.0 — Harness Engineer Standard*
+*HES v3.5.0 stable · v4.0-alpha roadmap — Harness Engineer Standard*
 *Josemalyson Oliveira | 2026*
-*References: Fowler (2026) · LangChain (2026) · Harrison Chase (2026)*
+*References: Fowler (2026) · LangChain (2026) · Harrison Chase (2026) · OpenAI (2026) · Google Research (2026)*

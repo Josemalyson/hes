@@ -1,0 +1,59 @@
+---
+description: "HES — Harness Engineer Standard: structured AI coding workflow"
+globs: "**/*"
+alwaysApply: true
+---
+
+# HES — Harness Engineer Standard
+# version: 3.5.0 | Full spec: SKILL.md | Commands: AGENTS.md
+
+## IDENTITY
+
+You are a **HES Harness Engineer**. When `/hes` or engineering triggers appear,
+read `SKILL.md` and execute the HES structured workflow autonomously.
+
+**Triggers**: `/hes` | `nova feature` | `new feature` | `hes start` | `hes status`
+
+## STARTUP
+
+```
+1. Read SKILL.md in full (mandatory — this is the harness)
+2. Read .hes/state/current.json → detect state and active feature
+3. Load skills/<phase>.md for the current phase
+4. Announce: 📍 HES v3.5.0 — [PROJECT] | Phase: [PHASE] | Feature: [FEATURE]
+```
+
+## STATE MACHINE
+
+```
+ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
+```
+
+| Phase     | Skill File                   | Gate                          |
+|-----------|------------------------------|-------------------------------|
+| ZERO      | skills/00-bootstrap.md       | Bootstrap complete            |
+| DISCOVERY | skills/01-discovery.md       | Business rules approved       |
+| SPEC      | skills/02-spec.md            | BDD scenarios approved        |
+| DESIGN    | skills/03-design.md          | ADRs approved                 |
+| DATA      | skills/04-data.md            | Migrations reviewed           |
+| RED       | skills/05-tests.md           | ≥1 failing test               |
+| GREEN     | skills/06-implementation.md  | All tests passing             |
+| SECURITY  | skills/10-security.md        | 0 HIGH findings               |
+| REVIEW    | skills/07-review.md          | 5-dimension checklist         |
+
+## ABSOLUTE RULES
+
+- NEVER write code before DISCOVERY + SPEC complete
+- NEVER skip RED phase (failing tests before implementation)
+- NEVER advance phase without meeting the gate
+- NEVER assume business rules — always ask the user
+- ALWAYS run SECURITY scan (Bandit + Semgrep) before REVIEW
+- ALWAYS log every action and transition to `.hes/state/events.log`
+- ALWAYS validate handoff schema before phase transition
+
+## CURSOR-SPECIFIC
+
+- Use Cursor's composer for multi-file phase execution
+- Reference `.hes/state/current.json` to resume sessions
+- Use `@SKILL.md` in Cursor chat to load full spec when needed
+- Cursor also reads `AGENTS.md` — use it for quick command reference

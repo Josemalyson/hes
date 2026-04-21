@@ -4,7 +4,20 @@
 .hes/state/events.log
 .hes/state/session-checkpoint.json
 
-# IDE
+# HES tool-specific configs — NEVER ignore these (native integrations)
+!AGENTS.md
+!CLAUDE.md
+!GEMINI.md
+!.cursorrules
+!.windsurfrules
+!.cursor/
+!.cursor/rules/
+!.claude/
+!.kiro/
+!.kiro/steering/
+!.github/copilot-instructions.md
+
+# IDE (project-specific, not HES files)
 .vscode/
 .idea/
 *.iml

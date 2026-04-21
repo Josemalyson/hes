@@ -1,0 +1,20 @@
+{
+  "phase": "SPEC",
+  "description": "O que o spec-agent deve entregar antes do handoff para design-agent",
+  "artifacts_required": [
+    ".hes/specs/{feature}/02-spec.md"
+  ],
+  "gate_fields": {
+    "min_bdd_scenarios": { "operator": ">=", "value": 3 },
+    "api_contract_defined": { "operator": "==", "value": true },
+    "user_approved": { "operator": "==", "value": true }
+  },
+  "validation_command": null,
+  "checklist": [
+    "Pelo menos 3 cenários BDD (Given/When/Then)",
+    "Cada BR-xx tem pelo menos 1 cenário",
+    "Contrato de API definido (rota, método, campos, status codes)",
+    "Mensagens de erro EXATAS especificadas",
+    "Usuário aprovou spec"
+  ]
+}

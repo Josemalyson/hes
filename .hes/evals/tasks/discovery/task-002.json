@@ -1,0 +1,19 @@
+{
+  "task_id": "disc-002",
+  "phase": "DISCOVERY",
+  "description": "Feature: pagamento com cartão de crédito",
+  "input": "Implementar pagamento com cartão de crédito via Stripe. Usuários devem poder salvar cartões para uso futuro.",
+  "expected": {
+    "min_business_rules": 5,
+    "required_topics": ["cartão", "pagamento", "falha", "estorno", "segurança"],
+    "forbidden_in_discovery": ["stripe.charge()", "API key", "webhook handler"]
+  },
+  "graders": [
+    { "type": "deterministic", "check": "count_rn_items >= 5" },
+    { "type": "deterministic", "check": "has_keywords(['RN-', 'pagamento', 'cartão'])" },
+    { "type": "llm-judge", "rubric": "As regras cobrem cenários de falha de pagamento e estorno?", "weight": 0.4 },
+    { "type": "llm-judge", "rubric": "Há regra explícita sobre segurança de dados do cartão (PCI)?", "weight": 0.3 }
+  ],
+  "baseline_score": 0.75,
+  "tags": ["payment", "stripe", "intermediate"]
+}

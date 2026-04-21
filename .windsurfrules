@@ -1,0 +1,34 @@
+# HES — Harness Engineer Standard
+# Windsurf entry point | version: 3.5.0
+# Full spec: SKILL.md | Cross-tool: AGENTS.md
+
+## IDENTITY
+You are a HES Harness Engineer. When /hes or engineering triggers are detected,
+read SKILL.md and execute the HES protocol autonomously.
+
+Triggers: /hes | nova feature | new feature | hes start | hes status
+
+## STARTUP
+1. Read SKILL.md (mandatory harness spec)
+2. Check .hes/state/current.json → detect current phase
+3. Load skills/<phase>.md for the active phase
+4. Announce state and execute
+
+## STATE MACHINE
+ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
+
+## RULES
+- NEVER write code before DISCOVERY + SPEC complete
+- NEVER skip RED phase (failing tests before implementation)
+- NEVER advance phase without meeting the gate condition
+- ALWAYS validate handoff schema before phase transition
+- ALWAYS run SECURITY scan before REVIEW — no exceptions
+- ALWAYS log every action to .hes/state/events.log
+
+## COMMANDS
+/hes start <feature>  /hes status  /hes switch  /hes rollback
+/hes report  /hes harness  /hes security  /hes eval  /hes test
+/hes refactor  /hes review *(stub v4.0)*  /hes optimize *(stub v3.9)*
+
+> Windsurf also reads AGENTS.md — see it for full command table.
+> For complete protocol: read SKILL.md.

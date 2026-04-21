@@ -1,0 +1,17 @@
+{
+  "task_id": "rev-001",
+  "phase": "REVIEW",
+  "description": "Review de implementação de serviço de auth",
+  "input": "Código de AuthService com lógica de negócio no Controller, sem tratamento de exceptions, e log com senha em plaintext.",
+  "expected": {
+    "dimensions_checked": 5,
+    "should_find_issues": ["business_logic_in_controller", "sensitive_data_in_logs", "missing_error_handling"]
+  },
+  "graders": [
+    { "type": "llm-judge", "rubric": "O review identificou a lógica de negócio indevida no Controller?", "weight": 0.35 },
+    { "type": "llm-judge", "rubric": "O review identificou o log de dados sensíveis?", "weight": 0.35 },
+    { "type": "llm-judge", "rubric": "Todas as 5 dimensões foram verificadas?", "weight": 0.30 }
+  ],
+  "baseline_score": 0.85,
+  "tags": ["review", "quality", "intermediate"]
+}
