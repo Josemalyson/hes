@@ -1,185 +1,291 @@
 #!/usr/bin/env bash
 # HES — Harness Engineer Standard
-# Automated installer for AI coding tools
-# Usage: ./setup [--host claude|codex|cursor|windsurf|copilot|kiro|gemini|all]
-
+# Interactive installer | version 3.5.0
+# Paths verified from official docs: Claude Code, Codex, Gemini, OpenCode,
+# Cursor, Windsurf, GitHub Copilot, Kiro — April 2026
 set -euo pipefail
-
 HES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOST="${1:-auto}"
 
-# ── Color output ────────────────────────────────────────────────────────────────
-GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'; RESET='\033[0m'
-ok()   { echo -e "${GREEN}✓${RESET} $*"; }
-info() { echo -e "${BLUE}→${RESET} $*"; }
-warn() { echo -e "${YELLOW}!${RESET} $*"; }
+G='\033[0;32m';Y='\033[0;33m';B='\033[0;34m';C='\033[0;36m'
+W='\033[1;37m';R='\033[0;31m';D='\033[0m'
+ok()   { echo -e "${G}✓${D} $*"; }
+info() { echo -e "${B}→${D} $*"; }
+warn() { echo -e "${Y}!${D} $*"; }
+h1()   { echo -e "\n${W}$*${D}"; }
 
-# ── Detect installed tools ──────────────────────────────────────────────────────
-INSTALL_CLAUDE=0; INSTALL_CODEX=0; INSTALL_KIRO=0
-INSTALL_OPENCODE=0; INSTALL_CURSOR=0
-
-if [ "$HOST" = "auto" ]; then
-  command -v claude    >/dev/null 2>&1 && INSTALL_CLAUDE=1
-  command -v codex     >/dev/null 2>&1 && INSTALL_CODEX=1
-  command -v kiro-cli  >/dev/null 2>&1 && INSTALL_KIRO=1
-  command -v opencode  >/dev/null 2>&1 && INSTALL_OPENCODE=1
-  # Cursor/Windsurf/Copilot detected by config dirs
-  [ -d "$HOME/.cursor" ] && INSTALL_CURSOR=1
-
-  # Default to Claude Code if nothing found
-  if [ $INSTALL_CLAUDE -eq 0 ] && [ $INSTALL_CODEX -eq 0 ] && \
-     [ $INSTALL_KIRO -eq 0 ] && [ $INSTALL_OPENCODE -eq 0 ]; then
-    INSTALL_CLAUDE=1
-    warn "No AI tool detected — defaulting to Claude Code setup"
-  fi
-else
-  case "$HOST" in
-    claude)   INSTALL_CLAUDE=1 ;;
-    codex)    INSTALL_CODEX=1 ;;
-    kiro)     INSTALL_KIRO=1 ;;
-    opencode) INSTALL_OPENCODE=1 ;;
-    cursor)   INSTALL_CURSOR=1 ;;
-    all)      INSTALL_CLAUDE=1; INSTALL_CODEX=1; INSTALL_KIRO=1
-              INSTALL_OPENCODE=1; INSTALL_CURSOR=1 ;;
-    *)        echo "Usage: ./setup [--host claude|codex|cursor|kiro|opencode|all]"; exit 1 ;;
+NON_INTERACTIVE=0; TOOLS_ARG=""; SCOPE_ARG=""; TARGET_ARG=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --tools)   TOOLS_ARG="$2"; shift 2 ;;
+    --scope)   SCOPE_ARG="$2"; shift 2 ;;
+    --target)  TARGET_ARG="$2"; shift 2 ;;
+    --yes|-y)  NON_INTERACTIVE=1; shift ;;
+    --help|-h)
+      echo "Usage: ./setup [--tools TOOLS] [--scope project|global|both] [--target DIR] [--yes]"
+      echo "Tools: claude,codex,gemini,opencode,cursor,windsurf,copilot,kiro,all"
+      exit 0 ;;
+    *) echo "Unknown: $1. Run ./setup --help"; exit 1 ;;
   esac
+done
+
+echo -e "\n${C}╔══════════════════════════════════════════╗${D}"
+echo -e "${C}║${D}  ${W}HES — Harness Engineer Standard v3.5.0${D}  ${C}║${D}"
+echo -e "${C}╚══════════════════════════════════════════╝${D}\n"
+
+# Step 1: Scope
+if [[ -n "$SCOPE_ARG" ]]; then
+  SCOPE="$SCOPE_ARG"
+elif [[ $NON_INTERACTIVE -eq 1 ]]; then
+  SCOPE="project"
+else
+  h1 "Where to install HES?"
+  echo -e "  ${W}[1]${D} Project — in this repo (recommended for teams, committed to git)"
+  echo -e "  ${W}[2]${D} Global  — in your home dir (available in every project)"
+  echo -e "  ${W}[3]${D} Both    — project files + global shims"
+  read -rp "  Choose [1/2/3] (default: 1): " sc
+  case "${sc:-1}" in 1) SCOPE="project";; 2) SCOPE="global";; 3) SCOPE="both";; *) SCOPE="project";; esac
 fi
 
-TARGET_DIR="${2:-$(pwd)}"
-echo ""
-echo "Installing HES v3.5.0 → $TARGET_DIR"
-echo ""
-
-# ── Core files (always installed) ──────────────────────────────────────────────
-install_core() {
-  info "Installing core files..."
-  cp "$HES_DIR/SKILL.md"   "$TARGET_DIR/SKILL.md"
-  cp "$HES_DIR/AGENTS.md"  "$TARGET_DIR/AGENTS.md"
-  mkdir -p "$TARGET_DIR/skills"
-  cp "$HES_DIR/skills/"*.md "$TARGET_DIR/skills/"
-  cp -r "$HES_DIR/skills/reference" "$TARGET_DIR/skills/" 2>/dev/null || true
-  ok "SKILL.md + AGENTS.md + skills/ ($(ls "$HES_DIR/skills/"*.md | wc -l | tr -d ' ') skill files)"
-}
-
-# ── Claude Code ─────────────────────────────────────────────────────────────────
-install_claude() {
-  info "Installing for Claude Code..."
-  mkdir -p "$TARGET_DIR/.claude"
-  cp "$HES_DIR/.claude/CLAUDE.md" "$TARGET_DIR/.claude/CLAUDE.md"
-
-  # Append HES reference to existing CLAUDE.md or create it
-  if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
-    if ! grep -q "HES" "$TARGET_DIR/CLAUDE.md" 2>/dev/null; then
-      echo -e "\n\n# HES Integration\nSee AGENTS.md and SKILL.md for the HES workflow protocol." >> "$TARGET_DIR/CLAUDE.md"
-    fi
-  else
-    cp "$HES_DIR/.claude/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
-  fi
-  ok "Claude Code: .claude/CLAUDE.md + CLAUDE.md"
-}
-
-# ── Codex CLI / OpenCode ────────────────────────────────────────────────────────
-install_codex() {
-  info "Installing for Codex CLI / OpenCode..."
-  # Both read AGENTS.md natively — already installed via core
-  ok "Codex/OpenCode: AGENTS.md (already installed)"
-}
-
-# ── Cursor ──────────────────────────────────────────────────────────────────────
-install_cursor() {
-  info "Installing for Cursor..."
-  mkdir -p "$TARGET_DIR/.cursor/rules"
-  cp "$HES_DIR/.cursor/rules/hes.mdc" "$TARGET_DIR/.cursor/rules/hes.mdc"
-  ok "Cursor: .cursor/rules/hes.mdc (alwaysApply: true)"
-}
-
-# ── Windsurf ────────────────────────────────────────────────────────────────────
-install_windsurf() {
-  info "Installing for Windsurf..."
-  cp "$HES_DIR/.windsurfrules" "$TARGET_DIR/.windsurfrules"
-  ok "Windsurf: .windsurfrules"
-}
-
-# ── GitHub Copilot / VS Code ────────────────────────────────────────────────────
-install_copilot() {
-  info "Installing for GitHub Copilot / VS Code..."
-  mkdir -p "$TARGET_DIR/.github"
-  cp "$HES_DIR/.github/copilot-instructions.md" "$TARGET_DIR/.github/copilot-instructions.md"
-  ok "Copilot/VSCode: .github/copilot-instructions.md"
-}
-
-# ── Kiro ────────────────────────────────────────────────────────────────────────
-install_kiro() {
-  info "Installing for Kiro (AWS)..."
-  mkdir -p "$TARGET_DIR/.kiro/steering"
-  cp "$HES_DIR/.kiro/steering/hes.md" "$TARGET_DIR/.kiro/steering/hes.md"
-  ok "Kiro: .kiro/steering/hes.md (inclusion: always)"
-}
-
-# ── .hes/ state structure ───────────────────────────────────────────────────────
-install_hes_state() {
-  info "Generating .hes/ state structure..."
-  mkdir -p "$TARGET_DIR/.hes/state"
-  mkdir -p "$TARGET_DIR/.hes/agents"
-  mkdir -p "$TARGET_DIR/.hes/context/tool-outputs"
-  mkdir -p "$TARGET_DIR/.hes/schemas"
-  mkdir -p "$TARGET_DIR/.hes/evals/tasks"
-
-  # Copy schemas and registry
-  cp "$HES_DIR/.hes/schemas/"*.json "$TARGET_DIR/.hes/schemas/" 2>/dev/null || true
-  cp "$HES_DIR/.hes/agents/registry.json" "$TARGET_DIR/.hes/agents/registry.json" 2>/dev/null || true
-
-  # Create empty state files
-  echo '{"phase":"ZERO","active_feature":null,"features":{},"harness_version":"3.5.0"}' \
-    > "$TARGET_DIR/.hes/state/current.json"
-  touch "$TARGET_DIR/.hes/state/events.log"
-
-  ok ".hes/ state structure initialized"
-}
-
-# ── .gitignore ──────────────────────────────────────────────────────────────────
-update_gitignore() {
-  GITIGNORE="$TARGET_DIR/.gitignore"
-  if ! grep -q ".hes/state/current.json" "$GITIGNORE" 2>/dev/null; then
-    cat >> "$GITIGNORE" << 'GITEOF'
-
-# HES — generated state files (project-specific, not committed)
-.hes/state/current.json
-.hes/state/events.log
-.hes/state/session-checkpoint.json
-GITEOF
-    ok ".gitignore updated"
-  fi
-}
-
-# ── Run installs ────────────────────────────────────────────────────────────────
-install_core
-install_hes_state
-update_gitignore
-
-[ $INSTALL_CLAUDE   -eq 1 ] && install_claude
-[ $INSTALL_CODEX    -eq 1 ] && install_codex
-[ $INSTALL_CURSOR   -eq 1 ] && { install_cursor; install_copilot; }
-[ $INSTALL_KIRO     -eq 1 ] && install_kiro
-[ $INSTALL_OPENCODE -eq 1 ] && install_codex  # same as codex (AGENTS.md)
-
-# Always install Windsurf/Copilot shims — low cost, high compat
-install_windsurf
-install_copilot
-
-# ── Commit ──────────────────────────────────────────────────────────────────────
-echo ""
-if [ -d "$TARGET_DIR/.git" ]; then
-  cd "$TARGET_DIR"
-  git add -A
-  git commit -m "chore: install HES v3.5.0" --quiet 2>/dev/null && \
-    ok "Git commit created: chore: install HES v3.5.0" || \
-    warn "Nothing to commit (already up to date)"
+# Step 2: Target
+PROJECT_DIR="${TARGET_ARG:-$(pwd)}"
+if [[ "$SCOPE" != "global" && $NON_INTERACTIVE -eq 0 ]]; then
+  read -rp "  Project directory [${PROJECT_DIR}]: " din
+  [[ -n "$din" ]] && PROJECT_DIR="$din"
 fi
 
-echo ""
-echo -e "${GREEN}HES v3.5.0 installed.${RESET}"
-echo ""
-echo "  Start:  /hes"
-echo "  Docs:   SKILL.md (full spec) · AGENTS.md (quick ref)"
-echo ""
+# Step 3: Detect tools
+h1 "Detecting installed AI tools..."
+DETECTED=()
+command -v claude    &>/dev/null && DETECTED+=("claude")   && echo -e "  ${G}✓${D} Claude Code"
+command -v codex     &>/dev/null && DETECTED+=("codex")    && echo -e "  ${G}✓${D} OpenAI Codex CLI"
+command -v gemini    &>/dev/null && DETECTED+=("gemini")   && echo -e "  ${G}✓${D} Gemini CLI"
+command -v opencode  &>/dev/null && DETECTED+=("opencode") && echo -e "  ${G}✓${D} OpenCode"
+[[ -d "$HOME/.cursor"          ]] && DETECTED+=("cursor")  && echo -e "  ${G}✓${D} Cursor"
+[[ -d "$HOME/.config/windsurf" ]] && DETECTED+=("windsurf")&& echo -e "  ${G}✓${D} Windsurf"
+command -v kiro-cli  &>/dev/null && DETECTED+=("kiro")     && echo -e "  ${G}✓${D} Kiro (AWS)"
+DETECTED+=("copilot") && echo -e "  ${G}✓${D} GitHub Copilot (project-only)"
+[[ ${#DETECTED[@]} -le 1 ]] && DETECTED=("claude") && warn "No tools detected — defaulting to Claude Code"
+
+# Step 4: Tool selection
+if [[ -n "$TOOLS_ARG" ]]; then
+  [[ "$TOOLS_ARG" == "all" ]] && TOOLS=("claude" "codex" "gemini" "opencode" "cursor" "windsurf" "copilot" "kiro") \
+    || IFS=',' read -ra TOOLS <<< "$TOOLS_ARG"
+elif [[ $NON_INTERACTIVE -eq 1 ]]; then
+  TOOLS=("${DETECTED[@]}")
+else
+  h1 "Select tools (detected = pre-checked):"
+  ALL_TOOLS=("claude" "codex" "gemini" "opencode" "cursor" "windsurf" "copilot" "kiro")
+  NAMES=("Claude Code" "Codex CLI" "Gemini CLI" "OpenCode" "Cursor" "Windsurf" "GitHub Copilot/VSCode" "Kiro (AWS)")
+  for i in "${!ALL_TOOLS[@]}"; do
+    t="${ALL_TOOLS[$i]}"; sel=" "
+    for d in "${DETECTED[@]}"; do [[ "$d" == "$t" ]] && sel="x"; done
+    echo -e "  [${sel}] $((i+1)). ${W}${NAMES[$i]}${D}"
+  done
+  echo -e "\n  Enter numbers to toggle (e.g. '1 3'), or Enter to keep detected:"
+  read -rp "  > " tog
+  TOOLS=("${DETECTED[@]}")
+  if [[ -n "$tog" ]]; then
+    for num in $tog; do
+      idx=$((num-1)); t="${ALL_TOOLS[$idx]:-}"; [[ -z "$t" ]] && continue
+      found=0
+      for d in "${TOOLS[@]}"; do [[ "$d" == "$t" ]] && found=1; done
+      if [[ $found -eq 1 ]]; then TOOLS=("${TOOLS[@]/$t}"); else TOOLS+=("$t"); fi
+    done
+    TOOLS=($(printf '%s\n' "${TOOLS[@]}" | grep -v '^$' | sort -u))
+  fi
+fi
+
+echo -e "\n  Installing for: ${W}${TOOLS[*]}${D}"
+echo -e "  Scope: ${W}${SCOPE}${D}"
+[[ "$SCOPE" != "global" ]] && echo -e "  Project: ${W}${PROJECT_DIR}${D}"
+if [[ $NON_INTERACTIVE -eq 0 ]]; then
+  read -rp $'\n  Proceed? [Y/n] ' ok_go
+  [[ "${ok_go,,}" == "n" ]] && echo "Cancelled." && exit 0
+fi
+
+# ── Helpers ──────────────────────────────────────────────────────────────────
+cp_f() { mkdir -p "$(dirname "$2")"; cp "$1" "$2"; }
+skill_dir() { # src_skill_dir, dst_skills_root, name
+  mkdir -p "$2/$3"; cp "$1/SKILL.md" "$2/$3/SKILL.md"; }
+
+install_core_project() {
+  local dir="$1"; h1 "Core files → ${dir}"
+  mkdir -p "$dir/skills"
+  cp_f "$HES_DIR/SKILL.md"  "$dir/SKILL.md"
+  cp_f "$HES_DIR/AGENTS.md" "$dir/AGENTS.md"
+  cp "$HES_DIR/skills/"*.md "$dir/skills/" 2>/dev/null || true
+  [[ -d "$HES_DIR/skills/reference" ]] && cp -r "$HES_DIR/skills/reference" "$dir/skills/"
+  mkdir -p "$dir/.hes/state" "$dir/.hes/agents" "$dir/.hes/schemas" \
+           "$dir/.hes/context/tool-outputs" "$dir/.hes/evals/tasks"
+  [[ ! -f "$dir/.hes/state/current.json" ]] && \
+    echo '{"phase":"ZERO","active_feature":null,"features":{},"harness_version":"3.5.0"}' \
+    > "$dir/.hes/state/current.json"
+  touch "$dir/.hes/state/events.log" 2>/dev/null || true
+  cp "$HES_DIR/.hes/schemas/"*.json "$dir/.hes/schemas/" 2>/dev/null || true
+  cp "$HES_DIR/.hes/agents/registry.json" "$dir/.hes/agents/" 2>/dev/null || true
+  local gi="$dir/.gitignore"
+  grep -q ".hes/state/current.json" "$gi" 2>/dev/null || \
+    printf '\n# HES state\n.hes/state/current.json\n.hes/state/events.log\n.hes/state/session-checkpoint.json\n' >> "$gi"
+  ok "Core installed"
+}
+
+# ── Tool installers ──────────────────────────────────────────────────────────
+# Paths from official docs:
+#   Claude Code  : project=CLAUDE.md + .claude/CLAUDE.md + .claude/skills/hes/
+#                  global=~/.claude/CLAUDE.md + ~/.claude/skills/hes/
+#   Codex CLI    : project=AGENTS.md + .agents/skills/hes/
+#                  global=~/.codex/AGENTS.md + ~/.codex/skills/hes/
+#   Gemini CLI   : project=GEMINI.md + .gemini/skills/hes/ + .agents/skills/hes/
+#                  global=~/.gemini/GEMINI.md + ~/.gemini/skills/hes/
+#   OpenCode     : project=AGENTS.md + .opencode/skills/hes/ + .agents/skills/hes/
+#                  global=~/.config/opencode/AGENTS.md + ~/.config/opencode/skills/hes/
+#   Cursor       : project=.cursor/rules/hes.mdc + .cursor/skills/hes/
+#                  global=~/.cursor/rules/hes.mdc + ~/.cursor/skills/hes/
+#   Windsurf     : project=.windsurfrules + .agents/skills/hes/
+#                  global=~/.windsurfrules + ~/.agents/skills/hes/
+#   Copilot      : project=.github/copilot-instructions.md (no global standard)
+#   Kiro         : project=.kiro/steering/hes.md + .kiro/skills/hes/
+#                  global=~/.kiro/steering/hes.md + ~/.kiro/skills/hes/
+
+SKILL_SRC="$HES_DIR/.agents/skills/hes"
+
+inst_claude_p()   { local d="$1"
+  cp_f "$HES_DIR/.claude/CLAUDE.md" "$d/CLAUDE.md"
+  cp_f "$HES_DIR/.claude/CLAUDE.md" "$d/.claude/CLAUDE.md"
+  skill_dir "$SKILL_SRC" "$d/.claude/skills" "hes"
+  ok "Claude Code (project): CLAUDE.md + .claude/skills/hes/"; }
+
+inst_claude_g()   {
+  mkdir -p "$HOME/.claude/skills/hes"
+  cp "$HES_DIR/.claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.claude/skills/hes/SKILL.md"
+  ok "Claude Code (global): ~/.claude/CLAUDE.md + ~/.claude/skills/hes/"; }
+
+inst_codex_p()    { local d="$1"
+  skill_dir "$SKILL_SRC" "$d/.agents/skills" "hes"
+  ok "Codex CLI (project): AGENTS.md + .agents/skills/hes/"; }
+
+inst_codex_g()    {
+  mkdir -p "$HOME/.codex/skills/hes"
+  cp "$HES_DIR/AGENTS.md" "$HOME/.codex/AGENTS.md"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.codex/skills/hes/SKILL.md"
+  ok "Codex CLI (global): ~/.codex/AGENTS.md + ~/.codex/skills/hes/"; }
+
+inst_gemini_p()   { local d="$1"
+  cat > "$d/GEMINI.md" << 'EOF'
+# HES v3.5.0 — Gemini CLI | Full spec: SKILL.md | Commands: AGENTS.md
+When `/hes` or engineering triggers appear, read `SKILL.md` and execute.
+Triggers: /hes · new feature · hes start · hes status
+State machine: ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
+Rules: NEVER write code before DISCOVERY+SPEC · NEVER skip RED · ALWAYS run SECURITY before REVIEW
+EOF
+  skill_dir "$SKILL_SRC" "$d/.gemini/skills" "hes"
+  skill_dir "$SKILL_SRC" "$d/.agents/skills" "hes"
+  ok "Gemini CLI (project): GEMINI.md + .gemini/skills/hes/ + .agents/skills/hes/"; }
+
+inst_gemini_g()   {
+  mkdir -p "$HOME/.gemini/skills/hes" "$HOME/.agents/skills/hes"
+  echo "# HES v3.5.0 global — read SKILL.md in active project" > "$HOME/.gemini/GEMINI.md"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.gemini/skills/hes/SKILL.md"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.agents/skills/hes/SKILL.md"
+  ok "Gemini CLI (global): ~/.gemini/GEMINI.md + ~/.gemini/skills/hes/ + ~/.agents/skills/hes/"; }
+
+inst_opencode_p() { local d="$1"
+  skill_dir "$SKILL_SRC" "$d/.opencode/skills" "hes"
+  skill_dir "$SKILL_SRC" "$d/.agents/skills"   "hes"
+  ok "OpenCode (project): AGENTS.md + .opencode/skills/hes/ + .agents/skills/hes/"; }
+
+inst_opencode_g() {
+  mkdir -p "$HOME/.config/opencode/skills/hes" "$HOME/.claude/skills/hes"
+  cp "$HES_DIR/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.config/opencode/skills/hes/SKILL.md"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.claude/skills/hes/SKILL.md"
+  ok "OpenCode (global): ~/.config/opencode/AGENTS.md + ~/.config/opencode/skills/hes/"; }
+
+inst_cursor_p()   { local d="$1"
+  cp_f "$HES_DIR/.cursor/rules/hes.mdc" "$d/.cursor/rules/hes.mdc"
+  skill_dir "$SKILL_SRC" "$d/.cursor/skills" "hes"
+  ok "Cursor (project): .cursor/rules/hes.mdc + .cursor/skills/hes/"; }
+
+inst_cursor_g()   {
+  mkdir -p "$HOME/.cursor/rules" "$HOME/.cursor/skills/hes"
+  cp "$HES_DIR/.cursor/rules/hes.mdc" "$HOME/.cursor/rules/hes.mdc"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.cursor/skills/hes/SKILL.md"
+  ok "Cursor (global): ~/.cursor/rules/hes.mdc + ~/.cursor/skills/hes/"; }
+
+inst_windsurf_p() { local d="$1"
+  cp_f "$HES_DIR/.windsurfrules" "$d/.windsurfrules"
+  skill_dir "$SKILL_SRC" "$d/.agents/skills" "hes"
+  ok "Windsurf (project): .windsurfrules + .agents/skills/hes/"; }
+
+inst_windsurf_g() {
+  cp "$HES_DIR/.windsurfrules" "$HOME/.windsurfrules"
+  mkdir -p "$HOME/.agents/skills/hes"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.agents/skills/hes/SKILL.md"
+  ok "Windsurf (global): ~/.windsurfrules + ~/.agents/skills/hes/"; }
+
+inst_copilot_p()  { local d="$1"
+  cp_f "$HES_DIR/.github/copilot-instructions.md" "$d/.github/copilot-instructions.md"
+  ok "Copilot (project): .github/copilot-instructions.md"; }
+
+inst_copilot_g()  { warn "Copilot has no standard global path — skipping global install"; }
+
+inst_kiro_p()     { local d="$1"
+  cp_f "$HES_DIR/.kiro/steering/hes.md" "$d/.kiro/steering/hes.md"
+  skill_dir "$SKILL_SRC" "$d/.kiro/skills" "hes"
+  ok "Kiro (project): .kiro/steering/hes.md + .kiro/skills/hes/"; }
+
+inst_kiro_g()     {
+  mkdir -p "$HOME/.kiro/steering" "$HOME/.kiro/skills/hes"
+  cp "$HES_DIR/.kiro/steering/hes.md" "$HOME/.kiro/steering/hes.md"
+  cp "$SKILL_SRC/SKILL.md" "$HOME/.kiro/skills/hes/SKILL.md"
+  ok "Kiro (global): ~/.kiro/steering/hes.md + ~/.kiro/skills/hes/"; }
+
+# ── Execute ──────────────────────────────────────────────────────────────────
+[[ "$SCOPE" != "global" ]] && install_core_project "$PROJECT_DIR"
+
+for tool in "${TOOLS[@]}"; do
+  [[ -z "$tool" ]] && continue
+  case "$tool" in
+    claude)
+      [[ "$SCOPE" != "global" ]] && inst_claude_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_claude_g ;;
+    codex)
+      [[ "$SCOPE" != "global" ]] && inst_codex_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_codex_g ;;
+    gemini)
+      [[ "$SCOPE" != "global" ]] && inst_gemini_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_gemini_g ;;
+    opencode)
+      [[ "$SCOPE" != "global" ]] && inst_opencode_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_opencode_g ;;
+    cursor)
+      [[ "$SCOPE" != "global" ]] && inst_cursor_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_cursor_g ;;
+    windsurf)
+      [[ "$SCOPE" != "global" ]] && inst_windsurf_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_windsurf_g ;;
+    copilot)
+      [[ "$SCOPE" != "global" ]] && inst_copilot_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_copilot_g ;;
+    kiro)
+      [[ "$SCOPE" != "global" ]] && inst_kiro_p "$PROJECT_DIR"
+      [[ "$SCOPE" != "project" ]] && inst_kiro_g ;;
+    *) warn "Unknown tool: $tool" ;;
+  esac
+done
+
+# ── Git commit ────────────────────────────────────────────────────────────────
+if [[ "$SCOPE" != "global" && -d "${PROJECT_DIR}/.git" ]]; then
+  cd "$PROJECT_DIR"
+  git add -A 2>/dev/null || true
+  git diff --cached --quiet 2>/dev/null && warn "Nothing to commit" || \
+    git commit -m "chore: install HES v3.5.0 (${TOOLS[*]})" --quiet && \
+    ok "Git commit created"
+fi
+
+# ── Done ──────────────────────────────────────────────────────────────────────
+echo -e "\n${G}╔═══════════════════════════════════════════╗${D}"
+echo -e "${G}║${D}  ${W}HES v3.5.0 installed${D}                      ${G}║${D}"
+echo -e "${G}╚═══════════════════════════════════════════╝${D}"
+echo -e "\n  Start: ${W}/hes${D}   ·   Docs: ${W}SKILL.md${D} · ${W}AGENTS.md${D}\n"

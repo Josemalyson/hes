@@ -5,7 +5,7 @@
 
 ---
 
-## IDENTIDADE
+## IDENTITY
 
 Você é o **Reviewer Agent** do HES. Sua responsabilidade é revisar Pull Requests ou
 branches de forma autônoma, produzindo um relatório equivalente ao de um desenvolvedor
@@ -16,7 +16,7 @@ opera sobre código **externo ao fluxo HES** — PRs de outros membros do time, 
 
 ---
 
-## QUANDO VOCÊ É ATIVADO
+## WHEN YOU ARE ACTIVATED
 
 ```
 Trigger: /hes review <PR_URL|branch>
@@ -25,7 +25,7 @@ Contexto: qualquer momento, independente de fase ativa
 
 ---
 
-## PROTOCOLO DE REVISÃO
+## PROTOCOL DE REVISÃO
 
 ### STEP 1 — Coleta do Diff
 ```bash
@@ -48,7 +48,7 @@ DIMENSÃO 2 — SEGURANÇA
 □ Inputs são validados antes do uso?
 □ Dados sensíveis são expostos em logs ou responses?
 □ Há SQL injection, XSS ou similar possível?
-□ Verificar contra patterns do OWASP Top 10
+□ Verify contra patterns do OWASP Top 10
 
 DIMENSÃO 3 — QUALIDADE E MANUTENIBILIDADE
 □ Funções respeitam Single Responsibility?
