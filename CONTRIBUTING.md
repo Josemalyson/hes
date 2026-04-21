@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to the Harness Engineer Standard (HES)!
 
+> **v4.0 Roadmap em andamento** — Se quiser contribuir com os novos agentes (planner, orchestrator, harness-evolver, optimizer, reviewer), veja a seção [Contribuindo com Agentes v4.0](#-contribuindo-com-agentes-v40) abaixo.
+
 ---
 
 ## ◈ How to Report a Bug
@@ -83,6 +85,8 @@ Types:
 - `chore` — maintenance tasks (tooling, configs)
 - `refactor` — code refactoring without behavior changes
 - `test` — adding or modifying tests
+- `plan` — plano arquitetural, roadmap, stubs de agentes
+- `stub` — implementação parcial (protocolo completo, execução pendente)
 
 Examples:
 ```
@@ -90,6 +94,8 @@ feat(harness): add session manager skill
 fix(bootstrap): handle missing state file gracefully
 docs: add contribution guide
 chore: update agent registry
+plan(v4.0): add multi-agent orchestration roadmap
+stub(planner): add task decomposition protocol
 ```
 
 ---
@@ -97,9 +103,11 @@ chore: update agent registry
 ## ◈ Branch Strategy
 
 - `main` — protected branch, only merged via PRs
-- `feat/<name>` — feature branches
-- `fix/<name>` — bug fix branches
-- `docs/<name>` — documentation branches
+- `feat/<n>` — feature branches (implementações completas)
+- `fix/<n>` — bug fix branches
+- `docs/<n>` — documentation branches
+- `plan/<n>` — roadmap e planos arquiteturais (stubs incluídos)
+- `stub/<n>` — implementação parcial de novos agentes
 
 ---
 
@@ -110,6 +118,7 @@ Every PR must include:
 - [ ] Description of changes
 - [ ] Testing notes (what was tested, how)
 - [ ] Updated documentation if behavior changed
+- [ ] Para stubs v4.0: `status: stub` e `target_version` no cabeçalho do skill-file
 
 Example PR description:
 
@@ -129,14 +138,98 @@ Needed for context preservation across sessions and phase-lock enforcement.
 
 ## ◈ HES Workflow (For Newcomers)
 
-HES is a skill-based system for orchestrating AI coding agents. Here's how it works:
+HES é um sistema baseado em skill-files para orquestrar agentes de IA em um fluxo de desenvolvimento estruturado.
 
-1. **SKILL.md** — The entry point. It reads the project state and routes to the right skill.
-2. **skills/XX-name.md** — Individual skill files that guide the agent through each phase.
-3. **.hes/state/** — Generated state files tracking feature progress.
-4. **.hes/agents/** — Agent registry defining which agent handles which phase.
+1. **SKILL.md** — Entry point. Lê o estado do projeto e roteia para o skill correto.
+2. **skills/XX-name.md** — Skill-files individuais que guiam o agente em cada fase.
+3. **.hes/state/** — Arquivos de estado gerados pelo bootstrap.
+4. **.hes/agents/registry.json** — Registry de agentes: qual agente lida com qual fase/comando.
 
-When you run `/hes`, the system reads the current state and dispatches to the appropriate agent for the current phase (DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → REVIEW → DONE).
+Fluxo de fase sequencial (padrão):
+```
+ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
+```
+
+Fluxo multi-agente (v4.0 roadmap):
+```
+/hes start --parallel → planner.md → orchestrator.md → [Agent Fleet] → integração → fluxo sequencial
+```
+
+---
+
+## ◈ Contribuindo com Agentes v4.0
+
+O HES v4.0 está implementando 5 novos agentes. Cada um tem um stub disponível em `skills/` com o protocolo completo especificado. Contribuições são bem-vindas para implementar qualquer um deles.
+
+### Agentes disponíveis para implementação
+
+| Agente | Stub | Target | O que fazer |
+|---|---|---|---|
+| `planner.md` | ✅ `skills/planner.md` | v3.6 | Implementar geração de `execution-plan.json` + lógica de decomposição |
+| `orchestrator.md` | ✅ `skills/orchestrator.md` | v3.7 | Implementar dispatch de agentes + gerenciamento de Git worktrees |
+| `harness-evolver.md` | ✅ `skills/harness-evolver.md` | v3.8 | Implementar análise de `events.log` + aplicação de trust-policy |
+| `optimizer.md` | ✅ `skills/optimizer.md` | v3.9 | Implementar as 5 transformações + gate de validação pós-otimização |
+| `reviewer.md` | ✅ `skills/reviewer.md` | v4.0 | Implementar as 5 dimensões de revisão + integração GitHub/GitLab |
+
+### Convenções para Skill-Files de Agente
+
+Todo skill-file de agente deve ter o cabeçalho:
+
+```markdown
+# nome-agente.md — Descrição do Agente
+# version: X.Y.Z
+# status: stable | stub
+# target_version: X.Y.Z (se stub)
+# HES Phase: NOME_DA_FASE | SYSTEM
+```
+
+### Convenções para Stubs
+
+Stubs são bem-vindos quando:
+- O protocolo completo está especificado (STEPS, gates, outputs)
+- O cabeçalho inclui `status: stub` e `target_version`
+- O rodapé inclui `<!-- HES vX.Y STUB — implementação completa em vX.Y -->`
+
+### Adicionando um Agente ao Registry
+
+Ao implementar um agente stub, atualize `.hes/agents/registry.json`:
+
+```json
+{
+  "agent": "nome-agent",
+  "type": "system",
+  "skill_file": "skills/nome.md",
+  "trigger": "/hes comando",
+  "status": "stable"  // remover "stub" e "target_version" ao completar
+}
+```
+
+### Novos RULES para Agentes v4.0
+
+Ao implementar um novo agente, adicione o RULE correspondente ao `SKILL.md` (RULE-29 a RULE-33 já reservadas para os 5 agentes do roadmap v4.0). Ver [PLAN-v4.0.md](PLAN-v4.0.md) para detalhes.
+
+---
+
+## ◈ Roadmap de Contribuição Sugerido
+
+```
+Q2 2026 — v3.6 (aberto para contribuição)
+  → Implementar skills/planner.md completo
+  → Integrar security-policy.yml na fase SECURITY (skills/10-security.md)
+  → Adicionar suporte a Git worktrees no SKILL.md (RULE-29)
+
+Q3 2026 — v3.7
+  → Implementar skills/orchestrator.md completo
+  → Criar scripts/hooks/worktree-manager.sh
+  → Testar com /hes start --parallel em projetos reais
+
+Q4 2026 — v3.8
+  → Implementar skills/harness-evolver.md completo
+  → Integrar trust-policy.yml com auto-modificação controlada
+  → Adicionar /hes insights ao session-manager
+```
+
+Ver [PLAN-v4.0.md](PLAN-v4.0.md) para roadmap completo.
 
 ---
 

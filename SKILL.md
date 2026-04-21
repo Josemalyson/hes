@@ -1,13 +1,17 @@
 ---
 name: harness-engineer
 version: 3.5.0
-trigger: /hes | /harness | "iniciar projeto" | "analisar projeto" | "nova feature" | "hes start" | "hes status" | "hes switch"
+plan_version: 4.0.0-alpha
+trigger: /hes | /harness | "iniciar projeto" | "analisar projeto" | "nova feature" | "hes start" | "hes status" | "hes switch" | "hes start --parallel" | "hes fleet" | "hes insights" | "hes optimize" | "hes review"
 author: Josemalyson Oliveira | 2026
-framework: HES — Harness Engineer Standard v3.3
+framework: HES — Harness Engineer Standard v3.5 (v4.0 roadmap active)
 references:
   - "Fowler 2026: Harness Engineering for Coding Agent Users (martinfowler.com)"
   - "LangChain 2026: Continual Learning for AI Agents"
   - "LangChain 2026: Your Harness, Your Memory"
+  - "OpenAI 2026: Codex — Autonomous Software Engineering"
+  - "Google Research 2026: Multi-Agent Configurations (180 tested)"
+  - "arXiv:2604.07502 — Agent-Readable Code Principles"
   - "LangChain 2026: Improving Deep Agents with Harness Engineering (Harrison Chase)"
   - "LangChain 2026: The Anatomy of an Agent Harness"
 ---
@@ -388,6 +392,11 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 | Session management | session-manager | `skills/session-manager.md` |
 | `/hes eval` | eval-agent | `skills/11-eval.md` |
 | `/hes test` | harness-test-agent | `skills/12-harness-tests.md` |
+| `/hes start --parallel` | planner-agent | `skills/planner.md` *(stub v3.6)* |
+| `/hes fleet` | orchestrator-agent | `skills/orchestrator.md` *(stub v3.7)* |
+| `/hes insights` | harness-evolver | `skills/harness-evolver.md` *(stub v3.8)* |
+| `/hes optimize` | optimizer-agent | `skills/optimizer.md` *(stub v3.9)* |
+| `/hes review` | reviewer-agent | `skills/reviewer.md` *(stub v4.0)* |
 
 ### PASSO 3 — ANNOUNCE
 
@@ -528,6 +537,12 @@ OFFLINE (every 3 cycles / /hes report — LLM executes autonomously):
 | `/hes eval` | eval-agent | Roda eval harness — regression testing dos skill-files |
 | `/hes test` | harness-test-agent | Self-testing do harness (structural + behavioral) |
 | `/hes unlock --force` | session-manager | Bypass phase lock (logs risk event) |
+| `/hes start --parallel <f>` | planner-agent | *(stub v3.6)* Decompõe feature → modo multi-agent |
+| `/hes fleet status` | orchestrator-agent | *(stub v3.7)* Estado da frota de agentes paralelos |
+| `/hes insights` | harness-evolver | *(stub v3.8)* Dashboard aprendizado + métricas evolução |
+| `/hes insights --evolve` | harness-evolver | *(stub v3.8)* Propõe melhorias ao harness via events.log |
+| `/hes optimize [path]` | optimizer-agent | *(stub v3.9)* Refatora código para legibilidade de agente |
+| `/hes review <PR\|branch>` | reviewer-agent | *(stub v4.0)* Revisão autônoma de PR — 5 dimensões |
 
 ### `/hes status` (via session-manager):
 
@@ -627,6 +642,31 @@ RULE-28   LLM OFFLOADS tool outputs > 8000 chars to .hes/context/tool-outputs/
           Inject head (40 lines) + offload marker + tail (20 lines) in context
           Access full output via file read only when specifically needed
           Reference: skills/reference/context-engineering.md
+
+RULE-29   LLM INVOKES planner.md before any multi-agent execution
+          Triggered by: /hes start --parallel <feature>
+          Output: .hes/state/execution-plan.json (required by orchestrator)
+          Status: stub — implementação completa em v3.6
+
+RULE-30   LLM DELEGATES via orchestrator.md when execution-plan.json exists
+          Orchestrator dispatches agents to isolated Git worktrees
+          Never dispatch without a valid execution-plan.json
+          Status: stub — implementação completa em v3.7
+
+RULE-31   LLM READS trust-policy.yml before any harness-evolver auto-modification
+          LOW_RISK: auto-apply | MEDIUM_RISK: notify + wait | HIGH_RISK: human approval
+          NEVER auto-apply HIGH_RISK changes — no exceptions
+          Status: stub — implementação completa em v3.8
+
+RULE-32   LLM READS security-policy.yml active_policy at start of SECURITY phase
+          Applies the correct block/warn thresholds per policy mode
+          Default: HIGH+CRITICAL block | Enterprise: HIGH+CRITICAL+MEDIUM block
+          Status: stub — security-policy.yml disponível, integração em v3.6
+
+RULE-33   LLM VALIDATES test suite after /hes optimize before committing changes
+          Rollback automatically if any test fails post-optimization
+          Never commit optimizer changes without green test suite
+          Status: stub — implementação completa em v3.9
 ```
 
 ---
