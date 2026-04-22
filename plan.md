@@ -169,21 +169,35 @@ Isso causa comportamento não-determinístico — o LLM pode ou ignorar o budget
 
 ---
 
-### F-02 — `.gemini/skills/` vazio no repo (estado fantasma)
+### F-02 — `setup` quebra a arquitetura de symlink do Gemini
 
-**Severidade**: Baixa  
+**Severidade**: Alta  
 **Afeta**: Gemini CLI  
-**Sintoma**: Diretório `.gemini/skills/` rastreado no git mas sem arquivos. Após `./setup --tools gemini`, dois SKILL.md idênticos coexistem.  
-**Fix**: Adicionar `hes/SKILL.md` em `.gemini/skills/hes/` no repo OU remover `.gemini/skills/` e deixar o setup gerenciar ← **avaliação pendente**
+**Root cause**: `.gemini/skills/hes` no repo é um **symlink git** (`mode 120000`) apontando para `../../.agents/skills/hes`. Single source of truth — elegante.  
+Porém `inst_gemini_p` no `setup` chama `skill_dir` que executa `mkdir -p .gemini/skills/hes` + `cp SKILL.md` — isso **substitui o symlink por um diretório real**, quebrando a arquitetura em cada novo install.
+
+**Comportamento antes do fix**:
+```
+./setup --tools codex,gemini
+  → inst_codex_p: cria .agents/skills/hes/SKILL.md  ✅
+  → inst_gemini_p: mkdir -p .gemini/skills/hes (cria dir real, destrói symlink) ❌
+                   cp SKILL.md → .gemini/skills/hes/SKILL.md (duplicata) ❌
+                   skill_dir → .agents/skills/hes/SKILL.md (reescrita redundante) ❌
+```
+
+**Fix aplicado neste PR**:
+- `inst_gemini_p` detecta se symlink existe → preserva. Se real dir → avisa + remove + recria symlink.
+- Introduz `install_agents_skill()` com flag `_AGENTS_SKILL_DONE` — escreve `.agents/skills/hes/` apenas uma vez por run.
+- `inst_windsurf_p` e `inst_opencode_p` usam `install_agents_skill()` em vez de `skill_dir` direto.
 
 ---
 
-### F-03 — SECURITY phase ausente em skills instaladas via skill-versions.json
+### F-03 — Skill v3.1 instalada externamente sem fase SECURITY
 
 **Severidade**: Média  
-**Afeta**: CLIs que usam a skill local do usuário (ex: Claude.ai com skill v3.1)  
-**Sintoma**: `skill-versions.json` registra `"10-security": "3.4.0"` mas a skill instalada externamente pode não incluir SECURITY na state machine  
-**Fix**: Atualizar skill instalada para v3.5 ← fora do escopo deste PR
+**Afeta**: Claude.ai / usuários com skill instalada via `~/.claude/skills/hes/` ou configuração manual  
+**Sintoma**: Skill registra state machine sem SECURITY (`GREEN → REVIEW` direto) + sem step budget + sem ORPHAN state  
+**Fix**: Ver `docs/migrations/v3.1-to-v3.5.md` (adicionado neste PR) + reinstalar via `./setup --tools claude --scope global`
 
 ---
 
@@ -213,9 +227,11 @@ Isso causa comportamento não-determinístico — o LLM pode ou ignorar o budget
 
 ## 🔧 Correções neste PR
 
-1. `plan.md` — este arquivo (documentação das falhas)
-2. `setup` — template completo de `current.json` (F-01)
-3. `INSTALL.md` — nota sobre `chmod +x setup` (F-04)
+1. `plan.md` — este arquivo (documentação completa das falhas + root causes)
+2. `setup` — template completo de `current.json` para schema v3.5 (F-01)
+3. `setup` — preservação de symlink Gemini + guard `install_agents_skill()` evita reescrita redundante de `.agents/` (F-02)
+4. `INSTALL.md` — nota sobre `chmod +x setup` na Quick Install (F-04)
+5. `docs/migrations/v3.1-to-v3.5.md` — guia de migração para skills externas v3.1 (F-03)
 
 ---
 
