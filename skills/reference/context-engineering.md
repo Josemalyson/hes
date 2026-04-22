@@ -25,15 +25,15 @@ window rapidamente, degradando a qualidade das decisões do LLM.
 
 ---
 
-## ◈ CANDIDATOS PRIORITÁRIOS PARA OFFLOADING
+## ◈ CANDIDATOS PRIORITÁRIOS for OFFLOADING
 
 | Ferramenta         | Cenário que gera output grande           |
 |--------------------|------------------------------------------|
-| pytest / mvn test  | Muitas falhas com stack traces completos |
+| pytest / mvn test  | Muitas falhas with stack traces complete |
 | bandit -r .        | Muitos findings no codebase              |
-| git diff           | PRs grandes com muitos arquivos          |
+| git diff           | PRs grandes with muitos Files          |
 | grep -r            | Muitos matches em codebase grande        |
-| npm test           | Suite de testes extensa                  |
+| npm test           | Suite de tests extensa                  |
 | mypy / pylint      | Muitos erros de tipo/lint                |
 
 ---

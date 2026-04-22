@@ -1,6 +1,6 @@
 # HES Skill — 12: Harness Self-Testing
-# Invocação: /hes test [--structural] [--behavioral] [--all]
-# Testa o harness em si — não o código do projeto
+# Invocation: /hes test [--structural] [--behavioral] [--all]
+# Testa o harness em si — not o code of the project
 
 ---
 
@@ -9,9 +9,9 @@
 > "CI quality gate so PRs that degrade an agent are automatically flagged"
 > — LangSmith (2026)
 
-Um bug no routing do SKILL.md ou uma inconsistência no registry.json
-pode fazer o LLM falhar silenciosamente. Os testes do harness detectam
-isso antes que chegue à produção.
+Um bug no routing do SKILL.md ou a inconsistência no registry.json
+can do o LLM falhar silenciosamente. Os tests do harness detectam
+isso before que chegue à produção.
 
 ---
 
@@ -34,7 +34,7 @@ TEST-S10: todos os comandos /hes documentados no README existem no SKILL.md
 
 ---
 
-## ◈ TIPO 2 — BEHAVIORAL TESTS (LLM-as-judge, mais lentos)
+## ◈ TIPO 2 — BEHAVIORAL TESTS (LLM-as-judge, more lentos)
 
 ```
 TEST-B01: dado feature=GREEN, SKILL.md roteia para impl-agent?
@@ -60,7 +60,7 @@ TEST-B05: dado HIGH finding no bandit, gate SECURITY bloqueia?
 
 ---
 
-## ◈ FLUXO DE EXECUÇÃO
+## ◈ flow DE execution
 
 ### STEP 1 — Structural tests
 ```bash

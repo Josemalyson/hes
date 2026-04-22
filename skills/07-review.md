@@ -2,7 +2,7 @@
 
 > Skill loaded when: feature.state = REVIEW
 > Pre-condition: all tests passing (GREEN), coverage ≥ 80%.
-> This is the final regulation step before DONE. Combines inferential and computational sensors.
+> This is the end regulation step before DONE. Combines inferential and computational sensors.
 
 ---
 
@@ -53,9 +53,9 @@
 
 ## ◈ DIMENSION 3 — SECURITY (Automated Scan Verification)
 
-> **HES v3.4.0**: O scan automatizado (Bandit + Semgrep) já foi executado na fase SECURITY.
-> Esta dimensão verifica o resultado do scan e complementa com revisão conceitual de segurança
-> em aspectos que ferramentas estáticas não cobrem.
+> **HES v3.4.0**: O scan automatizado (Bandit + Semgrep) já was executado na phase SECURITY.
+> this dimensão verifica o resultado do scan e complementa with revisão conceitual de security
+> em aspectos que ferramentas estáticas not cobrem.
 
 ```
 [ ] security-report-final.json existe em .hes/state/ ?
@@ -70,7 +70,7 @@
 [ ] Dados externos sanitizados antes de uso interno
 ```
 
-**Referência:** `.hes/state/security-report-final.json` | `.hes/state/security-exceptions.json`
+**Referência:** `.hes/state/security-report-end.json` | `.hes/state/security-exceptions.json`
 
 ---
 

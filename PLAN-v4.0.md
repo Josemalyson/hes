@@ -1,12 +1,12 @@
 # HES — Improvement Plan v4.0
 # Da Orquestração Sequencial à Fábrica de Software Autônoma
-# Autor: análise técnica — Megatendências 2026 (OpenAI, Google, LangChain, AWS Kiro)
+# Autor: analysis técnica — Megatendências 2026 (OpenAI, Google, LangChain, AWS Kiro)
 # Data: 2026-04-20
 # Base: HES v3.5.0 (feat/hes-v3.5-full-plan-implementation)
 
 ---
 
-## ◈ VALIDAÇÃO DO ESTADO ATUAL (v3.5.0)
+## ◈ validation DO state current (v3.5.0)
 
 ### Inventário confirmado contra o repositório real
 
@@ -65,31 +65,31 @@ O consenso da indústria em 2026 solidificou-se em torno da equação:
 Agent = Model + Harness
 ```
 
-| Lição da Indústria | Fonte | Implicação para o HES |
+| lesson da Indústria | Fonte | Implicação for o HES |
 |---|---|---|
-| O gargalo é a atenção humana, não os tokens | OpenAI Codex (1M linhas, zero revisão humana) | HES precisa de agentes de revisão e merge autônomos |
-| O Harness faz o modelo saltar no ranking sem alterar pesos | LangChain deepagents: 52.8% → 66.5% Terminal Bench 2.0 | O harness é multiplicador de performance tão importante quanto o modelo |
-| Multi-agentes brilham em paralelo, degradam em sequencial | Google Research (180 configurações testadas) | A escolha single vs. multi-agent deve ser dinâmica e baseada no tipo de tarefa |
-| Código deve ser otimizado para legibilidade do agente | arXiv:2604.07502 | HES pode se tornar guia para essa transição no código do usuário |
+| O gargalo is a atenção humana, not os tokens | OpenAI Codex (1M linhas, zero revisão humana) | HES precisa de agents de revisão e merge autônomos |
+| O Harness faz o modelo saltar no ranking sem alterar pesos | LangChain deepagents: 52.8% → 66.5% Terminal Bench 2.0 | O harness is multiplicador de performance tão importante quanto o modelo |
+| Multi-agents brilham em paralelo, degradam em sequencial | Google Research (180 configurations testadas) | A escolha single vs. multi-agent must ser dinâmica e baseada no tipo de task |
+| code must ser otimizado for legibilidade do Agent | arXiv:2604.07502 | HES can se tornar guia for this transição no code do usuário |
 
-O HES v3.5.0 já internaliza esses princípios no fluxo sequencial. O plano v4.0 estende esse paradigma para orquestração multi-agente e autonomia evolutiva.
+O HES v3.5.0 já internaliza esses princípios no flow sequencial. O plano v4.0 estende this paradigma for orquestração multi-Agent e autonomia evolutiva.
 
 ---
 
-## ◈ MELHORIA 1 — ORQUESTRAÇÃO MULTI-AGENTE
+## ◈ improvement 1 — ORQUESTRAÇÃO MULTI-Agent
 
-### Status: ❌ Não implementado
+### Status: ❌ not implementado
 
 ### Problema
-O HES guia um único agente LLM através de um fluxo sequencial de 10 fases. Tarefas como análise de segurança, revisão de código e geração de testes poderiam ser executadas em paralelo, reduzindo o tempo total de desenvolvimento.
+O HES guia um único Agent LLM através de um flow sequencial de 10 phases. tasks how analysis de security, revisão de code e generation de tests poderiam ser executadas em paralelo, reduzindo o tempo total de desenvolvimento.
 
 ### Solução
 
-**1.1 — Fase 0.5: Análise e Decomposição de Tarefa**
+**1.1 — phase 0.5: analysis e Decomposição de task**
 
-Antes das fases principais, um agente `planner.md` analisa o escopo da feature:
-- Identifica subtarefas paralelizáveis (ex: DESIGN e DATA podem evoluir juntos)
-- Gera um `execution-plan.json` com grafo de dependências
+before das phases principais, um Agent `planner.md` analisa o Scope da feature:
+- Identifica subtarefas paralelizáveis (ex: DESIGN e DATA can evoluir juntos)
+- Gera um `execution-plan.json` with grafo de dependências
 - Decide dinamicamente: `single-agent mode` vs `multi-agent mode`
 
 ```json
@@ -104,25 +104,25 @@ Antes das fases principais, um agente `planner.md` analisa o escopo da feature:
 }
 ```
 
-**1.2 — Novo Agente: `orchestrator.md` (O Maestro)**
+**1.2 — new Agent: `orchestrator.md` (O Maestro)**
 
-Responsável por despachar tarefas para um "Agent Fleet" especializado:
-- `planner.md` → define o plano de execução
-- `orchestrator.md` → despacha e monitora agentes em paralelo
+Responsável por despachar tasks for um "Agent Fleet" especializado:
+- `planner.md` → define o plano de execution
+- `orchestrator.md` → despacha e monitora agents em paralelo
 - `designer.md` → cria ADRs e decisões arquiteturais
-- `data-modeler.md` → gera migrações SQL e schema de dados
+- `data-modeler.md` → gera migrações SQL e schema de data
 - `spec-writer.md` → finaliza cenários BDD
 
-**1.3 — Execução em Git Worktrees Isoladas**
+**1.3 — execution em Git Worktrees Isoladas**
 
-Inspirado no Codex (OpenAI), agentes especializados operam em worktrees Git isoladas:
+Inspirado no Codex (OpenAI), agents especializados operam em worktrees Git isoladas:
 ```bash
 git worktree add .worktrees/designer feat/design-agent
 git worktree add .worktrees/data-modeler feat/data-agent
 # orchestrator.md gerencia integração e resolve conflitos
 ```
 
-### Arquivos Novos
+### Files new
 ```
 skills/planner.md           — agente de decomposição de tarefas
 skills/orchestrator.md      — maestro da frota de agentes
@@ -131,7 +131,7 @@ skills/agents/data-modeler.md — agente especialista em migrações
 skills/agents/spec-writer.md  — agente especialista em BDD
 ```
 
-### Comando Novo
+### Comando new
 ```
 /hes start --parallel <feature>   — inicia orquestração multi-agente
 /hes fleet status                  — estado da frota de agentes
@@ -139,23 +139,23 @@ skills/agents/spec-writer.md  — agente especialista em BDD
 
 ---
 
-## ◈ MELHORIA 2 — APRENDIZADO CONTÍNUO E AUTO-EVOLUÇÃO DO HARNESS
+## ◈ improvement 2 — APRENDIZADO CONTÍNUO E AUTO-EVOLUÇÃO DO HARNESS
 
-### Status: ❌ Não implementado (ciclo de lições existe, mas é reativo)
+### Status: ❌ not implementado (cycle de lessons existe, but is reativo)
 
 ### Problema
-O processo de "promoção" de lições a melhorias requer gatilhos manuais (`/hes report`). Para se tornar uma fábrica autônoma, o HES deve evoluir seu próprio Harness de forma proativa.
+O processo de "promoção" de lessons a improvements requer triggers manuais (`/hes report`). for se tornar a fábrica autônoma, o HES must evoluir its próprio Harness de forma proativa.
 
 ### Solução
 
-**2.1 — Agente de Melhoria Contínua: `harness-evolver.md`**
+**2.1 — Agent de improvement Contínua: `harness-evolver.md`**
 
-Roda em background analisando `events.log` e identificando padrões de falha:
-- Analisa frequência de erros por fase e tipo de ação
-- Identifica skill-files com taxa de rejeição elevada
-- Propõe edições nos próprios arquivos `.md` de habilidade
+Runs in background analyzing `events.log` e identifying failure patterns:
+- Analisa frequência de erros por phase e tipo de ação
+- Identifica skill-files with taxa de rejeição elevada
+- Propõe edições nos próprios Files `.md` de habilidade
 
-**2.2 — Modelo de Confiança para Auto-Modificação**
+**2.2 — Modelo de Confiança for Auto-Modificação**
 
 ```yaml
 # .hes/state/trust-policy.yml
@@ -172,7 +172,7 @@ trust_levels:
 
 **2.3 — Comando `/hes insights`**
 
-Gera relatório visual de evolução do Harness:
+Gera report visual de evolução do Harness:
 ```
 Métricas:
 - Lições promovidas a melhorias: N
@@ -182,36 +182,36 @@ Métricas:
 - Padrões de falha recorrentes
 ```
 
-### Arquivos Novos
+### Files new
 ```
 skills/harness-evolver.md       — agente de auto-evolução
 .hes/state/trust-policy.yml     — política de confiança para auto-modificação
 docs/harness-evolution-log.md   — histórico de auto-modificações aprovadas
 ```
 
-### Comando Novo
+### Comando new
 ```
 /hes insights   — dashboard de aprendizado e métricas de evolução
 ```
 
 ---
 
-## ◈ MELHORIA 3 — SEGURANÇA, GOVERNANÇA E CONFIABILIDADE ENTERPRISE
+## ◈ improvement 3 — security, GOVERNANÇA E CONFIABILIDADE ENTERPRISE
 
-### Status: ⚠️ Parcialmente implementado (fase SECURITY existe, mas sem sandbox e auditoria criptográfica)
+### Status: ⚠️ Parcialmente implementado (phase SECURITY existe, but sem sandbox e auditoria criptográfica)
 
 ### Solução
 
-**3.1 — Execução em Sandbox por Padrão**
+**3.1 — execution em Sandbox por Padrão**
 
-Integração com ambiente sandbox isolado para todas as ações de agente:
-- Previne danos acidentais ao sistema de arquivos do host
+Integração with ambiente sandbox isolado for all as ações de Agent:
+- Previne danos acidentais ao sistema de Files do host
 - Mitiga riscos de injeção de prompt
 - Rollback automático em caso de falha de gate
 
 **3.2 — Trilha de Auditoria Imutável**
 
-Extensão do atual `telemetry.jsonl` com verificação criptográfica:
+Extensão do current `telemetry.jsonl` with verificação criptográfica:
 ```jsonl
 {
   "trace_id": "abc-123",
@@ -224,7 +224,7 @@ Extensão do atual `telemetry.jsonl` com verificação criptográfica:
 }
 ```
 
-**3.3 — Políticas de Segurança como Código**
+**3.3 — Políticas de security how code**
 
 ```yaml
 # security-policy.yml
@@ -240,7 +240,7 @@ gates:
     allow_exceptions: false
 ```
 
-### Arquivos Novos
+### Files new
 ```
 security-policy.yml             — políticas de segurança como código
 docs/audit-trail-spec.md        — spec da trilha de auditoria criptográfica
@@ -248,16 +248,16 @@ docs/audit-trail-spec.md        — spec da trilha de auditoria criptográfica
 
 ---
 
-## ◈ MELHORIA 4 — NOVAS FEATURES
+## ◈ improvement 4 — new FEATURES
 
-### 4.1 — `/hes review` — Revisão de Código Autônoma
+### 4.1 — `/hes review` — Revisão de code Autônoma
 
-**Descrição:** Agente dedicado para revisão de PRs, análogo a um desenvolvedor sênior.
+**Descrição:** Agent dedicado for revisão de PRs, análogo a um desenvolvedor sênior.
 
-**Como funciona:**
+**how funciona:**
 - `reviewer.md` analisa o `git diff` da PR
-- Executa verificações de estilo, segurança e boas práticas
-- Gera relatório estruturado postável no GitHub/GitLab
+- Executa verificações de estilo, security e boas práticas
+- Gera report estruturado postável no GitHub/GitLab
 
 ```markdown
 ## HES Review Report — feat/payment-gateway
@@ -277,59 +277,59 @@ _Nenhum_
 ...
 ```
 
-**Arquivos Novos:**
+**Files new:**
 ```
 skills/reviewer.md   — agente de revisão autônoma de PR
 ```
 
-**Comando Novo:**
+**Comando new:**
 ```
 /hes review <PR_URL|branch>   — inicia revisão autônoma
 ```
 
-### 4.2 — `/hes optimize` — Otimização para Legibilidade de Agente
+### 4.2 — `/hes optimize` — Otimização for Legibilidade de Agent
 
-**Descrição:** Refatora código aplicando princípios de "agent-readable code" (arXiv:2604.07502).
+**Descrição:** Refatora code aplicando princípios de "agent-readable code" (arXiv:2604.07502).
 
-**Transformações aplicadas:**
+**Applied transformations:**
 ```
 - Variáveis enigmáticas → termos semânticos em inglês (reduz tokens)
 - Logs de texto livre → JSON estruturado
 - Comentários → formato estruturado que serve de "hint" para agentes
 - Magic numbers → constantes nomeadas
-- Funções God → funções focadas com nomes descritivos
+- Functions God → funções focadas com nomes descritivos
 ```
 
-**Arquivos Novos:**
+**Files new:**
 ```
 skills/optimizer.md   — agente de otimização para agentes
 ```
 
-**Comando Novo:**
+**Comando new:**
 ```
 /hes optimize [--dry-run] [path]   — otimiza código para legibilidade de agente
 ```
 
-### 4.3 — `/hes init` — Onboarding Aprimorado de Projetos Legados
+### 4.3 — `/hes init` — Onboarding Aprimorado de projects Legados
 
-**Descrição:** Melhoria do `legacy.md` existente para geração automática de documentação inicial.
+**Descrição:** improvement do `legacy.md` existente for generation automática de documentation inicial.
 
-**O que o agente faz além do atual:**
+**O que o Agent faz além do current:**
 - Varre a estrutura de pastas e infere arquitetura
-- Gera ADRs retrospectivos baseados no código existente
+- Gera ADRs retrospectivos baseados no code existente
 - Cria `discovery-output.json` e `design-output.json` iniciais
 - Avalia harnessability e sugere ordem de migração por módulo
 
 ---
 
-## ◈ MELHORIA 5 — INTEGRAÇÃO COM ECOSSISTEMA
+## ◈ improvement 5 — INTEGRAÇÃO with ECOSSISTEMA
 
-### 5.1 — MCP como Protocolo Padrão de Integração
+### 5.1 — MCP how Protocolo Padrão de Integração
 
-Adoção do Model Context Protocol como protocolo nativo do HES:
+Adoção do Model Context Protocol how protocolo nativo do HES:
 - Conexão padronizada a DBs, APIs, CI/CD, knowledge bases
-- Sem código de integração customizado por serviço
-- Compatível com o ecossistema MCP de Claude, Cursor, etc.
+- Sem code de integração customizado por serviço
+- Compatível with o ecossistema MCP de Claude, Cursor, etc.
 
 ```json
 // .hes/mcp-servers.json
@@ -342,13 +342,13 @@ Adoção do Model Context Protocol como protocolo nativo do HES:
 }
 ```
 
-### 5.2 — Integração com LangSmith para Observabilidade de Grafo
+### 5.2 — Integração with LangSmith for Observabilidade de Grafo
 
-Cada fase e ação registrada como "span" no LangSmith:
-- Visualização do workflow como grafo de decisão
-- Identificação de gargalos por fase
-- Debug de comportamentos inesperados do agente
-- Integração via API com o `telemetry.jsonl` existente
+each phase e ação registrada how "span" no LangSmith:
+- Visualização do workflow how grafo de decisão
+- Identificação de gargalos por phase
+- Debug de comportamentos inesperados do Agent
+- Integração via API with o `telemetry.jsonl` existente
 
 ---
 
@@ -389,25 +389,25 @@ v4.0 (Q2 2027) — Lançamento da Fábrica Autônoma
 
 ## ◈ IMPACTO ARQUITETURAL ESTIMADO
 
-| Métrica | v3.5.0 (atual) | v4.0 (projetado) |
+| Métrica | v3.5.0 (current) | v4.0 (projetado) |
 |---|---|---|
-| Modo de execução | Single-agent sequencial | Multi-agent paralelo + single-agent sequencial |
-| Agentes disponíveis | 23 (9 fase + 14 sistema) | 30+ (+ planner, orchestrator, fleet, evolver) |
+| Modo de execution | Single-agent sequencial | Multi-agent paralelo + single-agent sequencial |
+| agents disponíveis | 23 (9 phase + 14 sistema) | 30+ (+ planner, orchestrator, fleet, evolver) |
 | Autonomia de revisão | Manual (humano) | Autônoma via `/hes review` |
 | Evolução do harness | Reativa (`/hes report`) | Proativa (harness-evolver em background) |
 | Integrações externas | Git + GitHub Actions | Git + GitHub Actions + MCP + LangSmith |
-| Conformidade enterprise | Gate binário (HIGH block) | Políticas como código (security-policy.yml) |
+| Conformidade enterprise | Gate binário (HIGH block) | Políticas how code (security-policy.yml) |
 
 ---
 
 ## ◈ CONCLUSÃO
 
-O HES v3.5.0 é um produto maduro que já internalizou os princípios de Harness Engineering. Este plano v4.0 não substitui o que existe — ele **estende** a arquitetura sequencial comprovada com:
+O HES v3.5.0 is um produto maduro que já internalizou os princípios de Harness Engineering. this plano v4.0 not substitui o que existe — ele **estende** a arquitetura sequencial comprovada with:
 
-1. **Paralelismo inteligente** — o planner decide quando usar multi-agent
-2. **Auto-evolução controlada** — o harness melhora a si mesmo com supervisão humana
+1. **Paralelismo inteligente** — o planner decide when use multi-agent
+2. **Auto-evolução controlada** — o harness melhora a si mesmo with supervisão humana
 3. **Governança enterprise** — políticas, auditoria e sandbox por padrão
-4. **Ecossistema aberto** — MCP + LangSmith como primeiros cidadãos
+4. **Ecossistema aberto** — MCP + LangSmith how primeiros cidadãos
 
-> O futuro do desenvolvimento não é sobre modelos maiores, mas sobre Harnesses mais inteligentes.
-> O HES está posicionado para liderar essa transição.
+> O futuro do desenvolvimento not is about modelos maiores, but about Harnesses more inteligentes.
+> O HES is posicionado for liderar this transição.

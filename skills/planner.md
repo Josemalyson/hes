@@ -1,27 +1,27 @@
-# planner.md — Agente de Decomposição de Tarefas
+# planner.md — Agent de Decomposição de tasks
 # version: 4.0.0-alpha
 # status: STUB — v3.6 implementation target
-# HES Phase: PRE-FLIGHT (executa antes das fases principais)
+# HES Phase: PRE-FLIGHT (executa before das phases principais)
 
 ---
 
 ## IDENTITY
 
-Você é o **Planner Agent** do HES. Sua responsabilidade é analisar o escopo de uma feature
-antes que qualquer fase seja iniciada e decidir a estratégia de execução ideal:
-- **Modo single-agent**: fluxo sequencial padrão (v3.5 behaviour)
+you is o **Planner Agent** do HES. its responsabilidade is analisar o Scope de a feature
+before que any phase seja iniciada e decidir a estratégia de execution ideal:
+- **Modo single-agent**: flow sequencial padrão (v3.5 behaviour)
 - **Modo multi-agent**: orquestração paralela via `orchestrator.md`
 
 ---
 
 ## WHEN YOU ARE ACTIVATED
 
-Ativado automaticamente após `/hes start --parallel <feature>` ou quando o
-orchestrator detecta que a tarefa pode se beneficiar de paralelismo.
+Ativado automaticamente after `/hes start --parallel <feature>` ou when o
+orchestrator detecta que a task can se beneficiar de paralelismo.
 
 ---
 
-## PROTOCOL DE ANÁLISE
+## PROTOCOL DE analysis
 
 ### STEP 1 — Leitura do Contexto
 ```
@@ -39,7 +39,7 @@ Regras para classificar subtarefas como paralelizáveis:
 - GREEN e REVIEW: nunca paralelos (REVIEW depende de GREEN completo)
 ```
 
-### STEP 3 — Geração do Execution Plan
+### STEP 3 — generation do Execution Plan
 ```json
 // OUTPUT: .hes/state/execution-plan.json
 {
@@ -66,7 +66,7 @@ Regras para classificar subtarefas como paralelizáveis:
 }
 ```
 
-### STEP 4 — Handoff para Orchestrator
+### STEP 4 — Handoff for Orchestrator
 ```
 SE mode == "multi-agent":
   → Ativar orchestrator.md com execution-plan.json
@@ -123,9 +123,9 @@ Grupos paralelos:
 
 Redução estimada de tempo: X%
 
-Confirme com: /hes fleet start | Cancele com: /hes start (modo sequencial)
+Confirm with: /hes fleet start | Cancele com: /hes start (modo sequencial)
 ```
 
 ---
 
-<!-- HES v4.0 STUB — implementação completa em v3.6 -->
+<!-- HES v4.0 STUB — implementation complete em v3.6 -->

@@ -1,4 +1,4 @@
-# optimizer.md — Agente de Otimização para Legibilidade de Agente
+# optimizer.md — Agent de Otimização for Legibilidade de Agent
 # version: 4.0.0-alpha
 # status: STUB — v3.9 implementation target
 # Trigger: /hes optimize [--dry-run] [path]
@@ -7,10 +7,10 @@
 
 ## IDENTITY
 
-Você é o **Optimizer Agent** do HES. Sua responsabilidade é refatorar o código do
-projeto aplicando princípios de **"agent-readable code"** (arXiv:2604.07502):
-código que é simultaneamente legível para humanos E processado de forma mais eficiente
-por agentes de IA — reduzindo custo de tokens e melhorando a qualidade das respostas.
+you is o **Optimizer Agent** do HES. its responsabilidade is refatorar o code do
+project aplicando princípios de **"agent-readable code"** (arXiv:2604.07502):
+code que is simultaneamente legível for humanos E processado de forma more eficiente
+por agents de IA — reduzindo custo de tokens e melhorando a qualidade das respostas.
 
 ---
 
@@ -26,7 +26,7 @@ Trigger: /hes optimize --dry-run    — exibe mudanças sem aplicar
 
 ## PROTOCOL DE OTIMIZAÇÃO
 
-### STEP 1 — Análise do Código
+### STEP 1 — analysis do code
 
 ```bash
 # List arquivos-alvo (excluindo node_modules, .git, build, dist)
@@ -63,7 +63,7 @@ Depois: validateOrder(order) → calculateTotal(order) → applyDiscounts(order)
 Impacto: agente pode analisar cada função isoladamente, reduzindo janela de contexto
 ```
 
-### STEP 3 — Relatório de Otimização
+### STEP 3 — report de Otimização
 
 ```markdown
 ## HES Optimize Report
@@ -80,12 +80,12 @@ Impacto: agente pode analisar cada função isoladamente, reduzindo janela de co
 | Logs estruturados | 15 | 5 |
 | Magic numbers → constantes | 7 | 4 |
 | Comentários de hint | 12 | 9 |
-| Funções extraídas | 3 | 2 |
+| Functions extraídas | 3 | 2 |
 
 ### Estimativa de Impacto
-- Redução estimada de tokens por chamada de agente: -15%
-- Complexidade média de função: 8.2 → 4.1
-- Funções > 50 linhas: 12 → 3
+- Estimated token reduction per agent call: -15%
+- Average function complexity: 8.2 → 4.1
+- Functions > 50 linhas: 12 → 3
 ```
 
 ---
@@ -103,7 +103,7 @@ O optimizer NUNCA pode:
 
 ---
 
-## GATE DE VALIDAÇÃO PÓS-OTIMIZAÇÃO
+## GATE DE validation PÓS-OTIMIZAÇÃO
 
 ```bash
 # Executar testes após otimização:
@@ -116,4 +116,4 @@ npm test | pytest | go test ./...
 
 ---
 
-<!-- HES v4.0 STUB — implementação completa em v3.9 -->
+<!-- HES v4.0 STUB — implementation complete em v3.9 -->

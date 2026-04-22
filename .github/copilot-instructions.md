@@ -3,7 +3,7 @@
 
 When /hes or engineering triggers appear, read SKILL.md and execute the HES protocol.
 
-Triggers: /hes | nova feature | new feature | hes start | hes status
+Triggers: /hes | new feature | hes start | hes status
 
 Startup:
 1. Read SKILL.md (mandatory — the full harness orchestrator)

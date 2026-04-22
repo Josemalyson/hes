@@ -2,7 +2,7 @@
 name: harness-engineer
 version: 3.5.0
 plan_version: 4.0.0-alpha
-trigger: /hes | /harness | "iniciar projeto" | "analisar projeto" | "nova feature" | "hes start" | "hes status" | "hes switch" | "hes start --parallel" | "hes fleet" | "hes insights" | "hes optimize" | "hes review"
+trigger: /hes | /harness | "start project" | "analyze project" | "new feature" | "hes start" | "hes status" | "hes switch" | "hes start --parallel" | "hes fleet" | "hes insights" | "hes optimize" | "hes review"
 author: Josemalyson Oliveira | 2026
 framework: HES — Harness Engineer Standard v3.5 (v4.0 roadmap active)
 references:
@@ -108,7 +108,7 @@ On first user interaction:
 
 | Detected Language | Response Language | Example Greeting |
 |-------------------|-------------------|------------------|
-| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.5.0 — {{NOME_PROJETO}}" |
+| pt-BR (Português do Brasil) | Português do Brasil | "📍 HES v3.5.0 — {{NOME_project}}" |
 | es (Spanish) | Spanish | "📍 HES v3.5.0 — {{PROJECT_NAME}}" |
 | fr (French) | French | "📍 HES v3.5.0 — {{PROJECT_NAME}}" |
 | de (German) | German | "📍 HES v3.5.0 — {{PROJECT_NAME}}" |
@@ -325,7 +325,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 > **LLM Responsibility**: The LLM MUST execute this protocol autonomously on every session start.
 > The LLM MUST NOT ask the user to perform any of these steps — the LLM executes them directly via tools.
 
-### PASSO 0 — READ STATE AND AUTO-INSTALL
+### step 0 — READ STATE AND AUTO-INSTALL
 
 ```
 1. LLM checks .hes/state/current.json existence via file system tools
@@ -341,7 +341,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 4. With file → LLM reads active_feature and state (normal operation)
 ```
 
-### PASSO 0-B — DETECT LANGUAGE
+### step 0-B — DETECT LANGUAGE
 
 ```
 1. LLM analyzes first user message for language patterns
@@ -349,7 +349,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 3. LLM adapts all subsequent responses to that language
 ```
 
-### PASSO 0-C — DETECT AUDIENCE MODE
+### step 0-C — DETECT AUDIENCE MODE
 
 ```
 1. LLM checks current.json.audience_mode
@@ -357,7 +357,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 3. LLM adapts response complexity accordingly
 ```
 
-### PASSO 1 — CONSULT REGISTRY
+### step 1 — CONSULT REGISTRY
 
 ```
 1. LLM reads .hes/agents/registry.json via file system tools
@@ -368,7 +368,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 3. If not found → harness-agent (fallback) + LLM logs warning
 ```
 
-### PASSO 2 — ROUTE
+### step 2 — ROUTE
 
 | Condition | Agent | Skill-file |
 |-----------|-------|-----------|
@@ -398,7 +398,7 @@ LEGACY  → .hes/ exists, current.json exists → normal operation
 | `/hes optimize` | optimizer-agent | `skills/optimizer.md` *(stub v3.9)* |
 | `/hes review` | reviewer-agent | `skills/reviewer.md` *(stub v4.0)* |
 
-### PASSO 3 — ANNOUNCE
+### step 3 — ANNOUNCE
 
 ```
 📍 HES v3.5.0 — {{PROJECT_NAME}}
@@ -413,7 +413,7 @@ Loading        : skills/{{XX-name}}.md
 ▶ LLM is now executing the instructions in that skill-file
 ```
 
-### PASSO 4 — CHECK DEPENDENCIES
+### step 4 — CHECK DEPENDENCIES
 
 ```
 LLM checks each dependency D in dependency_graph[active_feature]:
@@ -422,7 +422,7 @@ LLM checks each dependency D in dependency_graph[active_feature]:
     → LLM suggests: "Want to switch to '{{D}}' now?"
 ```
 
-### PASSO 5 — PHASE LOCK CHECK
+### step 5 — PHASE LOCK CHECK
 
 ```
 Before any phase advancement, LLM evaluates transition gate:
@@ -446,7 +446,7 @@ LLM evaluates:
 VIOLATION → LLM delegates to session-manager.md (alternative PASSO 6)
 ```
 
-### PASSO 6 — LOAD CONTEXT AND EXECUTE
+### step 6 — LOAD CONTEXT AND EXECUTE
 
 ```
 1. LLM loads ONLY files in agents[X].context_load (from registry)
@@ -461,7 +461,7 @@ VIOLATION → LLM delegates to session-manager.md (alternative PASSO 6)
 > You do NOT ask the user to execute these steps — YOU perform them autonomously.
 ```
 
-### PASSO 7 — VALIDATE AND ADVANCE STATE
+### step 7 — VALIDATE AND ADVANCE STATE
 
 ```
 1. LLM checks phase DONE criteria
@@ -538,10 +538,10 @@ OFFLINE (every 3 cycles / /hes report — LLM executes autonomously):
 | `/hes test` | harness-test-agent | Self-testing do harness (structural + behavioral) |
 | `/hes unlock --force` | session-manager | Bypass phase lock (logs risk event) |
 | `/hes start --parallel <f>` | planner-agent | *(stub v3.6)* Decompõe feature → modo multi-agent |
-| `/hes fleet status` | orchestrator-agent | *(stub v3.7)* Estado da frota de agentes paralelos |
+| `/hes fleet status` | orchestrator-agent | *(stub v3.7)* state da frota de agents paralelos |
 | `/hes insights` | harness-evolver | *(stub v3.8)* Dashboard aprendizado + métricas evolução |
-| `/hes insights --evolve` | harness-evolver | *(stub v3.8)* Propõe melhorias ao harness via events.log |
-| `/hes optimize [path]` | optimizer-agent | *(stub v3.9)* Refatora código para legibilidade de agente |
+| `/hes insights --evolve` | harness-evolver | *(stub v3.8)* Propõe improvements ao harness via events.log |
+| `/hes optimize [path]` | optimizer-agent | *(stub v3.9)* Refatora code for legibilidade de Agent |
 | `/hes review <PR\|branch>` | reviewer-agent | *(stub v4.0)* Revisão autônoma de PR — 5 dimensões |
 
 ### `/hes status` (via session-manager):

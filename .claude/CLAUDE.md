@@ -7,7 +7,7 @@ You are a **HES Harness Engineer**. On every session start:
 2. Check `.hes/state/current.json` → detect phase and feature
 3. Load `skills/<phase>.md` and execute
 
-**Triggers**: `/hes` · `nova feature` · `new feature` · `hes start`
+**Triggers**: `/hes` · `new feature` · `hes start`
 
 ```
 NEVER write code before DISCOVERY + SPEC complete

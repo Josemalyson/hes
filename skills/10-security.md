@@ -2,20 +2,20 @@
 
 > Skill loaded when: feature.state = SECURITY
 > Pre-condition: GREEN phase complete (build + all tests passing)
-> Invocação manual: /hes security
+> Manual invocation: /hes security
 >
-> Role no harness: **Computational Sensor — Security Fitness**
-> Executa ferramentas open source de mercado (Bandit + Semgrep) que rodam na máquina do dev.
-> O LLM lê o output, corrige os findings e re-executa até gate ser satisfeito.
+> Role in harness: **Computational Sensor — Security Fitness**
+> Runs open-source security tools (Bandit + Semgrep) on the developer's machine.
+> The LLM reads the output, fixes findings, and re-runs until the gate is satisfied.
 
 ---
 
-## ◈ FERRAMENTAS
+## ◈ TOOLS
 
-| Tool | Escopo | Instalação | Output |
+| Tool | Scope | Installation | Output |
 |---|---|---|---|
-| Bandit | Python (primário — 82.9% do projeto) | `pip install bandit` | JSON |
-| Semgrep | Shell/Multi (secundário — 17.1%) | `pip install semgrep` | JSON |
+| Bandit | Python (primary — 82.9% of the project) | `pip install bandit` | JSON |
+| Semgrep | Shell/Multi (secondary — 17.1%) | `pip install semgrep` | JSON |
 
 ---
 
@@ -29,32 +29,32 @@
 
 ---
 
-## ◈ STEP 0 — LOG INÍCIO
+## ◈ STEP 0 — LOG START
 
 ```bash
-bash scripts/hooks/log-action.sh TOOL_CALL STARTED "security-scan" "iniciando SECURITY phase"
+bash scripts/hooks/log-action.sh TOOL_CALL STARTED "security-scan" "starting SECURITY phase"
 ```
 
 ---
 
-## ◈ STEP 1 — PRE-FLIGHT: VERIFICAR FERRAMENTAS
+## ◈ STEP 1 — PRE-FLIGHT: VERIFICAR TOOLS
 
 ```bash
-# Verificar Bandit
+# Verify Bandit
 if ! pip show bandit &>/dev/null 2>&1; then
   bash scripts/hooks/log-action.sh TOOL_CALL STARTED "pip install bandit" "instalando"
   pip install bandit --break-system-packages -q
   bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "pip install bandit" "instalado"
 fi
 
-# Detectar Shell files
+# Detect Shell files
 SHELL_FILES=$(find . -name "*.sh" \
   -not -path "./.git/*" \
   -not -path "./.hes/*" \
   -not -path "./venv/*" \
   -not -path "./node_modules/*" | wc -l | tr -d ' ')
 
-# Verificar Semgrep (apenas se há Shell files)
+# Verify Semgrep (only if Shell files exist)
 if [ "$SHELL_FILES" -gt 0 ] && ! pip show semgrep &>/dev/null 2>&1; then
   bash scripts/hooks/log-action.sh TOOL_CALL STARTED "pip install semgrep" "instalando"
   pip install semgrep --break-system-packages -q
@@ -64,10 +64,10 @@ fi
 
 ---
 
-## ◈ STEP 2 — EXECUTAR BANDIT (Python)
+## ◈ STEP 2 — RUN BANDIT (Python)
 
 ```bash
-bash scripts/hooks/log-action.sh EXEC_CMD STARTED "bandit -r ." "executando scan Python"
+bash scripts/hooks/log-action.sh EXEC_CMD STARTED "bandit -r ." "running Python scan"
 
 bandit -r . \
   --exclude ./.hes,./venv,./.git,./node_modules,./dist,./build \
@@ -81,7 +81,7 @@ bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "bandit -r ." "report gerado (
 
 ---
 
-## ◈ STEP 3 — EXECUTAR SEMGREP (Shell), se aplicável
+## ◈ STEP 3 — RUN SEMGREP (Shell), if applicable
 
 ```bash
 if [ "$SHELL_FILES" -gt 0 ]; then
@@ -95,15 +95,15 @@ if [ "$SHELL_FILES" -gt 0 ]; then
 
   bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "semgrep p/shell-hardening" "report gerado"
 else
-  bash scripts/hooks/log-action.sh EXEC_CMD SKIPPED "semgrep" "sem arquivos Shell detectados"
+  bash scripts/hooks/log-action.sh EXEC_CMD SKIPPED "semgrep" "no Shell files detected"
 fi
 ```
 
 ---
 
-## ◈ STEP 4 — PARSEAR E TRIAR FINDINGS
+## ◈ STEP 4 — PARSE AND TRIAGE FINDINGS
 
-O LLM executa este script para extrair e classificar findings:
+The LLM runs this script to extract and classify findings:
 
 ```python
 import json
@@ -127,19 +127,19 @@ for r in report.get("results", []):
 print(json.dumps(by_severity, indent=2))
 ```
 
-**Regras de triagem:**
+**Triage rules:**
 
-| Severidade | Ação do LLM |
+| Severity | LLM Action |
 |---|---|
-| HIGH | Bloqueia avanço. LLM corrige IMEDIATAMENTE. |
-| MEDIUM | LLM analisa contexto. Corrige OU documenta exceção com justificativa. |
-| LOW | LLM documenta em `security-exceptions.json`. Não bloqueia. |
+| HIGH | Blocks advancement. LLM fixes IMMEDIATELY. |
+| MEDIUM | LLM analyzes context. Fixes OR documents exception with justification. |
+| LOW | LLM documents in `security-exceptions.json`. Does not block. |
 
 ---
 
-## ◈ STEP 5 — AUTO-CORREÇÃO (HIGH e MEDIUM selecionados)
+## ◈ STEP 5 — AUTO-FIX (HIGH and selected MEDIUM)
 
-Para cada finding a corrigir, o LLM executa o loop:
+For each finding to fix, the LLM runs the loop:
 
 ```
 1. bash scripts/hooks/log-action.sh WRITE_FILE STARTED "{file}:{line}" "corrigindo {test_id}"
@@ -153,37 +153,37 @@ Para cada finding a corrigir, o LLM executa o loop:
 5. LLM re-executa bandit SOMENTE no arquivo:
    bandit {file} -f json --exit-zero
 
-6. Se finding sumiu:
+6. If finding is gone:
    bash scripts/hooks/log-action.sh WRITE_FILE SUCCESS "{file}:{line}" "{test_id} corrigido"
 
-7. Se persistir (tentativa 1 → 2):
-   → LLM tenta abordagem alternativa
+7. If persists (attempt 1 → 2):
+   → LLM tries alternative approach
 
-8. Se ainda persistir após 2 tentativas:
-   bash scripts/hooks/log-action.sh WRITE_FILE FAILED "{file}:{line}" "{test_id} requer intervenção manual"
-   → LLM documenta como exceção com justificativa técnica detalhada
-   → LLM escala para usuário se for HIGH
+8. If still persists after 2 attempts:
+   bash scripts/hooks/log-action.sh WRITE_FILE FAILED "{file}:{line}" "{test_id} requires manual intervention"
+   → LLM documents as exception with detailed technical justification
+   → LLM escalates to user if HIGH
 ```
 
-### Guia de correção por test_id
+### Fix guide by test_id
 
 | test_id | Problema | Correção padrão |
 |---|---|---|
-| B101 | assert em prod | Substituir por `raise ValueError` ou `if/raise` explícito |
+| B101 | assert em prod | Replace with `raise ValueError` ou `if/raise` explícito |
 | B105/B106/B107 | Hardcoded credential | `os.environ.get('VAR_NAME')` ou `secrets` manager |
-| B301/B302 | pickle inseguro | Substituir por `json.loads()` ou `orjson` |
-| B311 | random para segurança | `secrets.token_hex(16)` ou `secrets.randbelow(n)` |
+| B301/B302 | pickle inseguro | Replace with `json.loads()` ou `orjson` |
+| B311 | random for security | `secrets.token_hex(16)` ou `secrets.randbelow(n)` |
 | B324 | MD5/SHA1 | `hashlib.sha256(data).hexdigest()` |
 | B501/B502/B503 | TLS/SSL fraco | `ssl.PROTOCOL_TLS_CLIENT` + `check_hostname=True` |
 | B601/B602/B603 | Shell injection | `subprocess.run([cmd, arg], shell=False)` |
-| B608 | SQL injection | Parâmetros preparados: `cursor.execute(sql, (param,))` |
+| B608 | SQL injection | Prepared parameters: `cursor.execute(sql, (param,))` |
 | B701/B702 | Jinja2 sem autoescape | `Environment(autoescape=True)` |
 
 ---
 
-## ◈ STEP 6 — DOCUMENTAR EXCEÇÕES
+## ◈ STEP 6 — DOCUMENT EXCEPTIONS
 
-Para MEDIUM/LOW não corrigidos (ou HIGH não auto-corrigíveis):
+For unresolved MEDIUM/LOW (or non-auto-fixable HIGH):
 
 ```python
 import json
@@ -195,7 +195,7 @@ exceptions = [
         "file": "path/to/file.py",
         "line": 42,
         "severity": "MEDIUM",
-        "justification": "random() usado apenas para mock em testes, não em produção",
+        "justification": "random() used only for mocks in tests, not in production",
         "decided_by": "LLM",
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
@@ -212,10 +212,10 @@ bash scripts/hooks/log-action.sh GENERATE_ARTIFACT SUCCESS "security-exceptions.
 
 ---
 
-## ◈ STEP 7 — RE-SCAN FINAL COMPLETO
+## ◈ STEP 7 — end FULL RE-SCAN
 
 ```bash
-bash scripts/hooks/log-action.sh EXEC_CMD STARTED "bandit final re-scan" "validando correções"
+bash scripts/hooks/log-action.sh EXEC_CMD STARTED "bandit final re-scan" "validating fixes"
 
 bandit -r . \
   --exclude ./.hes,./venv,./.git,./node_modules,./dist,./build \
@@ -224,7 +224,7 @@ bandit -r . \
   --exit-zero
 
 bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "bandit final re-scan" \
-  "report final gerado em .hes/state/security-report-final.json"
+  "final report generated at .hes/state/security-report-final.json"
 ```
 
 ---
@@ -260,7 +260,7 @@ fi
 
 ---
 
-## ◈ STEP 9 — REGISTRAR EVENTO DE FASE NO EVENTS.LOG
+## ◈ STEP 9 — LOG PHASE TRANSITION EVENT
 
 ```python
 import json
@@ -277,7 +277,7 @@ for r in results:
 with open(".hes/state/security-exceptions.json") as f:
     exceptions = json.load(f)
 
-# Ler current state
+# Read current state
 with open(".hes/state/current.json") as f:
     state = json.load(f)
 feature = state.get("active_feature", "unknown")
@@ -303,7 +303,7 @@ with open(".hes/state/events.log", "a") as f:
 
 ---
 
-## ◈ STEP 10 — ATUALIZAR ESTADO
+## ◈ STEP 10 — UPDATE STATE
 
 Se gate passou:
 
@@ -328,7 +328,7 @@ bash scripts/hooks/log-action.sh WRITE_FILE SUCCESS "current.json" "state → RE
 
 ---
 
-## ◈ REPORT FORMAT (exibir ao usuário)
+## ◈ REPORT FORMAT (display to user)
 
 ```
 🔐 HES Security Scan — {feature}
@@ -342,7 +342,7 @@ FINDINGS (pré-correção):
   🟢 LOW    : {N_l} → documentados
 
 RESULTADO FINAL:
-  🔴 HIGH   : 0  ← obrigatório para gate
+  🔴 HIGH   : 0  ← required for gate
   🟡 MEDIUM : {remaining_m}
   🟢 LOW    : {remaining_l}
 
@@ -352,26 +352,26 @@ GATE: ✅ PASSOU — avançando para REVIEW
 
 ---
 
-## ◈ GATE DE AVANÇO (obrigatório)
+## ◈ ADVANCEMENT GATE (mandatory)
 
-O LLM SÓ avança para REVIEW se TODAS as condições forem atendidas:
+The LLM ONLY advances to REVIEW if ALL conditions are met:
 
 ```
-[ ] security-report-final.json gerado
-[ ] zero findings HIGH no report final
-[ ] todos MEDIUM com decisão: corrigido OU exceção documentada
-[ ] security-exceptions.json existe (pode ser [])
-[ ] evento de fase registrado no events.log
-[ ] current.json atualizado: features[feature] = "REVIEW"
+[ ] security-report-final.json generated
+[ ] zero HIGH findings in final report
+[ ] all MEDIUM with decision: fixed OR exception documented
+[ ] security-exceptions.json exists (may be [])
+[ ] phase event logged in events.log
+[ ] current.json updated: features[feature] = "REVIEW"
 ```
 
 ---
 
-## ◈ INVOCAÇÃO MANUAL
+## ◈ Invocation MANUAL
 
 ```
-/hes security           → executa scan completo na feature atual
-/hes security --report  → exibe último report sem re-executar scan
+/hes security           → runs full scan on current feature
+/hes security --report  → displays last report without re-running scan
 ```
 
 ---
@@ -379,20 +379,20 @@ O LLM SÓ avança para REVIEW se TODAS as condições forem atendidas:
 ▶ NEXT ACTION — REVIEW
 
 ```
-🔐 Security scan completo.
+🔐 Security scan complete.
 
-  [A] "gate passou, zero HIGH"
-      → Avançando para REVIEW (skills/07-review.md)
+  [A] "gate passed, zero HIGH"
+      → Advancing to REVIEW (skills/07-review.md)
 
   [B] "HIGH finding {test_id} em {file}:{line}"
-      → Loop de auto-correção (STEP 5) — tentativa {N}/2
+      → Auto-fix loop (STEP 5) — tentativa {N}/2
 
   [C] "gate falhou após 2 tentativas"
-      → Escalar para usuário — listar findings bloqueantes
+      → Escalate to user — list blocking findings
 
-📄 Próximo skill-file: skills/07-review.md
+📄 Next skill-file: skills/07-review.md
 🤖 Agente: review-agent
-💡 Tip: Security scan executa ANTES de code review.
-   Não faz sentido revisar código que contém vulnerabilidades conhecidas.
+💡 Tip: Security scan runs BEFORE code review.
+   It makes no sense to review code containing known vulnerabilities.
    Tool-first, human-review-second.
 ```

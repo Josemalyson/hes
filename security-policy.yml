@@ -1,15 +1,15 @@
-# security-policy.yml — Políticas de Segurança como Código (HES v4.0)
+# security-policy.yml — Políticas de security how code (HES v4.0)
 # version: 1.0.0-alpha
 # status: STUB — v3.6 implementation target
-# Referência: skills/10-security.md (fase SECURITY)
+# Referência: skills/10-security.md (phase SECURITY)
 
 ---
 
 version: "1.0"
-description: "HES Security Gate Policy — define os critérios de bloqueio e aviso para a fase SECURITY"
+description: "HES Security Gate Policy — define os critérios de bloqueio e aviso for a phase SECURITY"
 
 # ============================================================
-# MODO PADRÃO (default para todos os projetos)
+# MODO PADRÃO (default for all os projects)
 # ============================================================
 default:
   gate_name: "security-scan-gate"
@@ -24,8 +24,8 @@ default:
     - LOW
 
   allow_exceptions: true
-  exception_requires_approval: true   # humano deve aprovar toda exceção
-  exception_expiry_days: 30           # exceções expiram após 30 dias
+  exception_requires_approval: true   # humano must aprovar toda exceção
+  exception_expiry_days: 30           # exceções expiram after 30 dias
 
   tools:
     bandit:
@@ -35,26 +35,26 @@ default:
       enabled: true
       ruleset: "p/owasp-top-ten"
 
-  # Regras específicas que podem ser ignoradas (justificativa obrigatória)
+  # Regras específicas que can ser ignoradas (justificativa obrigatória)
   ignored_rules: []
   # Exemplo:
   # ignored_rules:
   #   - rule_id: "B101"     # assert used
-  #     justification: "Assertions usadas apenas em test helpers"
+  #     justification: "Assertions usadas only em test helpers"
   #     approved_by: "josemalyson"
   #     expires_at: "2026-07-01"
 
 # ============================================================
-# MODO ENTERPRISE (projetos com requisitos de compliance)
+# MODO ENTERPRISE (projects with requisitos de compliance)
 # ============================================================
 enterprise:
   gate_name: "security-scan-gate-enterprise"
-  enabled: false   # ativar explicitamente no projeto
+  enabled: false   # ativar explicitamente no project
 
   block_on_severity:
     - HIGH
     - CRITICAL
-    - MEDIUM        # mais restritivo que o default
+    - MEDIUM        # more restritivo que o default
 
   warn_on_severity:
     - LOW
@@ -77,14 +77,14 @@ enterprise:
     report_path: ".hes/state/compliance-report.json"
 
 # ============================================================
-# MODO RELAXADO (projetos em fase inicial / POC)
+# MODO RELAXADO (projects em phase inicial / POC)
 # ============================================================
 relaxed:
   gate_name: "security-scan-gate-relaxed"
   enabled: false
 
   block_on_severity:
-    - CRITICAL      # apenas critical bloqueia
+    - CRITICAL      # only critical bloqueia
 
   warn_on_severity:
     - HIGH
@@ -92,9 +92,9 @@ relaxed:
     - LOW
 
   allow_exceptions: true
-  exception_requires_approval: false  # exceções automáticas (apenas warn)
+  exception_requires_approval: false  # exceções automáticas (only warn)
 
 # ============================================================
-# CONFIGURAÇÃO ATIVA DO PROJETO
+# ACTIVE POLICY FOR THIS PROJECT
 # ============================================================
-active_policy: default   # altere para: enterprise | relaxed | default
+active_policy: default   # altere for: enterprise | relaxed | default

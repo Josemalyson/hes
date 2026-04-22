@@ -219,7 +219,7 @@ If gain confirmed → /hes harness to update project score
 
 ---
 
-## ◈ STEP 6 — FINAL CHECKLIST
+## ◈ STEP 6 — end CHECKLIST
 
 ```
 [ ] Are all existing tests passing?

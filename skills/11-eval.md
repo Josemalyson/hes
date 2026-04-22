@@ -1,6 +1,6 @@
 # HES Skill — 11: Eval Harness (EVAL Phase)
-# Invocação: /hes eval [--phase <nome>] [--k 3] [--llm-judge]
-# Objetivo: medir se o harness ainda funciona — regression testing dos skill-files
+# Invocation: /hes eval [--phase <nome>] [--k 3] [--llm-judge]
+# Objetivo: medir se o harness still funciona — regression testing dos skill-files
 
 ---
 
@@ -10,26 +10,26 @@
 >  Without them, it's easy to get stuck in reactive loops — catching issues
 >  only in production." — Anthropic (2026)
 
-O Eval Harness testa o **harness em si**, não o código do projeto.
+O Eval Harness testa o **harness em si**, not o code of the project.
 Roda contra golden tasks curadas em `.hes/evals/tasks/` e compara
-com baselines em `.hes/evals/baselines/`.
+with baselines em `.hes/evals/baselines/`.
 
 ---
 
 ## ◈ MÉTRICAS
 
 ### pass@k
-Probabilidade de pelo menos 1 sucesso em k tentativas.
-Mede: **capacidade** (o harness consegue fazer isso?)
+Probabilidade de by the menos 1 sucesso em k tentativas.
+Mede: **capacidade** (o harness consegue do isso?)
 
 ### pass^k
-Probabilidade de TODOS k tentativas serem sucesso.
+Probabilidade de all k tentativas serem sucesso.
 Mede: **confiabilidade** (o harness faz isso de forma consistente?)
 
 **Interpretação:**
-- `pass@k alto + pass^k baixo` → harness consegue, mas de forma inconsistente
-- `pass@k baixo` → harness não consegue — regression crítica
-- `pass@k == pass^k` → harness é determinístico nesta dimensão
+- `pass@k alto + pass^k baixo` → harness consegue, but de forma inconsistente
+- `pass@k baixo` → harness not consegue — regression crítica
+- `pass@k == pass^k` → harness is determinístico nesta dimensão
 
 ---
 
@@ -44,7 +44,7 @@ bandit_high    = json.loads(bandit_output)["metrics"]["_totals"]["SEVERITY.HIGH"
 gate_exit_code = subprocess.run(["python3", ".hes/scripts/check-security-gate.py"]).returncode
 ```
 
-### LLM-as-judge (qualitativo, mais lento)
+### LLM-as-judge (qualitativo, more lento)
 ```python
 # Prompt para LLM-as-judge:
 JUDGE_PROMPT = """
@@ -64,9 +64,9 @@ Saída do agente:
 
 ---
 
-## ◈ FLUXO DE EXECUÇÃO
+## ◈ flow DE execution
 
-### STEP 0 — Log início
+### STEP 0 — Log start
 ```bash
 bash scripts/hooks/log-action.sh TOOL_CALL STARTED "eval-harness" "iniciando eval"
 ```
@@ -89,7 +89,7 @@ baseline_files = sorted(glob.glob(".hes/evals/baselines/scores-*.json"))
 baseline = json.loads(open(baseline_files[-1]).read()) if baseline_files else {}
 ```
 
-### STEP 3 — Executar tasks (k vezes cada)
+### STEP 3 — Executar tasks (k vezes each)
 ```python
 K = 3  # ou argumento --k
 results = {}
@@ -127,7 +127,7 @@ for task in tasks:
     }
 ```
 
-### STEP 4 — Comparar com baseline e detectar regressões
+### STEP 4 — Comparar with baseline e detectar regressões
 ```python
 regressions = []
 for task_id, result in results.items():
@@ -189,7 +189,7 @@ bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "eval-harness" \
 
 ---
 
-## ◈ GATE DE REGRESSÃO (para CI/CD)
+## ◈ GATE DE REGRESSÃO (for CI/CD)
 
 Rodar no GitHub Actions:
 ```bash

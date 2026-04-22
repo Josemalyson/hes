@@ -163,7 +163,7 @@ If the test fails and the code seems correct → the code is wrong.
 
 ---
 
-## ◈ STEP 6 — FINAL VALIDATION
+## ◈ STEP 6 — end VALIDATION
 
 ```bash
 # Java — full suite + coverage + architecture fitness
@@ -209,7 +209,7 @@ pytest --cov=src --cov-report=term-missing -v
 
 ---
 
-▶ NEXT ACTION — SECURITY (obrigatório antes de REVIEW)
+▶ NEXT ACTION — SECURITY (obrigatório before de REVIEW)
 
 ```
 🟢 Implementation completed?
@@ -232,7 +232,7 @@ Confirm before proceeding to SECURITY phase:
 
 📄 Next skill file: skills/10-security.md
 🤖 Next agent: security-agent
-💡 Tip: Security scan executa ANTES de code review.
+💡 Tip: Security scan runs BEFORE code review.
    Não faz sentido revisar código com vulnerabilidades conhecidas (Bandit B-findings).
    Tool-first → review-second.
    Após gate SECURITY passar → skills/07-review.md

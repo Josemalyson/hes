@@ -14,7 +14,7 @@ case "$CMD" in
   start_phase)
     PHASE="${2:-UNKNOWN}"; FEATURE="${3:-unknown}"
     SPAN_ID=$(uuid8)
-    echo "$SPAN_ID"  # retorna o span_id para uso posterior
+    echo "$SPAN_ID"  # returns span_id for later use
     python3 << PYEOF
 import json
 from datetime import datetime, timezone

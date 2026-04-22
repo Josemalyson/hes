@@ -1,5 +1,5 @@
 # HES v3.5.0 — Harness Validation CI
-# Valida estrutura do harness em todo PR e push para main
+# Validates harness structure on every PR and push to main
 name: HES Harness Validation
 
 on:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 HES v3.5.0 — Harness Validation Script
-Valida estrutura, consistência e versões do HES.
+Valida estrutura, consistência e versions do HES.
 
 Uso:
   python3 scripts/ci/validate-harness.py --check skills
@@ -9,7 +9,7 @@ Uso:
   python3 scripts/ci/validate-harness.py --check state-machine
   python3 scripts/ci/validate-harness.py --check skill-headers
   python3 scripts/ci/validate-harness.py --report
-  python3 scripts/ci/validate-harness.py  (roda todos os checks)
+  python3 scripts/ci/validate-harness.py  (roda all os checks)
 """
 import json
 import os
@@ -31,7 +31,7 @@ def ok(msg): print(f"✅ {msg}")
 
 
 def check_skills():
-    """Verifica que todos os skill-files referenciados no registry existem."""
+    """Verifica que all os skill-files referenciados no registry existem."""
     print("\n── CHECK: Skill files ──")
     with open(REGISTRY) as f:
         registry = json.load(f)
@@ -46,7 +46,7 @@ def check_skills():
 
 
 def check_versions():
-    """Verifica consistência de versões entre SKILL.md, registry e CHANGELOG."""
+    """Verifica consistência de versions between SKILL.md, registry e CHANGELOG."""
     print("\n── CHECK: Version consistency ──")
     with open(REGISTRY) as f:
         registry = json.load(f)
@@ -81,7 +81,7 @@ def check_versions():
 
 
 def check_state_machine():
-    """Verifica que o state machine no SKILL.md inclui todas as fases do registry."""
+    """Verifica que o state machine no SKILL.md inclui all as phases do registry."""
     print("\n── CHECK: State machine ──")
     if not SKILL_MD.exists():
         err("SKILL.md not found")
@@ -113,7 +113,7 @@ def check_state_machine():
 
 
 def check_skill_headers():
-    """Verifica que skill-files têm headers de versão."""
+    """Verifica que skill-files têm headers de version."""
     print("\n── CHECK: Skill headers ──")
     skills_dir = ROOT / "skills"
     missing_headers = []
@@ -134,7 +134,7 @@ def check_skill_headers():
 
 
 def report():
-    """Exibe relatório final."""
+    """Exibe report end."""
     print("\n" + "="*50)
     print("HES HARNESS VALIDATION REPORT")
     print("="*50)

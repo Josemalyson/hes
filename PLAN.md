@@ -1,11 +1,11 @@
 # HES — Improvement Plan v1.0
 # O que existe, o que falta, e o que o mercado exige em 2026
-# Autor: análise técnica baseada em Fowler (2026), LangChain (2026), OpenAI (2026), Anthropic (2026)
+# Autor: analysis técnica baseada em Fowler (2026), LangChain (2026), OpenAI (2026), Anthropic (2026)
 # Data: 2026-04-18
 
 ---
 
-## ◈ ESTADO ATUAL DO HES (inventário honesto)
+## ◈ state current DO HES (inventário honesto)
 
 ### O que o HES já tem (pontos fortes)
 ```
@@ -84,24 +84,24 @@ TIER 3 — DIFERENCIAÇÃO (torna o HES referência de mercado)
 ### P1-A | Eval Harness + LLM-as-judge
 
 **Por que falta:**
-O HES valida comportamento via testes de produção (RED/GREEN) e review manual (DIMENSION 1-5).
-Mas não tem **eval automatizada**: um conjunto de tarefas curados que medem se o harness
-*ainda funciona* após mudanças nos skill-files. Segundo LangChain (2026), apenas 52% dos
-times têm evals — mas esses times detectam regressões antes dos usuários.
+O HES valida comportamento via tests de produção (RED/GREEN) e review manual (DIMENSION 1-5).
+but not tem **eval automatizada**: um conjunto de tasks curados que medem se o harness
+*still funciona* after mudanças nos skill-files. Segundo LangChain (2026), only 52% dos
+times têm evals — but esses times detectam regressões before dos usuários.
 
 **O que o mercado faz (2026):**
-- **Offline evals**: tarefas curadas + graders determinísticos. Rápidos, gratuitos, reproduzíveis.
-  Ex: "dado este prompt de discovery, o LLM gera ≥3 business rules?" → boolean check.
-- **LLM-as-judge**: grader não-determinístico para dimensões qualitativas.
+- **Offline evals**: tasks curadas + graders determinísticos. Rápidos, gratuitos, reproduzíveis.
+  Ex: "data this prompt de discovery, o LLM gera ≥3 business rules?" → boolean check.
+- **LLM-as-judge**: grader not-determinístico for dimensões qualitativas.
   Ex: "o ADR gerado explica o trade-off arquitetural de forma clara?" → 1–5 score.
-- **pass@k**: cada tarefa roda k vezes. pass@k = ≥1 sucesso em k tentativas (capacidade).
-  pass^k = todos k sucessos (confiabilidade). High pass@k + low pass^k = instabilidade.
-- **Regression gate**: PR que degrada score abaixo do baseline é bloqueado automaticamente.
+- **pass@k**: each task roda k vezes. pass@k = ≥1 sucesso em k tentativas (capacidade).
+  pass^k = all k sucessos (confiabilidade). High pass@k + low pass^k = instabilidade.
+- **Regression gate**: PR que degrada score abaixo do baseline is bloqueado automaticamente.
 
 **Referências:**
 - Anthropic: "Demystifying evals for AI agents" (2026)
 - LangChain: "Agent Evaluation Readiness Checklist" (2026)
-- DeepEval / Confident AI: framework open source para unit testing de LLMs
+- DeepEval / Confident AI: framework open source for unit testing de LLMs
 
 **O que implementar no HES:**
 
@@ -130,7 +130,7 @@ Comando: /hes eval [--phase <nome>] [--k 3] [--llm-judge]
 Saída: .hes/evals/results/eval-report-{timestamp}.json
 ```
 
-**Schema de tarefa eval:**
+**Schema de task eval:**
 ```json
 {
   "task_id": "disc-001",
@@ -150,13 +150,13 @@ Saída: .hes/evals/results/eval-report-{timestamp}.json
 ### P1-B | Telemetria Estruturada (OpenTelemetry-style)
 
 **Por que falta:**
-O events.log atual registra eventos, mas não tem:
-- **Latência por fase** (quanto tempo GREEN levou?)
+O events.log current registra eventos, but not tem:
+- **Latência por phase** (quanto tempo GREEN levou?)
 - **Custo por sessão** (quantos tokens foram usados?)
-- **Span hierarchy** (qual ação dentro de GREEN demorou mais?)
+- **Span hierarchy** (qual ação inside de GREEN demorou more?)
 
-OpenAI (2026) constrói uma stack de observabilidade local efêmera por worktree.
-O Codex pode fazer queries com LogQL e PromQL no próprio contexto de execução.
+OpenAI (2026) constrói a stack de observabilidade local efêmera por worktree.
+O Codex can do queries with LogQL e PromQL no próprio contexto de execution.
 
 **O que o mercado faz (2026):**
 ```
@@ -171,10 +171,10 @@ Span hierarchy (OpenTelemetry):
     └── Span: SECURITY (7 min)
 ```
 
-**Ferramentas open source relevantes:**
-- **LangFuse** (open source self-hosted) — tracing nativo para LLMs
-- **Arize Phoenix** (open source) — observabilidade para agentes
-- **OpenTelemetry** — padrão de spans para sistemas distribuídos
+**Tools open source relevantes:**
+- **LangFuse** (open source self-hosted) — tracing nativo for LLMs
+- **Arize Phoenix** (open source) — observabilidade for agents
+- **OpenTelemetry** — padrão de spans for sistemas distribuídos
 
 **O que implementar no HES:**
 
@@ -216,12 +216,12 @@ scripts/hooks/telemetry-span.sh  → extensão do log-action.sh com timing
 
 ---
 
-### P1-C | Step Budget + Token Tracking por Fase
+### P1-C | Step Budget + Token Tracking por phase
 
 **Por que falta:**
 HES tem time warnings (5/10/15 min) e doom loop prevention (max N tentativas),
-mas não tem **hard limit em chamadas ao LLM** por fase nem **rastreamento de tokens**.
-Sistemas de produção (OpenAI, Anthropic 2026) definem step budgets entre 20–50 por tarefa.
+but not tem **hard limit em chamadas ao LLM** por phase nem **rastreamento de tokens**.
+Sistemas de produção (OpenAI, Anthropic 2026) definem step budgets between 20–50 por task.
 
 **O que o mercado faz:**
 ```
@@ -263,14 +263,14 @@ Adicionar ao ANNOUNCE block (PASSO 3):
 
 ---
 
-## ◈ TIER 2 — ALTO VALOR
+## ◈ TIER 2 — ALTO value
 
 ---
 
 ### P2-A | CI/CD Integration (GitHub Actions)
 
 **Por que falta:**
-HES é executado manualmente. Não há validação automática quando skill-files são modificados.
+HES is executado manualmente. not há validation automática when skill-files are modificados.
 Um PR que quebra o routing do SKILL.md ou invalida o registry.json passa despercebido.
 
 **O que o mercado faz (2026):**
@@ -322,8 +322,8 @@ jobs:
 ### P2-B | Typed Handoff Schemas (Multi-Agent)
 
 **Por que falta:**
-HES tem agent delegation (`tool-dispatch.md`) mas os handoffs entre agents são
-definidos em prosa Markdown — não há schema tipado. Segundo GitHub (2026):
+HES tem agent delegation (`tool-dispatch.md`) but os handoffs between agents are
+definidos em prosa Markdown — not há schema tipado. Segundo GitHub (2026):
 > "Multi-agent systems behave like distributed systems, so every handoff needs
 >  typed schemas, constrained action schemas, and explicit boundary validation."
 
@@ -363,14 +363,14 @@ Exemplo — security-output.schema.json:
 ### P2-C | Context Engineering no Nível de Ferramenta
 
 **Por que falta:**
-HES lida com context bloat no nível de sessão (session-manager.md).
-Mas não trata context bloat no nível de **output de ferramentas**.
+HES lida with context bloat no nível de sessão (session-manager.md).
+but not trata context bloat no nível de **output de ferramentas**.
 Segundo pesquisa (2026): "A single long-running test suite could consume
 30,000 tokens of context in one tool call." — e sem tratamento, o LLM degrada.
 
 **O que o mercado faz:**
 LangChain (2026): tool call offloading — mantém head + tail do output acima de threshold,
-offloada o restante para filesystem. O LLM pode acessar o arquivo completo se necessário.
+offloada o restante for filesystem. O LLM can acessar o file complete se necessário.
 
 **O que implementar:**
 
@@ -402,8 +402,8 @@ scripts/hooks/context-offload.sh  → offloading helper
 ### P3-A | Multi-Model Support
 
 **Por que falta:**
-HES assume Claude como executor. Referências a `CLAUDE.md`, formatação Claude-específica,
-e ausência de adaptações para outros modelos limitam adoção e resilência.
+HES assume Claude how executor. Referências a `CLAUDE.md`, formatação Claude-específica,
+e ausência de adaptações for outros modelos limitam adoção e resilência.
 
 **O que o mercado faz:**
 > "Multi-provider harness design: works with Claude, GPT, and Gemini" — NxCode (2026)
@@ -441,9 +441,9 @@ MCP (Model Context Protocol, padrão universal de 2025-2026) permite que o LLM
 invoque ferramentas externas de forma padronizada, tipada e auditável.
 
 **O que o mercado faz:**
-- Claude Code, Cursor, e todos os IDEs 2026 suportam MCP natively
-- LangChain deepagents usa MCP para tool dispatch padronizado
-- HES poderia expor suas skills como MCP tools
+- Claude Code, Cursor, e all os IDEs 2026 suportam MCP natively
+- LangChain deepagents usa MCP for tool dispatch padronizado
+- HES poderia expor its skills how MCP tools
 
 **O que implementar:**
 
@@ -473,9 +473,9 @@ skills/reference/mcp-integration.md
 ### P3-C | Skill Versioning + Compatibility Matrix
 
 **Por que falta:**
-Skill-files são atualizados sem versão explícita por arquivo.
-Quando `07-review.md` é atualizado na v3.4 mas um projeto usa `SKILL.md` v3.3,
-não há forma automática de detectar incompatibilidade.
+Skill-files are atualizados sem version explícita por file.
+when `07-review.md` is atualizado na v3.4 but um project usa `SKILL.md` v3.3,
+not há forma automática de detectar incompatibilidade.
 
 **O que implementar:**
 
@@ -500,8 +500,8 @@ Migration guides: docs/migrations/v3.3-to-v3.4.md
 ### P3-D | Harness Self-Testing
 
 **Por que falta:**
-HES tem `/hes harness` (diagnóstico), mas não tem **testes automatizados
-dos próprios skill-files**. Se `SKILL.md` tem um bug no routing (ex: typo na fase),
+HES tem `/hes harness` (diagnóstico), but not tem **tests automatizados
+dos próprios skill-files**. Se `SKILL.md` tem um bug no routing (ex: typo na phase),
 ninguém sabe até o LLM falhar em produção.
 
 **O que implementar:**
@@ -531,14 +531,14 @@ Output: .hes/state/harness-test-results.json
 ### P3-E | Synthetic Golden Dataset
 
 **Por que falta:**
-HES aprende com erros reais (lessons.md), mas não tem casos de teste
+HES aprende with erros reais (lessons.md), but not tem casos de test
 curados que representem comportamento correto esperado.
-Sem golden dataset, não é possível medir regressão quantitativamente.
+Sem golden dataset, not is possível medir regressão quantitativamente.
 
 **O que o mercado faz:**
-- Anthropic (2026): cada tarefa eval começa de ambiente limpo e isolado
-- DeepEval: "golden datasets" com expected outputs para cada dimensão
-- Braintrust: rastreia score ao longo do tempo sobre o mesmo dataset
+- Anthropic (2026): each task eval começa de ambiente limpo e isolado
+- DeepEval: "golden datasets" with expected outputs for each dimensão
+- Braintrust: rastreia score ao longo do tempo about o mesmo dataset
 
 **O que implementar:**
 
@@ -571,7 +571,7 @@ Formato de golden task:
 
 ---
 
-## ◈ ROADMAP DE EXECUÇÃO
+## ◈ ROADMAP DE execution
 
 ```
 Q2 2026 (Agora → Junho)

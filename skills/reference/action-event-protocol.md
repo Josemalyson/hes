@@ -1,13 +1,13 @@
 # HES — Action Event Protocol (v3.4.0)
-# Protocolo obrigatório de rastreabilidade intra-fase
-# Resolve: gap de debug/tracking dentro de cada fase do workflow
+# Protocolo obrigatório de rastreabilidade intra-phase
+# Resolve: gap de debug/tracking inside de each phase do workflow
 
 ---
 
 ## ◈ PROBLEMA RESOLVIDO
 
-O `events.log` original registrava apenas transições de fase (ex: `SPEC → DESIGN`).
-Dentro de cada fase, as ações do LLM eram invisíveis. Este protocolo cobre esse gap.
+O `events.log` original registrava only transições de phase (ex: `SPEC → DESIGN`).
+inside de each phase, as ações do LLM eram invisíveis. this protocolo cobre this gap.
 
 ---
 
@@ -29,40 +29,40 @@ Dentro de cada fase, as ações do LLM eram invisíveis. Este protocolo cobre es
 }
 ```
 
-### Campos obrigatórios
+### fields obrigatórios
 
-| Campo | Tipo | Descrição |
+| field | Tipo | Descrição |
 |---|---|---|
 | timestamp | ISO8601 | Momento exato da ação |
 | session_id | UUID | Gerado no bootstrap, imutável na sessão |
 | action_id | string | UUID curto (8 chars) — identifica ação única |
 | feature | string | Feature ativa (de current.json.active_feature) |
-| phase | string | Fase atual (de current.json.features[feature]) |
-| action_type | enum | Tipo da ação (ver tabela abaixo) |
+| phase | string | phase current (de current.json.features[feature]) |
+| action_type | enum | Tipo da ação (see tabela abaixo) |
 | status | enum | STARTED | SUCCESS | FAILED | SKIPPED |
-| details.target | string | Arquivo, comando, ou alvo da ação |
+| details.target | string | file, comando, ou alvo da ação |
 | details.result_summary | string | Resumo do resultado (1 linha) |
 
 ---
 
 ## ◈ TIPOS DE AÇÃO
 
-| action_type | Quando usar |
+| action_type | when use |
 |---|---|
-| READ_FILE | Ao ler qualquer arquivo do projeto |
-| WRITE_FILE | Ao criar ou modificar qualquer arquivo |
-| EXEC_CMD | Ao executar qualquer comando shell |
+| READ_FILE | Ao ler any file of the project |
+| WRITE_FILE | Ao criar ou modificar any file |
+| EXEC_CMD | Ao executar any comando shell |
 | GENERATE_ARTIFACT | Ao gerar spec, ADR, migration, test suite, etc. |
 | LLM_DECISION | Ao tomar decisão arquitetural ou de design |
 | TOOL_CALL | Ao invocar ferramenta externa (bandit, semgrep, etc.) |
-| GATE_CHECK | Ao verificar gate de avanço de fase |
-| SECURITY_SCAN | Específico para scans de segurança (alias de TOOL_CALL) |
+| GATE_CHECK | Ao verificar gate de avanço de phase |
+| SECURITY_SCAN | Específico for scans de security (alias de TOOL_CALL) |
 
 ---
 
-## ◈ COMO USAR (LLM)
+## ◈ how use (LLM)
 
-Toda ação significativa DEVE ser envolvida por dois logs: `STARTED` e `SUCCESS`/`FAILED`.
+Toda ação significativa must ser envolvida por dois logs: `STARTED` e `SUCCESS`/`FAILED`.
 
 ```bash
 # PADRÃO — toda ação executada pelo LLM:
@@ -73,7 +73,7 @@ bash scripts/hooks/log-action.sh EXEC_CMD STARTED "pytest tests/" "executando su
 bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "pytest tests/" "42 passed, 0 failed"
 ```
 
-### Padrão para erros
+### Padrão for erros
 
 ```bash
 bash scripts/hooks/log-action.sh EXEC_CMD STARTED "mvn compile" "compilando"
@@ -94,8 +94,8 @@ python3 -c "import uuid; print(str(uuid.uuid4()))" > .hes/state/session-id
 ```
 
 - **Imutável** durante a sessão
-- **Regenerado** a cada novo bootstrap
-- **Usado** pelo `log-action.sh` para agrupar eventos da mesma sessão
+- **Regenerado** a each new bootstrap
+- **Usado** by the `log-action.sh` for agrupar eventos da mesma sessão
 
 ---
 
@@ -136,12 +136,12 @@ print(Counter(e['action_type'] for e in events))
 
 ---
 
-## ◈ OBRIGATORIEDADE POR FASE
+## ◈ OBRIGATORIEDADE POR phase
 
-| Fase | Ações mínimas a logar |
+| phase | Ações mínimas a logar |
 |---|---|
 | ZERO | GENERATE_ARTIFACT (estrutura .hes/), WRITE_FILE |
-| DISCOVERY | LLM_DECISION (cada business rule capturada) |
+| DISCOVERY | LLM_DECISION (each business rule capturada) |
 | SPEC | GENERATE_ARTIFACT (BDD scenarios, API contracts) |
 | DESIGN | GENERATE_ARTIFACT (ADRs), LLM_DECISION (arch decisions) |
 | DATA | WRITE_FILE (migrations, DTOs) |

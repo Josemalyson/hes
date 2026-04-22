@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # HES v3.4.0 — Action Event Logger
-# Registra ações do LLM no events.log com granularidade intra-fase
+# Registra ações do LLM no events.log with granularidade intra-phase
 #
 # Uso:
 #   bash scripts/hooks/log-action.sh <action_type> <status> <target> <result_summary>
@@ -35,7 +35,7 @@ if [ ! -f "$SESSION_FILE" ]; then
 fi
 SESSION_ID=$(cat "$SESSION_FILE")
 
-# Obter fase e feature do estado atual
+# Obter phase e feature do state current
 PHASE="UNKNOWN"
 FEATURE="UNKNOWN"
 if [ -f "$STATE_FILE" ]; then
@@ -84,7 +84,7 @@ with open(log_path, "a") as f:
     f.write(json.dumps(event) + "\n")
 PYEOF
 
-# Feedback visual (apenas em terminal interativo)
+# Feedback visual (only em terminal interativo)
 if [ -t 1 ]; then
   case "$STATUS" in
     STARTED)  printf "  ⏳ [%s] %s\n" "$ACTION_TYPE" "$TARGET" ;;

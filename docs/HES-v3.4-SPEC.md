@@ -1,10 +1,10 @@
-# HES v3.4.0 — Spec de Implementação
+# HES v3.4.0 — Implementation Spec
 # Security Scan + Intra-Phase Debug Tracking
 # Status: APPROVED | Autor: HES Bot | Data: 2026-04-18
 
 ---
 
-## ◈ PLANO DE EXECUÇÃO
+## ◈ PLANO DE execution
 
 ```
 FASE 1 — Infraestrutura de Tracking
@@ -32,31 +32,31 @@ FASE 4 — Documentação
 ## ◈ PROBLEMA 1 — Security Scan Ausente
 
 ### Diagnóstico
-`07-review.md` DIMENSION 3 (Security) é puramente **inferencial**: o LLM raciocina sobre
-segurança sem executar nenhuma ferramenta. Falhas reais passam despercebidas.
+`07-review.md` DIMENSION 3 (Security) is puramente **inferencial**: o LLM raciocina about
+security sem executar nenhuma ferramenta. Falhas reais passam despercebidas.
 
 ### Solução
-Nova fase obrigatória `SECURITY` entre `GREEN` e `REVIEW`.
+new phase obrigatória `SECURITY` between `GREEN` e `REVIEW`.
 
-**Bandit** (primário — Python 82.9% do projeto):
+**Bandit** (primary — Python 82.9% of the project):
 - PyCQA/bandit | pip install bandit | output JSON | auto-fix por test_id
 
-**Semgrep** (secundário — Shell 17.1%):
+**Semgrep** (secondary — Shell 17.1%):
 - semgrep/semgrep | pip install semgrep | p/shell-hardening
 
 ### Gate
-`SECURITY → REVIEW` apenas se `HIGH findings == 0`
+`SECURITY → REVIEW` only se `HIGH findings == 0`
 
 ---
 
-## ◈ PROBLEMA 2 — Debug/Tracking Intra-Fase Ausente
+## ◈ PROBLEMA 2 — Debug/Tracking Intra-phase Ausente
 
 ### Diagnóstico
-`events.log` registra apenas transições de fase. Ações do LLM dentro de cada fase
-(reads, writes, exec_cmds, decisions) são invisíveis — impossível rastrear execução real.
+`events.log` registra only transições de phase. Ações do LLM inside de each phase
+(reads, writes, exec_cmds, decisions) are invisíveis — impossível rastrear execution real.
 
 ### Solução
-**Action Event Protocol** com `scripts/hooks/log-action.sh` e session_id por sessão.
+**Action Event Protocol** with `scripts/hooks/log-action.sh` e session_id por sessão.
 
 **Schema do evento:**
 ```json
@@ -74,7 +74,7 @@ Nova fase obrigatória `SECURITY` entre `GREEN` e `REVIEW`.
 
 ---
 
-## ◈ NOVO STATE MACHINE
+## ◈ new STATE MACHINE
 
 ```
 ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
@@ -83,21 +83,21 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY �
 | Transição | Gate |
 |---|---|
 | GREEN → SECURITY | Build + all tests passing |
-| SECURITY → REVIEW | 0 HIGH findings + security-report-final.json gerado |
+| SECURITY → REVIEW | 0 HIGH findings + security-report-end.json generated |
 
 ---
 
-## ◈ MUDANÇAS POR ARQUIVO
+## ◈ MUDANÇAS POR file
 
-| Arquivo | Tipo | Impacto |
+| file | Tipo | Impacto |
 |---------|------|---------|
-| `scripts/hooks/log-action.sh` | NOVO | Tracking intra-fase |
-| `skills/10-security.md` | NOVO | Fase SECURITY completa |
-| `skills/reference/action-event-protocol.md` | NOVO | Protocolo documentado |
-| `docs/HES-v3.4-SPEC.md` | NOVO | Este arquivo |
+| `scripts/hooks/log-action.sh` | new | Tracking intra-phase |
+| `skills/10-security.md` | new | phase SECURITY complete |
+| `skills/reference/action-event-protocol.md` | new | Protocolo documentado |
+| `docs/HES-v3.4-SPEC.md` | new | this file |
 | `SKILL.md` | ATUALIZADO | State machine, routing, schema |
 | `skills/00-bootstrap.md` | ATUALIZADO | Session-id generation |
-| `skills/06-implementation.md` | ATUALIZADO | Gate SECURITY antes de REVIEW |
+| `skills/06-implementation.md` | ATUALIZADO | Gate SECURITY before de REVIEW |
 | `skills/07-review.md` | ATUALIZADO | DIMENSION 3 vira verificação de scan |
 | `.hes/agents/registry.json` | ATUALIZADO | security-agent |
 | `README.md` | ATUALIZADO | Docs |
@@ -109,10 +109,10 @@ ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY �
 ## ◈ CRITÉRIOS DE ACEITAÇÃO
 
 - [ ] bandit executa e gera report parseável por LLM
-- [ ] HIGH findings bloqueam avanço para REVIEW
+- [ ] HIGH findings bloqueam avanço for REVIEW
 - [ ] Auto-fix loop (max 2 tentativas por finding)
 - [ ] log-action.sh loga STARTED/SUCCESS/FAILED de toda ação
 - [ ] session_id UUID único por sessão gerado no bootstrap
 - [ ] security-agent presente no registry.json
-- [ ] /hes security resolve para security-agent
-- [ ] README documenta nova fase SECURITY
+- [ ] /hes security resolve for security-agent
+- [ ] README documenta new phase SECURITY

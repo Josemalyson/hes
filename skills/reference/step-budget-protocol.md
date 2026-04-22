@@ -1,5 +1,5 @@
 # HES — Step Budget Protocol (v3.5.0)
-# Controla o número de chamadas ao LLM por fase
+# Controla o número de chamadas ao LLM por phase
 # Previne doom loops e custos descontrolados
 
 ---
@@ -7,23 +7,23 @@
 ## ◈ PROBLEMA RESOLVIDO
 
 HES tinha time warnings (5/10/15 min) e doom loop prevention (max N tentativas),
-mas sem **hard limit em chamadas ao LLM por fase**. Sistemas de produção (OpenAI, 2026)
-definem step budgets de 20–50 por tarefa. Quando esgota: checkpoint + escalation.
+but sem **hard limit em chamadas ao LLM por phase**. Sistemas de produção (OpenAI, 2026)
+definem step budgets de 20–50 por task. when esgota: checkpoint + escalation.
 
 ---
 
-## ◈ STEP BUDGETS POR FASE
+## ◈ STEP BUDGETS POR phase
 
-| Fase      | Max Steps | Justificativa                                  |
+| phase      | Max Steps | Justificativa                                  |
 |-----------|-----------|------------------------------------------------|
-| DISCOVERY | 15        | Elicitação estruturada — não deve iterar muito |
-| SPEC      | 20        | BDD tem formato fixo, não precisa de muitos loops |
-| DESIGN    | 20        | ADRs são bem-definidos                         |
+| DISCOVERY | 15        | Elicitação estruturada — not must iterar muito |
+| SPEC      | 20        | BDD tem formato fixo, not precisa de muitos loops |
+| DESIGN    | 20        | ADRs are well-definidos                         |
 | DATA      | 15        | Migrations têm padrão fixo                     |
-| RED       | 25        | TDD pode precisar de mais iterações            |
-| GREEN     | 30        | Implementação é a fase mais complexa           |
-| SECURITY  | 10        | Scan + auto-fix por arquivo                    |
-| REVIEW    | 15        | 5 dimensões com checklists                     |
+| RED       | 25        | TDD can precisar de more iterações            |
+| GREEN     | 30        | Implementation phase is more complex            |
+| SECURITY  | 10        | Scan + auto-fix por file                    |
+| REVIEW    | 15        | 5 dimensões with checklists                     |
 
 ---
 
@@ -55,7 +55,7 @@ definem step budgets de 20–50 por tarefa. Quando esgota: checkpoint + escalati
 
 ## ◈ PROTOCOLO DE DECREMENTO (LLM executa)
 
-No início de CADA ação que invoca raciocínio do LLM:
+No start de each ação que invoca raciocínio do LLM:
 
 ```bash
 bash scripts/hooks/step-budget.sh decrement
@@ -64,12 +64,12 @@ bash scripts/hooks/step-budget.sh decrement
 O script:
 1. Lê `current.json` → `step_budget[phase].used++`
 2. Se `used >= max * 0.8` → warning (80% esgotado)
-3. Se `used >= max` → **CHECKPOINT + ESCALATION** (não doom loop)
+3. Se `used >= max` → **CHECKPOINT + ESCALATION** (not doom loop)
 4. Loga ação `GATE_CHECK:step_budget` no events.log
 
 ---
 
-## ◈ ESCALATION QUANDO BUDGET ESGOTA
+## ◈ ESCALATION when BUDGET ESGOTA
 
 ```
 ⚠️ STEP BUDGET ESGOTADO — {PHASE} ({used}/{max} steps)
@@ -99,13 +99,13 @@ O LLM ESTIMA tokens consumidos por ação:
 
 | Tipo de ação         | Tokens estimados (média) |
 |----------------------|--------------------------|
-| Leitura de arquivo   | tamanho_chars / 4         |
-| Execução de comando  | 200 (output) + 100 (análise) |
-| Geração de artefato  | 800 (spec) / 1500 (ADR)   |
+| Leitura de file   | tamanho_chars / 4         |
+| execution de comando  | 200 (output) + 100 (analysis) |
+| generation de artefato  | 800 (spec) / 1500 (ADR)   |
 | Decisão arquitetural | 1200                      |
-| Scan de segurança    | 500 (análise findings)    |
+| Scan de security    | 500 (analysis findings)    |
 
-Ao final de cada fase, loga no events.log:
+Ao end de each phase, loga no events.log:
 ```json
 {
   "action_type": "PHASE_COMPLETE",
@@ -119,7 +119,7 @@ Ao final de cada fase, loga no events.log:
 
 ---
 
-## ◈ ANNOUNCE BLOCK ATUALIZADO (PASSO 3 do SKILL.md)
+## ◈ ANNOUNCE BLOCK ATUALIZADO (step 3 do SKILL.md)
 
 ```
 📍 HES v3.5.0 — {PROJECT}

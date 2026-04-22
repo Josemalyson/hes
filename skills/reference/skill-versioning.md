@@ -1,11 +1,11 @@
 # HES — Skill Versioning Guide (v3.5.0)
-# Garante compatibilidade entre skill-files e versões do SKILL.md
+# Garante compatibilidade between skill-files e versions do SKILL.md
 
 ---
 
-## ◈ HEADER OBRIGATÓRIO EM CADA SKILL-FILE
+## ◈ HEADER OBRIGATÓRIO EM each SKILL-FILE
 
-Adicionar ao topo de cada skill-file (após o title):
+Adicionar ao topo de each skill-file (after o title):
 
 ```
 ---
@@ -20,13 +20,13 @@ breaking_changes_from:
 
 ## ◈ VERSIONAMENTO SEMÂNTICO
 
-| Major | Quando usar |
+| Major | when use |
 |---|---|
-| MAJOR (X.0.0) | Mudança que quebra compatibilidade com harness anterior |
-| MINOR (x.Y.0) | Nova funcionalidade sem quebrar compatibilidade |
+| MAJOR (X.0.0) | Mudança que quebra compatibilidade with harness previous |
+| MINOR (x.Y.0) | new funcionalidade sem quebrar compatibilidade |
 | PATCH (x.y.Z) | Correção de bug ou clarificação sem mudança de comportamento |
 
-## ◈ ARQUIVO DE VERSÕES INSTALADAS
+## ◈ file DE versions INSTALADAS
 
 `.hes/state/skill-versions.json`:
 ```json
@@ -50,7 +50,7 @@ python3 scripts/ci/validate-harness.py --check versions
 
 Regras:
 - Se `skill.requires_harness > SKILL.md.version` → ERROR (harness desatualizado)
-- Se `skill.skill_version > SKILL.md.version` → WARN (skill mais nova que harness)
+- Se `skill.skill_version > SKILL.md.version` → WARN (skill more new que harness)
 
 ## ◈ MIGRATION GUIDES
 

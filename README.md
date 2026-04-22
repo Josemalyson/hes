@@ -51,7 +51,7 @@ It starts from the moment you invoke HES in your project. As soon as the LLM see
 ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
 ```
 
-> **v4.0 Roadmap**: A fase pré-flight `PLANNER` permitirá que o HES decomponha features em subtarefas paralelas, despachando uma frota de agentes especializados via `orchestrator.md`. O fluxo sequencial continua disponível como padrão. Veja [PLAN-v4.0.md](PLAN-v4.0.md).
+> **v4.0 Roadmap**: A phase pré-flight `PLANNER` permitirá que o HES decomponha features em subtarefas paralelas, despachando a frota de agents especializados via `orchestrator.md`. O flow sequencial continua disponível how padrão. Veja [PLAN-v4.0.md](PLAN-v4.0.md).
 
 Each phase has a specific purpose and strict gates that the LLM evaluates before advancement:
 
@@ -112,11 +112,11 @@ After bootstrap, the LLM generates the `.hes/` structure automatically and asks:
 
 ## Installation
 
-HES v3.5.0 inclui arquivos de configuração nativos para **9 ferramentas** — zero configuração manual.
+HES v3.5.0 inclui Files de configuration nativos for **9 ferramentas** — zero configuration manual.
 
-### Suporte Nativo por Ferramenta
+### Native Support by Tool
 
-| Ferramenta         | Arquivo Nativo                             | Também Lê    |
+| Ferramenta         | file Nativo                             | also Lê    |
 |--------------------|--------------------------------------------|--------------|
 | **Claude Code**    | `CLAUDE.md` + `.claude/CLAUDE.md`          | `SKILL.md`   |
 | **OpenAI Codex**   | `AGENTS.md`                                | —            |
@@ -128,8 +128,8 @@ HES v3.5.0 inclui arquivos de configuração nativos para **9 ferramentas** — 
 | **Windsurf**       | `.windsurfrules`                           | `AGENTS.md`  |
 | **Kiro (AWS)**     | `.kiro/steering/hes.md`                    | `SKILL.md`   |
 
-> **AGENTS.md é o hub cross-tool**: lido nativamente por Codex, OpenCode, Cursor, Windsurf e Copilot.
-> **SKILL.md é a fonte da verdade**: o orquestrador completo (673 linhas, 33 regras, state machine).
+> **AGENTS.md is o hub cross-tool**: lido nativamente por Codex, OpenCode, Cursor, Windsurf e Copilot.
+> **SKILL.md is a fonte da verdade**: o orquestrador complete (673 linhas, 33 regras, state machine).
 
 ### 🤖 Fastest: Agent Auto-Install
 
@@ -242,8 +242,8 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 | --------------------------------- | ------------------------ | ------------------------------------------------------------ |
 | `/hes`                            | LLM harness              | Starts HES — detects state and routes autonomously           |
 | `/hes start <feature>`            | LLM harness              | New feature → DISCOVERY phase execution                      |
-| `/hes start --parallel <feature>` | LLM planner-agent        | *(v3.7)* Decomposes feature e inicia frota de agentes        |
-| `/hes fleet status`               | LLM orchestrator-agent   | *(v3.7)* Estado da frota de agentes em execução              |
+| `/hes start --parallel <feature>` | LLM planner-agent        | *(v3.7)* Decomposes feature e inicia frota de agents        |
+| `/hes fleet status`               | LLM orchestrator-agent   | *(v3.7)* state da frota de agents em execution              |
 | `/hes switch <feature>`           | LLM session-manager      | Switches feature focus without losing state                  |
 | `/hes status`                     | LLM session-manager      | Shows state of all features + session info                   |
 | `/hes rollback <phase>`           | LLM session-manager      | Reverts to previous phase (with confirmation)                |
@@ -251,11 +251,11 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 | `/hes lessons`                    | LLM harness              | Shows lessons.md + pending promotions to skills              |
 | `/hes report`                     | LLM report-agent         | Generates batch learning report from events.log              |
 | `/hes insights`                   | LLM harness-evolver      | *(v3.8)* Dashboard de aprendizado e métricas de evolução      |
-| `/hes insights --evolve`          | LLM harness-evolver      | *(v3.8)* Propõe melhorias ao harness a partir do events.log  |
+| `/hes insights --evolve`          | LLM harness-evolver      | *(v3.8)* Propõe improvements ao harness a partir do events.log  |
 | `/hes refactor <module>`          | LLM refactor-agent       | Executes guided safe refactoring                             |
 | `/hes harness`                    | LLM harness-health-agent | Runs harness diagnostics (3 dimensions)                      |
 | `/hes review <PR\|branch>`        | LLM reviewer-agent       | *(v4.0)* Revisão autônoma de PR — 5 dimensões                |
-| `/hes optimize [path]`            | LLM optimizer-agent      | *(v3.9)* Refatora código para legibilidade de agente         |
+| `/hes optimize [path]`            | LLM optimizer-agent      | *(v3.9)* Refatora code for legibilidade de Agent         |
 | `/hes security`                   | LLM security-agent       | Security scan manual (Bandit + Semgrep)                      |
 | `/hes eval`                       | LLM eval-agent           | Eval harness (pass@k + LLM-as-judge)                         |
 | `/hes test`                       | LLM harness-test-agent   | Harness self-tests (structural + behavioral)                 |
@@ -265,7 +265,7 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 | `/hes checkpoint`                 | LLM session-manager      | Saves checkpoint without clearing                            |
 | `/hes unlock --force`             | LLM session-manager      | Bypasses phase lock (logs risk event)                        |
 
-> **Legenda**: *(vX.Y)* = planejado para essa versão — stub disponível, implementação completa em roadmap. Ver [PLAN-v4.0.md](PLAN-v4.0.md).
+> **Legenda**: *(vX.Y)* = planejado for this version — stub disponível, implementation complete em roadmap. see [PLAN-v4.0.md](PLAN-v4.0.md).
 
 ---
 
@@ -275,7 +275,7 @@ HES auto-detects your language from the first message and adapts all responses:
 
 | Detected | Language            | Example                              |
 | -------- | ------------------- | ------------------------------------ |
-| `pt-BR`  | Português do Brasil | "📍 HES v3.5.0 — {{NOME_PROJETO}}"    |
+| `pt-BR`  | Português do Brasil | "📍 HES v3.5.0 — {{NOME_project}}"    |
 | `en`     | English             | "📍 HES v3.5.0 — {{PROJECT_NAME}}"    |
 | `es`     | Spanish             | "📍 HES v3.5.0 — {{NOMBRE_PROYECTO}}" |
 | `fr`     | French              | "📍 HES v3.5.0 — {{NOM_PROJET}}"      |
@@ -402,7 +402,7 @@ HES defines **28 registered agent skill-files** (v3.5.0 + v4.0 stubs):
 - **System agents**: 11 (legacy, error-recovery, refactor, report, harness-health, tool-dispatch, agent-registry, session-manager, auto-install, issue-create, progressive-analysis)
 - **v4.0 Stub agents**: 5 (planner, orchestrator, harness-evolver, optimizer, reviewer)
 
-> **v4.0 Vision**: O orchestrator coordenará uma frota de agentes especializados executando em Git worktrees paralelas. O harness-evolver analisará o `events.log` e proporá melhorias ao próprio harness com base em um sistema de confiança LOW/MEDIUM/HIGH_RISK.
+> **v4.0 Vision**: O orchestrator coordenará a frota de agents especializados executando em Git worktrees paralelas. O harness-evolver analisará o `events.log` e proporá improvements ao próprio harness with base em um sistema de confiança LOW/MEDIUM/HIGH_RISK.
 
 > **Note**: Each skill-file is an execution protocol for a registered agent.
 > Sub-agents (test-runner, linter, arch-check) run TOOLS only during implementation — they are not separate skill-files.
@@ -518,17 +518,17 @@ When session exceeds 100 messages, context is offloaded to checkpoint files and 
 
 ## v4.0 Roadmap
 
-HES está evoluindo de orquestrador sequencial para fábrica de software autônoma. Os stubs já estão disponíveis no repositório.
+HES is evoluindo de orquestrador sequencial for fábrica de software autônoma. Os stubs já estão disponíveis no repositório.
 
-| Versão | Target | Feature Principal |
+| version | Target | Feature Principal |
 |---|---|---|
 | **v3.6** | Q2 2026 | `planner.md` + Git worktrees + `security-policy.yml` |
-| **v3.7** | Q3 2026 | `orchestrator.md` + frota de agentes paralelos |
-| **v3.8** | Q4 2026 | `harness-evolver.md` + auto-evolução com trust policy |
+| **v3.7** | Q3 2026 | `orchestrator.md` + frota de agents paralelos |
+| **v3.8** | Q4 2026 | `harness-evolver.md` + auto-evolução with trust policy |
 | **v3.9** | Q1 2027 | `optimizer.md` + MCP + LangSmith |
 | **v4.0** | Q2 2027 | `reviewer.md` + sandbox + auditoria criptográfica |
 
-Ver detalhes completos em [PLAN-v4.0.md](PLAN-v4.0.md).
+see detalhes complete em [PLAN-v4.0.md](PLAN-v4.0.md).
 
 ---
 

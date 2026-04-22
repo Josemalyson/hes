@@ -1,5 +1,5 @@
 # HES — Typed Handoff Schemas (v3.5.0)
-# Resolve: handoffs entre agents eram em prosa — sem validação tipada
+# Resolve: handoffs between agents eram em prosa — sem validation tipada
 # Referência: GitHub (2026) "Multi-Agent Workflows Often Fail"
 
 ---
@@ -10,8 +10,8 @@
 >  typed schemas, constrained action schemas, and explicit boundary validation."
 > — GitHub Engineering Blog, Feb 2026
 
-HES tinha delegação entre agents definida em prosa Markdown (tool-dispatch.md).
-Os schemas agora definem o contrato formal de cada handoff.
+HES tinha delegação between agents definida em prosa Markdown (tool-dispatch.md).
+Os schemas agora definem o contrato formal de each handoff.
 
 ---
 
@@ -49,9 +49,9 @@ Os schemas agora definem o contrato formal de cada handoff.
 
 ---
 
-## ◈ PROTOCOLO DE VALIDAÇÃO DE HANDOFF (LLM executa)
+## ◈ PROTOCOLO DE validation DE HANDOFF (LLM executa)
 
-Antes de qualquer transição de fase, o LLM DEVE:
+before de any transição de phase, o LLM must:
 
 ```
 STEP 1 — Carregar schema da fase atual

@@ -257,7 +257,7 @@ Date: {{DATE}} | Files analyzed: X/Y | Status: {{STATUS}}
 - `.hes/state/analysis-state.json` → progress tracker
 ```
 
-### 4.2 — Update final state
+### 4.2 — Update end state
 
 ```json
 // .hes/state/analysis-state.json

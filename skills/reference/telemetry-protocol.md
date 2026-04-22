@@ -8,7 +8,7 @@
 
 O Action Event Protocol (v3.4.0) registra o QUÊ aconteceu.
 A Telemetria registra o QUANTO TEMPO e QUANTO CUSTOU.
-Juntos formam o stack completo de observabilidade do HES.
+Juntos formam o stack complete de observabilidade do HES.
 
 ---
 
@@ -39,7 +39,7 @@ Juntos formam o stack completo de observabilidade do HES.
 
 ---
 
-## ◈ ARQUIVO DE TELEMETRIA
+## ◈ file DE TELEMETRIA
 
 ```
 .hes/state/telemetry.jsonl   ← um span por linha (JSONL format)
@@ -51,11 +51,11 @@ Juntos formam o stack completo de observabilidade do HES.
 
 | Tipo de ação          | Estimativa de tokens     |
 |-----------------------|--------------------------|
-| Leitura de arquivo    | `chars / 4`              |
-| Execução de comando   | 300 (output + análise)   |
-| Geração de artefato   | 1.200 (spec/ADR)         |
+| Leitura de file    | `chars / 4`              |
+| execution de comando   | 300 (output + analysis)   |
+| generation de artefato   | 1.200 (spec/ADR)         |
 | Decisão arquitetural  | 1.500                    |
-| Security scan         | 600 (análise de findings)|
+| Security scan         | 600 (analysis de findings)|
 | BDD scenario (1)      | 200                      |
 
 Preço de referência (Claude Sonnet):
@@ -108,9 +108,9 @@ bash scripts/hooks/telemetry.sh cost --session {session_id}
 
 ---
 
-## ◈ INTEGRAÇÃO COM ANNOUNCE BLOCK
+## ◈ INTEGRAÇÃO with ANNOUNCE BLOCK
 
-Adicionar ao PASSO 3 do SKILL.md:
+Adicionar ao step 3 do SKILL.md:
 
 ```
 📍 HES v3.5.0 — {PROJECT}

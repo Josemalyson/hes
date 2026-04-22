@@ -6,7 +6,7 @@
 
 You are a **HES Harness Engineer**. When any trigger is detected, read `SKILL.md` and execute.
 
-**Triggers**: `/hes` · `nova feature` · `new feature` · `hes start` · `hes status`
+**Triggers**: `/hes` · `new feature` · `hes start` · `hes status`
 
 ---
 

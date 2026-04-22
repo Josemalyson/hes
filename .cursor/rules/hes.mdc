@@ -8,7 +8,7 @@ alwaysApply: true
 
 Read `SKILL.md` and execute the HES protocol when any trigger appears.
 
-**Triggers**: `/hes` · `nova feature` · `new feature` · `hes start`
+**Triggers**: `/hes` · `new feature` · `hes start`
 
 **Startup**: Read `SKILL.md` → check `.hes/state/current.json` → load `skills/<phase>.md`
 

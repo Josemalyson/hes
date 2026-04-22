@@ -380,12 +380,12 @@ hes/ (repository root)
 | Context compaction         | ✅ New in v3.1  | Explicit protocol for long sessions                           |
 | Formal learning loop       | ✅ New in v3.1  | Hot path + offline (LangChain continual learning)             |
 | `/hes harness`             | ✅ New in v3.1  | 3 regulation dimensions diagnostics                           |
-| SECURITY phase             | ✅ New in v3.4  | Bandit + Semgrep gate antes do REVIEW — bloqueante            |
-| Action Event Protocol      | ✅ New in v3.4  | Debug tracking intra-fase com session_id UUID                 |
+| SECURITY phase             | ✅ New in v3.4  | Bandit + Semgrep gate before do REVIEW — bloqueante            |
+| Action Event Protocol      | ✅ New in v3.4  | Debug tracking intra-phase with session_id UUID                 |
 | Eval harness               | ✅ New in v3.5  | pass@k + LLM-as-judge + golden dataset + regressão            |
-| Telemetria OTel-compatible | ✅ New in v3.5  | Spans com trace_id, cost_usd, duration_ms                     |
-| Step + Token budget        | ✅ New in v3.5  | Hard limit por fase, escalada ao esgotar                       |
-| Typed handoff schemas      | ✅ New in v3.5  | 6 JSON schemas validados em toda transição de fase            |
+| Telemetria OTel-compatible | ✅ New in v3.5  | Spans with trace_id, cost_usd, duration_ms                     |
+| Step + Token budget        | ✅ New in v3.5  | Hard limit por phase, escalada ao esgotar                       |
+| Typed handoff schemas      | ✅ New in v3.5  | 6 JSON schemas validados em toda transição de phase            |
 | Harness self-testing       | ✅ New in v3.5  | 10 structural + 5 behavioral tests do próprio harness         |
 | Multi-model support        | ✅ New in v3.5  | claude.md + gpt-4o.md + default.md                            |
 | Multi-agent / parallelism  | 📋 Planned v3.7 | planner.md + orchestrator.md + Git worktrees                  |
@@ -393,9 +393,9 @@ hes/ (repository root)
 | Autonomous PR review       | 📋 Planned v4.0 | reviewer.md — 5 dimensões, integração GitHub/GitLab           |
 | Agent-readable code        | 📋 Planned v3.9 | optimizer.md — nomenclatura semântica, logs JSON, hints       |
 | Security policies-as-code  | 📋 Planned v3.6 | security-policy.yml — 3 modos: default, enterprise, relaxed   |
-| MCP integration            | 📋 Planned v3.9 | Protocolo padrão para ferramentas e fontes de dados            |
+| MCP integration            | 📋 Planned v3.9 | Protocolo padrão for ferramentas e fontes de data            |
 | LangSmith observability    | 📋 Planned v3.9 | Spans do telemetry.jsonl → grafo de decisão visual            |
-| Cryptographic audit trail  | 📋 Planned v4.0 | Assinatura sha256 em cada transição de fase                   |
+| Cryptographic audit trail  | 📋 Planned v4.0 | Assinatura sha256 em each transição de phase                   |
 
 ---
 
@@ -408,8 +408,8 @@ hes/ (repository root)
 
 ## ◈ ACTION EVENT PROTOCOL (v3.4.0)
 
-> Resolve o gap de rastreabilidade intra-fase: eventos agora cobrem ações individuais,
-> não apenas transições de fase.
+> Resolve o gap de rastreabilidade intra-phase: eventos agora cobrem ações individuais,
+> not only transições de phase.
 
 ```
 events.log (antes v3.3):
@@ -423,15 +423,15 @@ events.log (v3.4 — Action Event Protocol):
 ```
 
 **Componentes:**
-- `scripts/hooks/log-action.sh` — executa o log de cada ação
-- `skills/reference/action-event-protocol.md` — protocolo e schema completo
+- `scripts/hooks/log-action.sh` — executa o log de each ação
+- `skills/reference/action-event-protocol.md` — protocolo e schema complete
 - `.hes/state/session-id` — UUID único por sessão (gerado no bootstrap)
 
 ---
 
 ## ◈ SECURITY PHASE (v3.4.0)
 
-Nova fase **SECURITY** entre GREEN e REVIEW na state machine.
+new phase **SECURITY** between GREEN e REVIEW na state machine.
 
 ```
 GREEN → SECURITY → REVIEW
@@ -442,7 +442,7 @@ GREEN → SECURITY → REVIEW
     Gate: 0 HIGH findings
 ```
 
-**Fluxo:**
+**flow:**
 ```
 bandit -r . → parse JSON → triage (HIGH/MEDIUM/LOW)
   → auto-fix HIGH (max 2 tentativas/finding)
@@ -451,7 +451,7 @@ bandit -r . → parse JSON → triage (HIGH/MEDIUM/LOW)
   → avança para REVIEW se gate passou
 ```
 
-**Ferramenta:** `skills/10-security.md` | **Agente:** `security-agent`
+**Ferramenta:** `skills/10-security.md` | **Agent:** `security-agent`
 
 ---
 
@@ -502,7 +502,7 @@ bandit -r . → parse JSON → triage (HIGH/MEDIUM/LOW)
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Novos Componentes de Estado (v4.0)
+### new Componentes de state (v4.0)
 
 ```json
 // .hes/state/execution-plan.json — gerado pelo planner.md
@@ -532,7 +532,7 @@ bandit -r . → parse JSON → triage (HIGH/MEDIUM/LOW)
 }
 ```
 
-### Novos RULES Propostos (v4.0)
+### new RULES Propostos (v4.0)
 
 ```
 RULE-29  LLM INVOKES planner.md before multi-agent execution — /hes start --parallel
@@ -542,4 +542,4 @@ RULE-32  LLM VALIDATES security-policy.yml active_policy before SECURITY gate
 RULE-33  LLM APPLIES optimizer.md transformations only after test suite passes
 ```
 
-> Ver [PLAN-v4.0.md](PLAN-v4.0.md) para especificação completa de cada componente.
+> see [PLAN-v4.0.md](PLAN-v4.0.md) for specification complete de each componente.

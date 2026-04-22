@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # HES v3.5.0 — Step Budget Manager
 # Uso:
-#   bash scripts/hooks/step-budget.sh decrement          → decrementa budget da fase atual
-#   bash scripts/hooks/step-budget.sh status             → mostra budget atual
-#   bash scripts/hooks/step-budget.sh reset <PHASE>      → reseta budget de uma fase
+#   bash scripts/hooks/step-budget.sh decrement          → decrementa budget da phase current
+#   bash scripts/hooks/step-budget.sh status             → mostra budget current
+#   bash scripts/hooks/step-budget.sh reset <PHASE>      → reseta budget de a phase
 #   bash scripts/hooks/step-budget.sh set-tokens <N>     → atualiza token estimate
 set -euo pipefail
 
@@ -25,7 +25,7 @@ events_path = ".hes/state/events.log"
 with open(state_path) as f:
     state = json.load(f)
 
-# Detectar fase atual
+# Detectar phase current
 feature = state.get("active_feature")
 phase = "UNKNOWN"
 if feature:
@@ -76,7 +76,7 @@ feature = state.get("active_feature", "none")
 feats = state.get("features", {})
 phase = feats.get(feature, "UNKNOWN") if feature else "UNKNOWN"
 print(f"Feature: {feature} | Phase: {phase}")
-print(f"{'Fase':<12} {'Used':>4} {'Max':>4} {'%':>5}")
+print(f"{'phase':<12} {'Used':>4} {'Max':>4} {'%':>5}")
 print("-" * 30)
 for p, b in budget.items():
     used = b.get("used", 0)

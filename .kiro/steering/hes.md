@@ -9,7 +9,7 @@ inclusion: always
 
 When engineering triggers appear, read `SKILL.md` and execute the HES protocol.
 
-**Triggers**: `/hes` · `nova feature` · `new feature` · `hes start`
+**Triggers**: `/hes` · `new feature` · `new feature` · `hes start`
 
 ## Startup
 

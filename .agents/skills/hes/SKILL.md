@@ -1,6 +1,6 @@
 ---
 name: hes
-description: "HES — Harness Engineer Standard. Structured AI software development workflow. Use when: /hes is invoked, user says 'start feature', 'new feature', 'nova feature', or asks to follow the engineering workflow."
+description: "HES — Harness Engineer Standard. Structured AI coding workflow. Use when: /hes is invoked, user says 'start feature', 'new feature', or asks to follow the engineering workflow."
 ---
 
 # HES — Harness Engineer Standard
@@ -16,7 +16,7 @@ Read `SKILL.md` at the project root and execute the HES protocol.
 
 ## Triggers
 
-`/hes` · `nova feature` · `new feature` · `hes start` · `hes status` · `hes switch`
+`/hes` · `new feature` · `new feature` · `hes start` · `hes status` · `hes switch`
 
 ## State Machine
 
