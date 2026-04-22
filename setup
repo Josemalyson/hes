@@ -117,9 +117,50 @@ install_core_project() {
   [[ -d "$HES_DIR/skills/reference" ]] && cp -r "$HES_DIR/skills/reference" "$dir/skills/"
   mkdir -p "$dir/.hes/state" "$dir/.hes/agents" "$dir/.hes/schemas" \
            "$dir/.hes/context/tool-outputs" "$dir/.hes/evals/tasks"
+  # Generate full v3.5 current.json template (all fields required by SKILL.md v3.5)
   [[ ! -f "$dir/.hes/state/current.json" ]] && \
-    echo '{"phase":"ZERO","active_feature":null,"features":{},"harness_version":"3.5.0"}' \
-    > "$dir/.hes/state/current.json"
+    cat > "$dir/.hes/state/current.json" << 'STATEJSON'
+{
+  "project": null,
+  "stack": null,
+  "ide": null,
+  "active_feature": null,
+  "features": {},
+  "domains": [],
+  "dependency_graph": {},
+  "harness_version": "3.5.0",
+  "agent_model": "multi-agent",
+  "user_language": null,
+  "audience_mode": "expert",
+  "completed_cycles": 0,
+  "last_updated": null,
+  "model": null,
+  "session": {
+    "checkpoint": null,
+    "phase_lock": null,
+    "messages_in_session": 0
+  },
+  "security": {
+    "last_scan": null,
+    "last_gate_result": null,
+    "exceptions_count": 0
+  },
+  "step_budget": {
+    "DISCOVERY": { "max": 15, "used": 0 },
+    "SPEC":      { "max": 20, "used": 0 },
+    "DESIGN":    { "max": 20, "used": 0 },
+    "DATA":      { "max": 15, "used": 0 },
+    "RED":       { "max": 25, "used": 0 },
+    "GREEN":     { "max": 30, "used": 0 },
+    "SECURITY":  { "max": 10, "used": 0 },
+    "REVIEW":    { "max": 15, "used": 0 }
+  },
+  "token_tracking": {
+    "tokens_estimated": 0,
+    "cost_usd_estimated": 0.0
+  }
+}
+STATEJSON
   touch "$dir/.hes/state/events.log" 2>/dev/null || true
   cp "$HES_DIR/.hes/schemas/"*.json "$dir/.hes/schemas/" 2>/dev/null || true
   cp "$HES_DIR/.hes/agents/registry.json" "$dir/.hes/agents/" 2>/dev/null || true

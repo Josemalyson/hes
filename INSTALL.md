@@ -6,7 +6,9 @@
 
 ```bash
 git clone https://github.com/Josemalyson/hes.git /tmp/hes
-cd /tmp/hes && ./setup
+cd /tmp/hes
+chmod +x setup   # required: git clone may not preserve execute permissions
+./setup
 ```
 
 The interactive installer detects your AI tools, asks where to install (project or global),
