@@ -1,11 +1,11 @@
 # HES — Skill Versioning Guide (v3.5.0)
-# Garante compatibilidade between skill-files e versions do SKILL.md
+# Ensures compatibility between skill-files and SKILL.md versions
 
 ---
 
-## ◈ HEADER OBRIGATÓRIO EM each SKILL-FILE
+## ◈ REQUIRED HEADER IN EACH SKILL-FILE
 
-Adicionar ao topo de each skill-file (after o title):
+Add to the top of each skill-file (after the title):
 
 ```
 ---
@@ -13,20 +13,20 @@ skill_id: 07-review
 skill_version: 3.5.0
 requires_harness: ">=3.4.0"
 breaking_changes_from:
-  - "3.3.0: DIMENSION 3 agora usa scan automatizado (não manual)"
-  - "3.4.0: session_id obrigatório no events.log"
+  - "3.3.0: DIMENSION 3 now uses automated scan (not manual)"
+  - "3.4.0: session_id required in events.log"
 ---
 ```
 
-## ◈ VERSIONAMENTO SEMÂNTICO
+## ◈ SEMANTIC VERSIONING
 
-| Major | when use |
+| Version | When to use |
 |---|---|
-| MAJOR (X.0.0) | Mudança que quebra compatibilidade with harness previous |
-| MINOR (x.Y.0) | new funcionalidade sem quebrar compatibilidade |
-| PATCH (x.y.Z) | Correção de bug ou clarificação sem mudança de comportamento |
+| MAJOR (X.0.0) | Breaking change incompatible with previous harness        |
+| MINOR (x.Y.0) | New functionality without breaking compatibility          |
+| PATCH (x.y.Z) | Bug fix or clarification without behavior change          |
 
-## ◈ file DE versions INSTALADAS
+## ◈ INSTALLED VERSIONS FILE
 
 `.hes/state/skill-versions.json`:
 ```json
@@ -42,27 +42,27 @@ breaking_changes_from:
 }
 ```
 
-## ◈ VERIFICAÇÃO DE COMPATIBILIDADE
+## ◈ COMPATIBILITY CHECK
 
 ```bash
 python3 scripts/ci/validate-harness.py --check versions
 ```
 
-Regras:
-- Se `skill.requires_harness > SKILL.md.version` → ERROR (harness desatualizado)
-- Se `skill.skill_version > SKILL.md.version` → WARN (skill more new que harness)
+Rules:
+- If `skill.requires_harness > SKILL.md.version` → ERROR (harness outdated)
+- If `skill.skill_version > SKILL.md.version` → WARN (skill newer than harness)
 
 ## ◈ MIGRATION GUIDES
 
-Localização: `docs/migrations/vX.Y-to-vX.Z.md`
-Formato:
+Location: `docs/migrations/vX.Y-to-vX.Z.md`
+Format:
 ```markdown
 # Migration Guide: v3.4.0 → v3.5.0
 
 ## Breaking Changes
-- 07-review.md DIMENSION 3: [o que mudou]
+- 07-review.md DIMENSION 3: [what changed]
 
 ## Migration Steps
-1. [Passo 1]
-2. [Passo 2]
+1. [Step 1]
+2. [Step 2]
 ```

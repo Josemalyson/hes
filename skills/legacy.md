@@ -138,7 +138,7 @@ Date: {{CURRENT_DATE}} | Analyst: HES Auto-Discovery
 | Database | {{DATABASE}} |
 | Estimated age | {{YEARS}} years |
 
-## Harnessability Score (v3.1)
+## Harnessability Score
 
 | Axis | Score | Notes |
 |------|-------|-----------|
@@ -200,7 +200,7 @@ Date: {{CURRENT_DATE}}
 
 ---
 
-## 🔴 CRITICAL — blocks delivery or causes risk in production
+## 🔴 CRITICAL — blocks delivery or causes production risk
 
 | Debt | Location | Impact | Effort | Strategy |
 |--------|------------|---------|---------|-----------|
@@ -211,7 +211,7 @@ Date: {{CURRENT_DATE}}
 | Debt | Location | Impact | Effort | Strategy |
 |--------|------------|---------|---------|-----------|
 
-## 🟢 MEDIUM — desirable improvement without urgency
+## 🟢 MEDIUM — desirable improvement, no urgency
 
 | Debt | Location | Impact | Effort | Strategy |
 |--------|------------|---------|---------|-----------|

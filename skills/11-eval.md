@@ -1,43 +1,43 @@
 # HES Skill — 11: Eval Harness (EVAL Phase)
-# Invocation: /hes eval [--phase <nome>] [--k 3] [--llm-judge]
-# Objetivo: medir se o harness still funciona — regression testing dos skill-files
+# Invocation: /hes eval [--phase <name>] [--k 3] [--llm-judge]
+# Goal: measure whether the harness still works — regression testing of skill-files
 
 ---
 
-## ◈ CONTEXTO
+## ◈ CONTEXT
 
 > "Good evaluations help teams ship AI agents more confidently.
 >  Without them, it's easy to get stuck in reactive loops — catching issues
 >  only in production." — Anthropic (2026)
 
-O Eval Harness testa o **harness em si**, not o code of the project.
-Roda contra golden tasks curadas em `.hes/evals/tasks/` e compara
-with baselines em `.hes/evals/baselines/`.
+The Eval Harness tests the **harness itself**, not the project code.
+Runs against golden tasks in `.hes/evals/tasks/` and compares against
+baselines in `.hes/evals/baselines/`.
 
 ---
 
-## ◈ MÉTRICAS
+## ◈ METRICS
 
 ### pass@k
-Probabilidade de by the menos 1 sucesso em k tentativas.
-Mede: **capacidade** (o harness consegue do isso?)
+Probability of at least 1 success in k attempts.
+Measures: **capability** (can the harness do this?)
 
 ### pass^k
-Probabilidade de all k tentativas serem sucesso.
-Mede: **confiabilidade** (o harness faz isso de forma consistente?)
+Probability of all k attempts succeeding.
+Measures: **reliability** (does the harness do this consistently?)
 
-**Interpretação:**
-- `pass@k alto + pass^k baixo` → harness consegue, but de forma inconsistente
-- `pass@k baixo` → harness not consegue — regression crítica
-- `pass@k == pass^k` → harness is determinístico nesta dimensão
+**Interpretation:**
+- `pass@k high + pass^k low` → harness can do it, but inconsistently
+- `pass@k low` → harness cannot — critical regression
+- `pass@k == pass^k` → harness is deterministic in this dimension
 
 ---
 
-## ◈ TIPOS DE GRADERS
+## ◈ GRADER TYPES
 
 ### Determinístico (rápido, gratuito, reproduzível)
 ```python
-# Exemplos de checks determinísticos:
+# Examples of deterministic checks:
 count_rn_items = len(re.findall(r'RN-\d+', output))
 has_keywords   = all(kw in output for kw in expected_keywords)
 bandit_high    = json.loads(bandit_output)["metrics"]["_totals"]["SEVERITY.HIGH"]
@@ -46,32 +46,32 @@ gate_exit_code = subprocess.run(["python3", ".hes/scripts/check-security-gate.py
 
 ### LLM-as-judge (qualitativo, more lento)
 ```python
-# Prompt para LLM-as-judge:
+# Prompt for LLM-as-judge:
 JUDGE_PROMPT = """
-Avalie a saída do agente HES segundo o critério abaixo.
-Responda APENAS com: PASS ou FAIL, seguido de uma linha de justificativa.
+Evaluate the HES agent output according to the criterion below.
+Respond ONLY with: PASS or FAIL, followed by one line of justification.
 
-Critério: {rubric}
+Criterion: {rubric}
 
-Saída do agente:
+Agent output:
 ---
 {output}
 ---
 """
 # Score: PASS = 1.0, FAIL = 0.0
-# Usar claude-haiku para reduzir custo
+# Use claude-haiku to reduce cost
 ```
 
 ---
 
-## ◈ flow DE execution
+## ◈ EXECUTION FLOW
 
 ### STEP 0 — Log start
 ```bash
-bash scripts/hooks/log-action.sh TOOL_CALL STARTED "eval-harness" "iniciando eval"
+bash scripts/hooks/log-action.sh TOOL_CALL STARTED "eval-harness" "starting eval"
 ```
 
-### STEP 1 — Carregar tasks
+### STEP 1 — Load tasks
 ```python
 import json
 from pathlib import Path
@@ -82,14 +82,14 @@ tasks = [json.loads(f.read_text()) for f in task_dir.glob("*.json")]
 print(f"Loaded {len(tasks)} tasks for phase {PHASE}")
 ```
 
-### STEP 2 — Carregar baseline
+### STEP 2 — Load baseline
 ```python
 import glob
 baseline_files = sorted(glob.glob(".hes/evals/baselines/scores-*.json"))
 baseline = json.loads(open(baseline_files[-1]).read()) if baseline_files else {}
 ```
 
-### STEP 3 — Executar tasks (k vezes each)
+### STEP 3 — Run tasks (k times each)
 ```python
 K = 3  # ou argumento --k
 results = {}
@@ -97,16 +97,16 @@ results = {}
 for task in tasks:
     task_results = []
     for trial in range(K):
-        # LLM executa a task simulada
+        # LLM executes the simulated task
         output = llm_execute_task(task)
 
-        # Rodar graders determinísticos
+        # Run deterministic graders
         det_scores = []
         for grader in [g for g in task["graders"] if g["type"] == "deterministic"]:
             score = evaluate_deterministic(grader["check"], output)
             det_scores.append(score)
 
-        # LLM-as-judge (apenas se --llm-judge flag)
+        # LLM-as-judge (only with --llm-judge flag)
         llm_scores = []
         if llm_judge_enabled:
             for grader in [g for g in task["graders"] if g["type"] == "llm-judge"]:
@@ -117,8 +117,8 @@ for task in tasks:
         trial_pass = all(s >= 0.5 for s in all_scores)
         task_results.append(trial_pass)
 
-    pass_at_k  = any(task_results)                    # ≥1 sucesso
-    pass_all_k = all(task_results)                    # todos sucessos
+    pass_at_k  = any(task_results)                    # ≥1 success
+    pass_all_k = all(task_results)                    # all successes
     results[task["task_id"]] = {
         "pass_at_k": pass_at_k,
         "pass_all_k": pass_all_k,
@@ -127,13 +127,13 @@ for task in tasks:
     }
 ```
 
-### STEP 4 — Comparar with baseline e detectar regressões
+### STEP 4 — Compare with baseline and detect regressions
 ```python
 regressions = []
 for task_id, result in results.items():
     baseline_score = result["baseline"]
     current_score = 1.0 if result["pass_at_k"] else 0.0
-    if current_score < baseline_score - 0.1:  # 10% degradação = regressão
+    if current_score < baseline_score - 0.1:  # 10% degradation = regression
         regressions.append({
             "task_id": task_id,
             "baseline": baseline_score,
@@ -142,7 +142,7 @@ for task_id, result in results.items():
         })
 ```
 
-### STEP 5 — Salvar resultados
+### STEP 5 — Save results
 ```python
 from datetime import datetime, timezone
 report = {
@@ -166,32 +166,32 @@ with open(output_path, "w") as f:
     json.dump(report, f, indent=2)
 ```
 
-### STEP 6 — Exibir resultado ao usuário
+### STEP 6 — Display result to user
 ```
 📊 HES Eval Report — {PHASE} (k={K})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Tasks:       {total}
-pass@k:      {pass_at_k_rate:.0%}  (capacidade)
-pass^k:      {pass_all_k_rate:.0%}  (confiabilidade)
+pass@k:      {pass_at_k_rate:.0%}  (capability)
+pass^k:      {pass_all_k_rate:.0%}  (reliability)
 
-Regressões detectadas: {len(regressions)}
-{regressão por tarefa se existirem}
+Regressions detected: {len(regressions)}
+{regression per task if any}
 
-GATE: ✅ Sem regressões — harness estável
-      ❌ {N} regressão(ões) — investigar antes de mergear
+GATE: ✅ No regressions — harness stable
+      ❌ {N} regression(s) — investigate before merging
 ```
 
-### STEP 7 — Log conclusão
+### STEP 7 — Log completion
 ```bash
 bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "eval-harness" \
-  "pass@k={rate}% | {regressions} regressões"
+  "pass@k={rate}% | {regressions} regressions"
 ```
 
 ---
 
-## ◈ GATE DE REGRESSÃO (for CI/CD)
+## ◈ REGRESSION GATE (for CI/CD)
 
-Rodar no GitHub Actions:
+Run in GitHub Actions:
 ```bash
 python3 scripts/ci/run-eval.py --phase DISCOVERY --k 3
 # Exit 0 = sem regressão
@@ -200,14 +200,14 @@ python3 scripts/ci/run-eval.py --phase DISCOVERY --k 3
 
 ---
 
-## ◈ COMANDOS
+## ◈ COMMANDS
 
 ```
-/hes eval                           → eval todas as fases (determinístico)
-/hes eval --phase DISCOVERY         → eval fase específica
-/hes eval --k 5                     → k=5 trials por task
-/hes eval --llm-judge               → inclui LLM-as-judge (mais lento)
-/hes eval --update-baseline         → salva resultado atual como novo baseline
+/hes eval                           → eval all phases (deterministic)
+/hes eval --phase DISCOVERY         → eval specific phase
+/hes eval --k 5                     → k=5 trials per task
+/hes eval --llm-judge               → include LLM-as-judge (slower)
+/hes eval --update-baseline         → save current result as new baseline
 ```
 
 ---
@@ -218,16 +218,16 @@ python3 scripts/ci/run-eval.py --phase DISCOVERY --k 3
 📊 Eval executado.
 
   [A] "/hes eval --update-baseline"
-      → Salvar scores atuais como novo baseline (apenas após verificação humana)
+      → Save current scores as new baseline (only after human verification)
 
   [B] "/hes eval --phase {failing_phase} --llm-judge"
-      → Diagnóstico detalhado da fase com regressão
+      → Detailed diagnosis of the phase with regression
 
   [C] "/hes report"
-      → Correlacionar regressões com mudanças recentes no harness
+      → Correlate regressions with recent harness changes
 
 📄 Skill-file: skills/11-eval.md
-💡 Tip: rodar evals ANTES de mergear mudanças em skill-files.
-   Regressão = sinal de que a mudança quebrou comportamento esperado.
-   pass@k = capacidade | pass^k = confiabilidade.
+💡 Tip: run evals BEFORE merging changes to skill-files.
+   Regression = signal that the change broke expected behavior.
+   pass@k = capability | pass^k = reliability.
 ```

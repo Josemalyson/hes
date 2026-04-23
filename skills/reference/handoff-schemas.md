@@ -1,21 +1,21 @@
 # HES — Typed Handoff Schemas (v3.5.0)
-# Resolve: handoffs between agents eram em prosa — sem validation tipada
-# Referência: GitHub (2026) "Multi-Agent Workflows Often Fail"
+# Resolves: handoffs between agents were prose-based — no typed validation
+# Reference: GitHub (2026) "Multi-Agent Workflows Often Fail"
 
 ---
 
-## ◈ PROBLEMA RESOLVIDO
+## ◈ PROBLEM SOLVED
 
 > "Multi-agent systems behave like distributed systems, so every handoff needs
 >  typed schemas, constrained action schemas, and explicit boundary validation."
 > — GitHub Engineering Blog, Feb 2026
 
-HES tinha delegação between agents definida em prosa Markdown (tool-dispatch.md).
-Os schemas agora definem o contrato formal de each handoff.
+HES had delegation between agents defined in Markdown prose (tool-dispatch.md).
+Schemas now define the formal contract for each handoff.
 
 ---
 
-## ◈ LOCALIZAÇÃO DOS SCHEMAS
+## ◈ SCHEMA LOCATIONS
 
 ```
 .hes/schemas/
@@ -28,12 +28,12 @@ Os schemas agora definem o contrato formal de each handoff.
 
 ---
 
-## ◈ ESTRUTURA DE UM SCHEMA
+## ◈ SCHEMA STRUCTURE
 
 ```json
 {
   "phase": "SECURITY",
-  "description": "O que o security-agent deve entregar",
+  "description": "What the security-agent must deliver",
   "artifacts_required": [
     ".hes/state/security-report-final.json",
     ".hes/state/security-exceptions.json"
@@ -49,34 +49,34 @@ Os schemas agora definem o contrato formal de each handoff.
 
 ---
 
-## ◈ PROTOCOLO DE validation DE HANDOFF (LLM executa)
+## ◈ HANDOFF VALIDATION PROTOCOL (LLM executes)
 
-before de any transição de phase, o LLM must:
+Before any phase transition, the LLM MUST:
 
 ```
-STEP 1 — Carregar schema da fase atual
+STEP 1 — Load current phase schema
   → Ler .hes/schemas/{phase}-output.schema.json
 
-STEP 2 — Verificar artifacts_required
-  → Para cada artifact: verificar se arquivo existe
-  → Se ausente: BLOQUEAR handoff + listar faltantes
+STEP 2 — Verify artifacts_required
+  → For each artifact: verify the file exists
+  → If missing: BLOCK handoff + list missing items
 
-STEP 3 — Executar validation_command (se definido)
-  → bash scripts/hooks/log-action.sh GATE_CHECK STARTED "handoff-schema" "validando {phase} → {next_phase}"
+STEP 3 — Execute validation_command (if defined)
+  → bash scripts/hooks/log-action.sh GATE_CHECK STARTED "handoff-schema" "validating {phase} → {next_phase}"
   → Executar o comando
   → Se exit code ≠ 0: BLOQUEAR handoff
 
-STEP 4 — Verificar checklist (inferencial)
-  → Para cada item do checklist: confirmar que foi executado
-  → Se algum item não executado: completar antes de avançar
+STEP 4 — Verify checklist (inferential)
+  → For each checklist item: confirm it was executed
+  → If any item not done: complete before advancing
 
-STEP 5 — Log do handoff
-  → bash scripts/hooks/log-action.sh GATE_CHECK SUCCESS "handoff-{phase}" "schema validado"
+STEP 5 — Log the handoff
+  → bash scripts/hooks/log-action.sh GATE_CHECK SUCCESS "handoff-{phase}" "schema validated"
 ```
 
 ---
 
-## ◈ RULE-27 (adicionada ao SKILL.md)
+## ◈ RULE-27 (added to SKILL.md)
 
 ```
 RULE-27  LLM VALIDATES handoff schema before every phase transition

@@ -103,7 +103,7 @@ stub(planner): add task decomposition protocol
 ## ◈ Branch Strategy
 
 - `main` — protected branch, only merged via PRs
-- `feat/<n>` — feature branches (implementações completas)
+- `feat/<n>` — feature branches (implementações completes)
 - `fix/<n>` — bug fix branches
 - `docs/<n>` — documentation branches
 - `plan/<n>` — roadmap e planos arquiteturais (stubs incluídos)
@@ -138,11 +138,11 @@ Needed for context preservation across sessions and phase-lock enforcement.
 
 ## ◈ HES Workflow (For Newcomers)
 
-HES is um sistema baseado em skill-files for orquestrar agents de IA em um flow de desenvolvimento estruturado.
+HES is um sistema based em skill-files for orquestrar agents de IA em um flow de desenvolvimento estruturado.
 
 1. **SKILL.md** — Entry point. Lê o state of the project e roteia for o skill correto.
 2. **skills/XX-name.md** — Skill-files individuais que guiam o Agent em each phase.
-3. **.hes/state/** — Files de state gerados by the bootstrap.
+3. **.hes/state/** — Files de state generateds by the bootstrap.
 4. **.hes/agents/registry.json** — Registry de agents: qual Agent lida with qual phase/comando.
 
 flow de phase sequencial (padrão):
@@ -159,9 +159,9 @@ flow multi-Agent (v4.0 roadmap):
 
 ## ◈ Contribuindo with agents v4.0
 
-O HES v4.0 is implementando 5 new agents. each um tem um stub disponível em `skills/` with o protocolo complete especificado. Contribuições are well-vindas for implementar any um deles.
+O HES v4.0 is implementando 5 new agents. each um tem um stub available em `skills/` with o protocolo complete especificado. Contribuições are well-vindas for implementar any um deles.
 
-### agents disponíveis for implementation
+### agents available for implementation
 
 | Agent | Stub | Target | O que do |
 |---|---|---|---|
@@ -171,7 +171,7 @@ O HES v4.0 is implementando 5 new agents. each um tem um stub disponível em `sk
 | `optimizer.md` | ✅ `skills/optimizer.md` | v3.9 | Implementar as 5 transformações + gate de validation pós-otimização |
 | `reviewer.md` | ✅ `skills/reviewer.md` | v4.0 | Implementar as 5 dimensões de revisão + integração GitHub/GitLab |
 
-### Convenções for Skill-Files de Agent
+### Conventions for Skill-Files de Agent
 
 Todo skill-file de Agent must have o cabeçalho:
 
@@ -183,7 +183,7 @@ Todo skill-file de Agent must have o cabeçalho:
 # HES Phase: NOME_DA_FASE | SYSTEM
 ```
 
-### Convenções for Stubs
+### Conventions for Stubs
 
 Stubs are well-vindos when:
 - O protocolo complete is especificado (STEPS, gates, outputs)
@@ -200,7 +200,7 @@ Ao implementar um Agent stub, atualize `.hes/agents/registry.json`:
   "type": "system",
   "skill_file": "skills/nome.md",
   "trigger": "/hes comando",
-  "status": "stable"  // remover "stub" e "target_version" ao completar
+  "status": "stable"  // remover "stub" e "target_version" ao completer
 }
 ```
 
@@ -214,17 +214,17 @@ Ao implementar um new Agent, adicione o RULE correspondente ao `SKILL.md` (RULE-
 
 ```
 Q2 2026 — v3.6 (aberto para contribuição)
-  → Implementar skills/planner.md completo
+  → Implementar skills/planner.md complete
   → Integrar security-policy.yml na fase SECURITY (skills/10-security.md)
   → Adicionar suporte a Git worktrees no SKILL.md (RULE-29)
 
 Q3 2026 — v3.7
-  → Implementar skills/orchestrator.md completo
-  → Criar scripts/hooks/worktree-manager.sh
+  → Implementar skills/orchestrator.md complete
+  → Create scripts/hooks/worktree-manager.sh
   → Testar com /hes start --parallel em projetos reais
 
 Q4 2026 — v3.8
-  → Implementar skills/harness-evolver.md completo
+  → Implementar skills/harness-evolver.md complete
   → Integrar trust-policy.yml com auto-modificação controlada
   → Adicionar /hes insights ao session-manager
 ```

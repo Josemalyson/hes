@@ -1,5 +1,5 @@
 # HES — Claude-specific Adaptations
-# Aplica quando: model = "claude-*" em current.json
+# Applies when: model = "claude-*" in current.json
 
 ## Context Window
 - claude-opus-4: 200K tokens
@@ -8,15 +8,15 @@
 - Compaction trigger: > 150K tokens usados
 
 ## Tool Use
-- Suporta tool_use nativo
-- Prefere chamadas shell via Bash tool
-- Arquivos via Read/Write/Edit tools
+- Supports native tool_use
+- Prefers shell calls via Bash tool
+- Files via Read/Write/Edit tools
 
 ## CLAUDE.md
-- Lido automaticamente no início de cada sessão
-- Localização: .claude/CLAUDE.md (raiz do projeto)
+- Auto-loaded at the start of each session
+- Location: .claude/CLAUDE.md (project root)
 
 ## Quirks
-- Respostas mais longas em reasoning mode — usar max_tokens consciente
-- Extended thinking: aumenta qualidade em fases de DESIGN e SPEC
-- Não usar asteriscos para ênfase em prompts (pode ser interpretado como markdown)
+- Longer responses in reasoning mode — be conscious of max_tokens
+- Extended thinking: improves quality in DESIGN and SPEC phases
+- Avoid asterisks for emphasis in prompts (may be interpreted as markdown)

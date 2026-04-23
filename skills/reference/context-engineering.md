@@ -1,59 +1,59 @@
 # HES — Context Engineering: Tool Output Offloading (v3.5.0)
-# Previne context bloat de outputs grandes de ferramentas
-# Referência: LangChain (2026), arxiv:2603.05344 — "Building AI Coding Agents"
+# Prevents context bloat from large tool outputs
+# Reference: LangChain (2026), arxiv:2603.05344 — "Building AI Coding Agents"
 
 ---
 
-## ◈ PROBLEMA RESOLVIDO
+## ◈ PROBLEM SOLVED
 
 > "A single long-running test suite could consume 30,000 tokens of context
 >  in one tool call. The per-tool summarizer reduced this to under 100 tokens."
 > — arxiv:2603.05344 (2026)
 
-Sem offloading, outputs grandes (pytest, bandit, git diff) consomem o context
-window rapidamente, degradando a qualidade das decisões do LLM.
+Without offloading, large outputs (pytest, bandit, git diff) consume the context
+window quickly, degrading the quality of LLM decisions.
 
 ---
 
-## ◈ THRESHOLD DE OFFLOADING
+## ◈ OFFLOADING THRESHOLD
 
-| Critério            | Threshold       | Ação                        |
+| Criterion           | Threshold       | Action                      |
 |---------------------|-----------------|-----------------------------|
-| Tamanho do output   | > 8.000 chars   | Offload + head+tail summary |
-| Linhas de output    | > 100 linhas    | Offload + line count summary|
-| JSON aninhado       | > 50 entries    | Offload + count summary     |
+| Output size         | > 8,000 chars   | Offload + head+tail summary |
+| Output lines        | > 100 lines     | Offload + line count summary|
+| Nested JSON         | > 50 entries    | Offload + count summary     |
 
 ---
 
-## ◈ CANDIDATOS PRIORITÁRIOS for OFFLOADING
+## ◈ PRIORITY CANDIDATES FOR OFFLOADING
 
-| Ferramenta         | Cenário que gera output grande           |
+| Tool               | Scenario that generates large output     |
 |--------------------|------------------------------------------|
-| pytest / mvn test  | Muitas falhas with stack traces complete |
-| bandit -r .        | Muitos findings no codebase              |
-| git diff           | PRs grandes with muitos Files          |
-| grep -r            | Muitos matches em codebase grande        |
-| npm test           | Suite de tests extensa                  |
-| mypy / pylint      | Muitos erros de tipo/lint                |
+| pytest / mvn test  | Many failures with full stack traces     |
+| bandit -r .        | Many findings in the codebase            |
+| git diff           | Large PRs with many changed files        |
+| grep -r            | Many matches in a large codebase         |
+| npm test           | Extensive test suite                     |
+| mypy / pylint      | Many type/lint errors                    |
 
 ---
 
-## ◈ PROTOCOLO DE OFFLOADING (LLM executa)
+## ◈ OFFLOADING PROTOCOL (LLM executes)
 
 ```
-Quando output de ferramenta > 8.000 chars:
+When tool output > 8,000 chars:
 
 1. bash scripts/hooks/context-offload.sh save "{action_id}" "{output}"
-   → Salva output completo em .hes/context/tool-outputs/{action_id}.txt
+   → Saves full output to .hes/context/tool-outputs/{action_id}.txt
 
 2. LLM usa no contexto a versão comprimida:
    HEAD (primeiras 40 linhas)
-   + "... [OFFLOADED: .hes/context/tool-outputs/{action_id}.txt — {total_lines} linhas] ..."
+   + "... [OFFLOADED: .hes/context/tool-outputs/{action_id}.txt — {total_lines} lines] ..."
    + TAIL (últimas 20 linhas — onde erros geralmente aparecem)
 
-3. Se LLM precisar do conteúdo completo:
-   → Ler .hes/context/tool-outputs/{action_id}.txt via ferramenta de leitura
-   → NÃO injetar o arquivo inteiro de volta no contexto — usar grep/search específico
+3. If LLM needs full content:
+   → Read .hes/context/tool-outputs/{action_id}.txt via file read tool
+   → Do NOT inject the full file back into context — use specific grep/search
 
 4. Logar:
    bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "{cmd}" "output offloaded ({total_lines} lines)"
@@ -61,11 +61,11 @@ Quando output de ferramenta > 8.000 chars:
 
 ---
 
-## ◈ PADRÃO DE SUMMARY POR FERRAMENTA
+## ◈ SUMMARY PATTERN BY TOOL
 
 ### pytest / jest / mvn test
 ```
-TEST SUMMARY (offloaded: {N} linhas → .hes/context/tool-outputs/{id}.txt)
+TEST SUMMARY (offloaded: {N} lines → .hes/context/tool-outputs/{id}.txt)
   Passed:  {N}
   Failed:  {N}
   Errors:  {N}
@@ -91,7 +91,7 @@ First HIGH finding:
 
 ### git diff
 ```
-DIFF SUMMARY (offloaded: {N} linhas → .hes/context/tool-outputs/{id}.txt)
+DIFF SUMMARY (offloaded: {N} lines → .hes/context/tool-outputs/{id}.txt)
   Files changed: {N}
   Insertions: +{N}
   Deletions:  -{N}
@@ -102,7 +102,7 @@ Files:
 
 ---
 
-## ◈ RULE-28 (adicionada ao SKILL.md)
+## ◈ RULE-28 (added to SKILL.md)
 
 ```
 RULE-28  LLM OFFLOADS tool outputs > 8000 chars to .hes/context/tool-outputs/
@@ -113,11 +113,11 @@ RULE-28  LLM OFFLOADS tool outputs > 8000 chars to .hes/context/tool-outputs/
 
 ---
 
-## ◈ LIMPEZA DE CONTEXT
+## ◈ CONTEXT CLEANUP
 
 ```bash
-# Limpar outputs offloadados mais antigos que 7 dias
+# Clean up offloaded outputs older than 7 days
 find .hes/context/tool-outputs/ -mtime +7 -delete
 
-# /hes checkpoint inclui limpeza automática
+# /hes checkpoint includes automatic cleanup
 ```

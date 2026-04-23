@@ -1,33 +1,33 @@
 # HES — Step Budget Protocol (v3.5.0)
-# Controla o número de chamadas ao LLM por phase
-# Previne doom loops e custos descontrolados
+# Controls the number of LLM calls per phase
+# Prevents doom loops and runaway costs
 
 ---
 
-## ◈ PROBLEMA RESOLVIDO
+## ◈ PROBLEM SOLVED
 
-HES tinha time warnings (5/10/15 min) e doom loop prevention (max N tentativas),
-but sem **hard limit em chamadas ao LLM por phase**. Sistemas de produção (OpenAI, 2026)
-definem step budgets de 20–50 por task. when esgota: checkpoint + escalation.
+HES had time warnings (5/10/15 min) and doom loop prevention (max N attempts),
+but no **hard limit on LLM calls per phase**. Production systems (OpenAI, 2026)
+define step budgets of 20–50 per task. When exhausted: checkpoint + escalation.
 
 ---
 
-## ◈ STEP BUDGETS POR phase
+## ◈ STEP BUDGETS PER PHASE
 
-| phase      | Max Steps | Justificativa                                  |
+| Phase      | Max Steps | Rationale                                      |
 |-----------|-----------|------------------------------------------------|
-| DISCOVERY | 15        | Elicitação estruturada — not must iterar muito |
-| SPEC      | 20        | BDD tem formato fixo, not precisa de muitos loops |
-| DESIGN    | 20        | ADRs are well-definidos                         |
-| DATA      | 15        | Migrations têm padrão fixo                     |
-| RED       | 25        | TDD can precisar de more iterações            |
-| GREEN     | 30        | Implementation phase is more complex            |
-| SECURITY  | 10        | Scan + auto-fix por file                    |
-| REVIEW    | 15        | 5 dimensões with checklists                     |
+| DISCOVERY | 15        | Structured elicitation — should not iterate much |
+| SPEC      | 20        | BDD has a fixed format — few loops needed        |
+| DESIGN    | 20        | ADRs follow a well-defined format                |
+| DATA      | 15        | Migrations follow a fixed pattern               |
+| RED       | 25        | TDD may need more iterations                    |
+| GREEN     | 30        | Implementation is the most complex phase        |
+| SECURITY  | 10        | Scan + auto-fix per file                        |
+| REVIEW    | 15        | 5 dimensions with checklists                    |
 
 ---
 
-## ◈ SCHEMA EM CURRENT.JSON
+## ◈ SCHEMA IN CURRENT.JSON
 
 ```json
 {
@@ -53,59 +53,59 @@ definem step budgets de 20–50 por task. when esgota: checkpoint + escalation.
 
 ---
 
-## ◈ PROTOCOLO DE DECREMENTO (LLM executa)
+## ◈ DECREMENT PROTOCOL (LLM executes)
 
-No start de each ação que invoca raciocínio do LLM:
+At the start of each action that invokes LLM reasoning:
 
 ```bash
 bash scripts/hooks/step-budget.sh decrement
 ```
 
-O script:
-1. Lê `current.json` → `step_budget[phase].used++`
-2. Se `used >= max * 0.8` → warning (80% esgotado)
-3. Se `used >= max` → **CHECKPOINT + ESCALATION** (not doom loop)
-4. Loga ação `GATE_CHECK:step_budget` no events.log
+The script:
+1. Reads `current.json` → `step_budget[phase].used++`
+2. If `used >= max * 0.8` → warning (80% exhausted)
+3. If `used >= max` → **CHECKPOINT + ESCALATION** (not a doom loop)
+4. Logs action `GATE_CHECK:step_budget` to events.log
 
 ---
 
-## ◈ ESCALATION when BUDGET ESGOTA
+## ◈ ESCALATION WHEN BUDGET IS EXHAUSTED
 
 ```
-⚠️ STEP BUDGET ESGOTADO — {PHASE} ({used}/{max} steps)
+⚠️ STEP BUDGET EXHAUSTED — {PHASE} ({used}/{max} steps)
 
-Estado atual:
+Current state:
   Feature  : {feature}
-  Fase     : {phase}
-  Progresso: {completed_steps}
+  Phase    : {phase}
+  Progress : {completed_steps}
 
-Ações pendentes que não foram concluídas:
+Pending actions not yet completed:
   - {pending_step_1}
   - {pending_step_2}
 
-  [A] "/hes checkpoint" → salvar estado + continuar na próxima sessão
-  [B] "/hes unlock --force" → aumentar budget para {max + 10} (loga risco)
-  [C] "continuar" → o LLM tenta concluir com as informações atuais
+  [A] "/hes checkpoint" → save state + continue in next session
+  [B] "/hes unlock --force" → increase budget to {max + 10} (logs risk)
+  [C] "continue" → LLM attempts to finish with current information
 
-💡 Budget esgotado não é falha — é sinal de que a tarefa precisa ser
-   dividida em sub-tarefas menores (/hes start {feature}-part-2).
+💡 Budget exhausted is not a failure — it signals the task needs to be
+   split into smaller sub-tasks (/hes start {feature}-part-2).
 ```
 
 ---
 
-## ◈ TOKEN TRACKING (estimativa)
+## ◈ TOKEN TRACKING (estimate)
 
-O LLM ESTIMA tokens consumidos por ação:
+The LLM ESTIMATES tokens consumed per action:
 
-| Tipo de ação         | Tokens estimados (média) |
+| Action type          | Estimated tokens (avg)   |
 |----------------------|--------------------------|
-| Leitura de file   | tamanho_chars / 4         |
-| execution de comando  | 200 (output) + 100 (analysis) |
-| generation de artefato  | 800 (spec) / 1500 (ADR)   |
-| Decisão arquitetural | 1200                      |
-| Scan de security    | 500 (analysis findings)    |
+| File read         | file_chars / 4            |
+| Command execution | 200 (output) + 100 (analysis)|
+| Artifact generation| 800 (spec) / 1500 (ADR)  |
+| Architectural decision | 1200                   |
+| Security scan      | 500 (findings analysis)   |
 
-Ao end de each phase, loga no events.log:
+At the end of each phase, log to events.log:
 ```json
 {
   "action_type": "PHASE_COMPLETE",
@@ -119,7 +119,7 @@ Ao end de each phase, loga no events.log:
 
 ---
 
-## ◈ ANNOUNCE BLOCK ATUALIZADO (step 3 do SKILL.md)
+## ◈ UPDATED ANNOUNCE BLOCK (SKILL.md step 3)
 
 ```
 📍 HES v3.5.0 — {PROJECT}
@@ -131,7 +131,7 @@ Tokens   : ~{tokens_estimated} (~${cost_usd_estimated:.3f})
 
 ---
 
-## ◈ RULE-26 (adicionada ao SKILL.md)
+## ◈ RULE-26 (added to SKILL.md)
 
 ```
 RULE-26  LLM DECREMENTS step_budget[phase].used on each reasoning call
