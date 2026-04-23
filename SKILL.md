@@ -49,10 +49,20 @@ State lives in `.hes/state/current.json`:
 
 **Bootstrap states** (resolved before feature machine):
 ```
-ZERO    → no .hes/ + no current.json  → auto-install
-ORPHAN  → .hes/ present, no state     → legacy assessment
-LEGACY  → .hes/ + current.json exist  → normal routing
+ZERO                 → no .hes/ + no current.json           → auto-install (automated)
+ORPHAN               → .hes/ exists + no current.json        → legacy.md path A (automated)
+LEGACY               → no .hes/ + src/ exists                → legacy.md path B (automated)
+INSTALLED_INCOMPLETE → current.json + features:{} + artifacts missing
+                       → 00-bootstrap.md Step 0-CHECK (silent auto-complete)
+HARNESS_READY        → current.json + all artifacts present + features:{}
+                       → ask: "What is the first feature?"  → DISCOVERY
 ```
+
+> **Convergence contract:** ZERO, ORPHAN, and LEGACY are **three parallel automated paths**
+> to the same destination. No user menus. No choices. Just detection → auto-execution → HARNESS_READY.
+
+> **REGRA-15**: `INSTALLED_INCOMPLETE` never shows an options menu.
+> **REGRA-16**: ORPHAN and LEGACY are automated — no manual steps or questions before HARNESS_READY.
 
 ---
 
@@ -64,10 +74,43 @@ Execute on every session start. Do not ask the user to do any of these steps.
 
 ```
 1. Check .hes/state/current.json
-2. No .hes/ dir AND no file → ZERO: load skills/auto-install.md
-3. .hes/ exists AND no file  → ORPHAN: load skills/legacy.md
-4. File exists               → read active_feature + state → continue
+2. No .hes/ dir AND no file  → ZERO:   load skills/auto-install.md (fully automated) → STOP
+3. .hes/ exists AND no file  → ORPHAN: load skills/legacy.md Path A (automated recovery) → STOP
+4. No .hes/ AND src/ exists  → LEGACY: load skills/legacy.md Path B (automated inventory+bootstrap) → STOP
+5. File exists               → read active_feature + state:
+
+   a. features == {} →  Run INSTALLED_INCOMPLETE check:
+        REQUIRED_ARTIFACTS = [
+          ".hes/tasks/lessons.md",
+          ".hes/tasks/backlog.md",
+          ".hes/state/session-checkpoint.json",
+          ".hes/state/setup-validation.json",
+          "<IDE_CONFIG>"  ← .claude/CLAUDE.md or equivalent
+        ]
+        missing = [f for f in REQUIRED_ARTIFACTS if not exists(f)]
+
+        If missing → INSTALLED_INCOMPLETE:
+          → Load skills/00-bootstrap.md → Step 0-CHECK (silent auto-complete)
+          → Log event: INSTALLED_INCOMPLETE → HARNESS_READY
+          → Announce completion (compact, 2 lines max)
+          → Point directly to DISCOVERY (no menu)
+
+        If all present → HARNESS_READY:
+          → Ask: "Harness pronto. Qual a primeira feature?"
+          → Load skills/01-discovery.md on answer
+
+   b. active_feature != null → Route by feature state (Step 1 table)
 ```
+
+> **Diagnóstico de Setup (artefatos obrigatórios do ZERO):**
+>
+> | Artefato | Gerado por |
+> |----------|-----------|
+> | `.hes/tasks/lessons.md` | 00-bootstrap Step 6 |
+> | `.hes/tasks/backlog.md` | 00-bootstrap Step 7 |
+> | `.hes/state/session-checkpoint.json` | 00-bootstrap Step 1.7 |
+> | `.hes/state/setup-validation.json` | 00-bootstrap Step 1.5 |
+> | `<IDE_CONFIG>` | 00-bootstrap Step 5 |
 
 ### Step 0-B — Language + Audience
 
@@ -82,8 +125,11 @@ Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mod
 
 | Condition | Skill-file |
 |-----------|-----------|
-| ZERO | `skills/auto-install.md` |
-| ORPHAN / LEGACY | `skills/legacy.md` |
+| ZERO | `skills/auto-install.md` ← automated |
+| ORPHAN | `skills/legacy.md` Path A ← automated recovery |
+| LEGACY (no .hes/ + src/) | `skills/legacy.md` Path B ← automated inventory |
+| **INSTALLED_INCOMPLETE** | `skills/00-bootstrap.md` → Step 0-CHECK (silent auto-complete) |
+| **HARNESS_READY** | Ask feature name → `skills/01-discovery.md` |
 | feature = DISCOVERY | `skills/01-discovery.md` |
 | feature = SPEC | `skills/02-spec.md` |
 | feature = DESIGN | `skills/03-design.md` |
@@ -98,6 +144,7 @@ Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mod
 | `/hes harness` | `skills/harness-health.md` |
 | `/hes error` | `skills/error-recovery.md` |
 | `/hes security` | `skills/10-security.md` |
+| **`/hes uninstall`** | **`skills/13-uninstall.md`** |
 | `/hes eval` | `skills/11-eval.md` |
 | `/hes test` | `skills/12-harness-tests.md` |
 | `/hes bug` | `skills/09-issue-create.md` |

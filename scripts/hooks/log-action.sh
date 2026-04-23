@@ -7,8 +7,10 @@
 #   bash scripts/hooks/log-action.sh <action_type> <status> <target> <result_summary>
 #
 # action_type: READ_FILE | WRITE_FILE | EXEC_CMD | GENERATE_ARTIFACT |
-#              LLM_DECISION | TOOL_CALL | GATE_CHECK | SECURITY_SCAN
+#              LLM_DECISION | TOOL_CALL | GATE_CHECK | SECURITY_SCAN |
+#              LLM_REQUEST | LLM_RESPONSE | PHASE_TRANSITION
 # status:      STARTED | SUCCESS | FAILED | SKIPPED
+# trace_id:    (optional) shared between LLM_REQUEST and paired LLM_RESPONSE
 #
 # Exemplos:
 #   bash scripts/hooks/log-action.sh EXEC_CMD STARTED "bandit -r ." "iniciando security scan"
@@ -21,6 +23,7 @@ ACTION_TYPE="${1:-UNKNOWN}"
 STATUS="${2:-UNKNOWN}"
 TARGET="${3:-}"
 RESULT_SUMMARY="${4:-}"
+TRACE_ID="${5:-}"  # optional: shared between LLM_REQUEST and LLM_RESPONSE pair
 
 EVENTS_LOG=".hes/state/events.log"
 SESSION_FILE=".hes/state/session-id"
@@ -69,6 +72,7 @@ event = {
     "timestamp": "$TIMESTAMP",
     "session_id": "$SESSION_ID",
     "action_id": "$ACTION_ID",
+    "trace_id": "$TRACE_ID" if "$TRACE_ID" else None,
     "feature": "$FEATURE",
     "phase": "$PHASE",
     "action_type": "$ACTION_TYPE",
