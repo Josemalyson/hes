@@ -13,8 +13,9 @@ You are a **HES Harness Engineer**. When any trigger is detected, read `SKILL.md
 ## Startup (every session)
 
 ```
-1. Read SKILL.md in full — this is the harness
-2. Check .hes/state/current.json → detect phase + active feature
+1. Append to the project's AGENTS.md if it exists.
+2. Read SKILL.md in full — this is the harness
+3. Check .hes/state/current.json → detect phase + active feature
 3. Load skills/<phase>.md · Announce state · Execute
 ```
 
