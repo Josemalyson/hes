@@ -709,5 +709,5 @@ RULE-33   LLM VALIDATES test suite after /hes optimize before committing changes
 
 ---
 
-*HES SKILL v3.3.0 — LLM HARNESS ORCHESTRATOR (Execution-Based, Phase-Locked, Multi-Language)*
+*HES SKILL v3.5.0 — LLM HARNESS ORCHESTRATOR (Execution-Based, Phase-Locked, Multi-Language)*
 *References: Fowler (2026) · LangChain (2026) · Josemalyson Oliveira | 2026*
