@@ -117,9 +117,50 @@ install_core_project() {
   [[ -d "$HES_DIR/skills/reference" ]] && cp -r "$HES_DIR/skills/reference" "$dir/skills/"
   mkdir -p "$dir/.hes/state" "$dir/.hes/agents" "$dir/.hes/schemas" \
            "$dir/.hes/context/tool-outputs" "$dir/.hes/evals/tasks"
+  # Generate full v3.5 current.json template (all fields required by SKILL.md v3.5)
   [[ ! -f "$dir/.hes/state/current.json" ]] && \
-    echo '{"phase":"ZERO","active_feature":null,"features":{},"harness_version":"3.5.0"}' \
-    > "$dir/.hes/state/current.json"
+    cat > "$dir/.hes/state/current.json" << 'STATEJSON'
+{
+  "project": null,
+  "stack": null,
+  "ide": null,
+  "active_feature": null,
+  "features": {},
+  "domains": [],
+  "dependency_graph": {},
+  "harness_version": "3.5.0",
+  "agent_model": "multi-agent",
+  "user_language": null,
+  "audience_mode": "expert",
+  "completed_cycles": 0,
+  "last_updated": null,
+  "model": null,
+  "session": {
+    "checkpoint": null,
+    "phase_lock": null,
+    "messages_in_session": 0
+  },
+  "security": {
+    "last_scan": null,
+    "last_gate_result": null,
+    "exceptions_count": 0
+  },
+  "step_budget": {
+    "DISCOVERY": { "max": 15, "used": 0 },
+    "SPEC":      { "max": 20, "used": 0 },
+    "DESIGN":    { "max": 20, "used": 0 },
+    "DATA":      { "max": 15, "used": 0 },
+    "RED":       { "max": 25, "used": 0 },
+    "GREEN":     { "max": 30, "used": 0 },
+    "SECURITY":  { "max": 10, "used": 0 },
+    "REVIEW":    { "max": 15, "used": 0 }
+  },
+  "token_tracking": {
+    "tokens_estimated": 0,
+    "cost_usd_estimated": 0.0
+  }
+}
+STATEJSON
   touch "$dir/.hes/state/events.log" 2>/dev/null || true
   cp "$HES_DIR/.hes/schemas/"*.json "$dir/.hes/schemas/" 2>/dev/null || true
   cp "$HES_DIR/.hes/agents/registry.json" "$dir/.hes/agents/" 2>/dev/null || true
@@ -149,6 +190,18 @@ install_core_project() {
 
 SKILL_SRC="$HES_DIR/.agents/skills/hes"
 
+# Guard: tracks whether .agents/skills/hes has already been installed in this run.
+# Prevents redundant writes when multiple CLIs share the same .agents/ path
+# (Codex, Gemini, OpenCode, Windsurf all read .agents/skills/hes/).
+_AGENTS_SKILL_DONE=0
+install_agents_skill() {
+  local d="$1"
+  if [[ $_AGENTS_SKILL_DONE -eq 0 ]]; then
+    skill_dir "$SKILL_SRC" "$d/.agents/skills" "hes"
+    _AGENTS_SKILL_DONE=1
+  fi
+}
+
 inst_claude_p()   { local d="$1"
   cp_f "$HES_DIR/.claude/CLAUDE.md" "$d/CLAUDE.md"
   cp_f "$HES_DIR/.claude/CLAUDE.md" "$d/.claude/CLAUDE.md"
@@ -162,7 +215,8 @@ inst_claude_g()   {
   ok "Claude Code (global): ~/.claude/CLAUDE.md + ~/.claude/skills/hes/"; }
 
 inst_codex_p()    { local d="$1"
-  skill_dir "$SKILL_SRC" "$d/.agents/skills" "hes"
+  # Codex is the canonical owner of .agents/skills/hes/
+  install_agents_skill "$d"
   ok "Codex CLI (project): AGENTS.md + .agents/skills/hes/"; }
 
 inst_codex_g()    {
@@ -179,20 +233,38 @@ Triggers: /hes · new feature · hes start · hes status
 State machine: ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
 Rules: NEVER write code before DISCOVERY+SPEC · NEVER skip RED · ALWAYS run SECURITY before REVIEW
 EOF
-  skill_dir "$SKILL_SRC" "$d/.gemini/skills" "hes"
-  skill_dir "$SKILL_SRC" "$d/.agents/skills" "hes"
-  ok "Gemini CLI (project): GEMINI.md + .gemini/skills/hes/ + .agents/skills/hes/"; }
+  # Ensure .agents/skills/hes exists (canonical path, shared with Codex)
+  install_agents_skill "$d"
+  # .gemini/skills/hes uses a symlink → .agents/skills/hes (single source of truth).
+  # Preserve existing symlink; recreate it if missing or if a real dir replaced it.
+  local gemini_skill_path="$d/.gemini/skills/hes"
+  mkdir -p "$d/.gemini/skills"
+  if [[ -L "$gemini_skill_path" ]]; then
+    ok "Gemini CLI: .gemini/skills/hes symlink already correct → .agents/skills/hes"
+  elif [[ -d "$gemini_skill_path" && ! -L "$gemini_skill_path" ]]; then
+    warn ".gemini/skills/hes is a real directory (expected symlink) — removing and relinking"
+    rm -rf "$gemini_skill_path"
+    ln -s "../../.agents/skills/hes" "$gemini_skill_path"
+    ok "Gemini CLI: recreated .gemini/skills/hes → ../../.agents/skills/hes (symlink)"
+  else
+    ln -s "../../.agents/skills/hes" "$gemini_skill_path"
+    ok "Gemini CLI: created .gemini/skills/hes → ../../.agents/skills/hes (symlink)"
+  fi
+  ok "Gemini CLI (project): GEMINI.md + .gemini/skills/hes (symlink) → .agents/skills/hes"; }
 
 inst_gemini_g()   {
   mkdir -p "$HOME/.gemini/skills/hes" "$HOME/.agents/skills/hes"
   echo "# HES v3.5.0 global — read SKILL.md in active project" > "$HOME/.gemini/GEMINI.md"
-  cp "$SKILL_SRC/SKILL.md" "$HOME/.gemini/skills/hes/SKILL.md"
   cp "$SKILL_SRC/SKILL.md" "$HOME/.agents/skills/hes/SKILL.md"
-  ok "Gemini CLI (global): ~/.gemini/GEMINI.md + ~/.gemini/skills/hes/ + ~/.agents/skills/hes/"; }
+  # Global: symlink ~/.gemini/skills/hes → ~/.agents/skills/hes
+  rm -rf "$HOME/.gemini/skills/hes"
+  ln -sf "$HOME/.agents/skills/hes" "$HOME/.gemini/skills/hes"
+  ok "Gemini CLI (global): ~/.gemini/GEMINI.md + ~/.gemini/skills/hes → ~/.agents/skills/hes (symlink)"; }
 
 inst_opencode_p() { local d="$1"
   skill_dir "$SKILL_SRC" "$d/.opencode/skills" "hes"
-  skill_dir "$SKILL_SRC" "$d/.agents/skills"   "hes"
+  # .agents/skills/hes is shared — only install once across all tools
+  install_agents_skill "$d"
   ok "OpenCode (project): AGENTS.md + .opencode/skills/hes/ + .agents/skills/hes/"; }
 
 inst_opencode_g() {
@@ -215,7 +287,8 @@ inst_cursor_g()   {
 
 inst_windsurf_p() { local d="$1"
   cp_f "$HES_DIR/.windsurfrules" "$d/.windsurfrules"
-  skill_dir "$SKILL_SRC" "$d/.agents/skills" "hes"
+  # .agents/skills/hes is shared — only install once across all tools
+  install_agents_skill "$d"
   ok "Windsurf (project): .windsurfrules + .agents/skills/hes/"; }
 
 inst_windsurf_g() {
