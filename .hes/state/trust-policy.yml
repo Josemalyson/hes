@@ -1,4 +1,4 @@
-# trust-policy.yml — Política de Confiança para Auto-Modificação do Harness
+# trust-policy.yml — Trust Policy for Harness Auto-Modification
 # version: 1.0.0-alpha
 # status: STUB — v3.8 implementation target
 # Consumido por: skills/harness-evolver.md
@@ -6,22 +6,22 @@
 ---
 
 version: "1.0"
-description: "Define quais modificações o harness-evolver pode aplicar automaticamente
-              e quais requerem aprovação humana explícita."
+description: "Defines which modifications the harness-evolver can apply automatically
+              and which require explicit human approval."
 
 # ============================================================
-# NÍVEL LOW_RISK — Aplicação automática permitida
+# LEVEL LOW_RISK — Automatic application permitted
 # ============================================================
-# Mudanças que não alteram comportamento do fluxo de controle
-# e têm reversibilidade trivial via git revert
+# Changes that do not alter control flow behavior
+# and have trivial reversibility via git revert
 low_risk:
   auto_apply: true
-  notification: true    # notifica usuário mas não aguarda confirmação
+  notification: true    # notifies user but does not wait for confirmation
   changes_allowed:
     - "Ajuste de texto em prompts de skill-files"
-    - "Adição de exemplos em seções de skill-files"
-    - "Adição de checklist items não-bloqueantes"
-    - "Atualização de comentários de documentação"
+    - "Adding examples to skill-file sections"
+    - "Adding non-blocking checklist items"
+    - "Updating documentation comments"
     - "Correção de typos em qualquer arquivo .md"
     - "Adição de dicas ou hints em seções NEXT ACTION"
     - "Atualização de links ou referências cruzadas entre arquivos"

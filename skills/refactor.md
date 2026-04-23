@@ -163,7 +163,7 @@ Recipe:
 5. Verify: is it now possible to add an ArchUnit rule for this component?
 ```
 
-### I — Improve Harnessability (NEW in v3.1)
+### I — Improve Harnessability
 
 ```
 Objective: make the module governable by computational sensors
@@ -251,7 +251,7 @@ If gain confirmed → /hes harness to update project score
 ▶ NEXT ACTION
 
 ```
-🔧 Refactoring of {{MODULE}} completed.
+🔧 Refactoring of {{MODULE}} complete.
 
   [A] "continue feature [name]"
       → Return to active feature's skill-file

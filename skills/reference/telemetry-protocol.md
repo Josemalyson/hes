@@ -1,28 +1,28 @@
 # HES — Telemetry Protocol (v3.5.0)
-# Spans OpenTelemetry-style: latência, custo, hierarquia de ações
-# Referência: OpenAI Codex (2026) — ephemeral observability stack per worktree
+# OpenTelemetry-style spans: latency, cost, action hierarchy
+# Reference: OpenAI Codex (2026) — ephemeral observability stack per worktree
 
 ---
 
-## ◈ PROBLEMA RESOLVIDO
+## ◈ PROBLEM SOLVED
 
-O Action Event Protocol (v3.4.0) registra o QUÊ aconteceu.
-A Telemetria registra o QUANTO TEMPO e QUANTO CUSTOU.
-Juntos formam o stack complete de observabilidade do HES.
+The Action Event Protocol (v3.4.0) records WHAT happened.
+Telemetry records HOW LONG it took and HOW MUCH it cost.
+Together they form the complete observability stack of HES.
 
 ---
 
-## ◈ SCHEMA DE SPAN (OpenTelemetry-compatible)
+## ◈ SPAN SCHEMA (OpenTelemetry-compatible)
 
 ```json
 {
-  "trace_id":      "uuid-da-feature — imutável por feature",
-  "span_id":       "uuid-da-acao — único",
-  "parent_span_id":"uuid-pai (fase = parent de ação)",
+  "trace_id":      "uuid-of-feature — immutable per feature",
+  "span_id":       "uuid-of-action — unique",
+  "parent_span_id":"uuid-parent (phase = parent of action)",
   "name":          "EXEC_CMD:pytest",
   "phase":         "GREEN",
   "feature":       "payment",
-  "session_id":    "uuid-da-sessão",
+  "session_id":    "uuid-of-session",
   "start_time":    "ISO8601",
   "end_time":      "ISO8601",
   "duration_ms":   2340,
@@ -39,59 +39,59 @@ Juntos formam o stack complete de observabilidade do HES.
 
 ---
 
-## ◈ file DE TELEMETRIA
+## ◈ TELEMETRY FILE
 
 ```
-.hes/state/telemetry.jsonl   ← um span por linha (JSONL format)
+.hes/state/telemetry.jsonl   ← one span per line (JSONL format)
 ```
 
 ---
 
-## ◈ ESTIMATIVA DE TOKENS POR AÇÃO
+## ◈ TOKEN ESTIMATE BY ACTION TYPE
 
-| Tipo de ação          | Estimativa de tokens     |
+| Action type           | Token estimate           |
 |-----------------------|--------------------------|
-| Leitura de file    | `chars / 4`              |
-| execution de comando   | 300 (output + analysis)   |
-| generation de artefato   | 1.200 (spec/ADR)         |
-| Decisão arquitetural  | 1.500                    |
-| Security scan         | 600 (analysis de findings)|
+| File read          | `chars / 4`              |
+| Command execution  | 300 (output + analysis)  |
+| Artifact generation| 1,200 (spec/ADR)         |
+| Architectural decision | 1,500                  |
+| Security scan      | 600 (findings analysis)  |
 | BDD scenario (1)      | 200                      |
 
-Preço de referência (Claude Sonnet):
+Reference pricing (Claude Sonnet):
 - Input:  $0.003 / 1K tokens
 - Output: $0.015 / 1K tokens
 - Média:  $0.009 / 1K tokens
 
 ---
 
-## ◈ PROTOCOLO (LLM executa)
+## ◈ PROTOCOL (LLM executes)
 
 ```bash
-# Iniciar span de FASE (parent span)
+# Start PHASE span (parent span)
 bash scripts/hooks/telemetry.sh start_phase GREEN {feature}
 
-# Para cada ação dentro da fase:
+# For each action within the phase:
 bash scripts/hooks/telemetry.sh start_action EXEC_CMD "pytest tests/" {phase_span_id}
 # ... executar ação ...
 bash scripts/hooks/telemetry.sh end_action {action_span_id} SUCCESS "42 passed" 2340
 
-# Ao finalizar a fase:
+# When finishing the phase:
 bash scripts/hooks/telemetry.sh end_phase {phase_span_id} SUCCESS
 ```
 
 ---
 
-## ◈ QUERIES ÚTEIS
+## ◈ USEFUL QUERIES
 
 ```bash
-# Timeline de uma feature
+# Timeline of a feature
 bash scripts/hooks/telemetry.sh timeline payment
 
-# Fases mais lentas (all time)
+# Slowest phases (all time)
 bash scripts/hooks/telemetry.sh slowest-phases
 
-# Custo por sessão
+# Cost per session
 bash scripts/hooks/telemetry.sh cost --session {session_id}
 
 # Output:
@@ -108,9 +108,9 @@ bash scripts/hooks/telemetry.sh cost --session {session_id}
 
 ---
 
-## ◈ INTEGRAÇÃO with ANNOUNCE BLOCK
+## ◈ INTEGRATION WITH ANNOUNCE BLOCK
 
-Adicionar ao step 3 do SKILL.md:
+Add to step 3 of SKILL.md:
 
 ```
 📍 HES v3.5.0 — {PROJECT}

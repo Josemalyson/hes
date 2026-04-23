@@ -1,21 +1,21 @@
 # HES Skill — 12: Harness Self-Testing
 # Invocation: /hes test [--structural] [--behavioral] [--all]
-# Testa o harness em si — not o code of the project
+# Tests the harness itself — not the project code
 
 ---
 
-## ◈ POR QUE TESTAR O HARNESS
+## ◈ WHY TEST THE HARNESS
 
 > "CI quality gate so PRs that degrade an agent are automatically flagged"
 > — LangSmith (2026)
 
-Um bug no routing do SKILL.md ou a inconsistência no registry.json
-can do o LLM falhar silenciosamente. Os tests do harness detectam
-isso before que chegue à produção.
+A bug in the SKILL.md routing or an inconsistency in registry.json
+can make the LLM fail silently. Harness tests detect this
+before it reaches production.
 
 ---
 
-## ◈ TIPO 1 — STRUCTURAL TESTS (determinísticos, rápidos)
+## ◈ TYPE 1 — STRUCTURAL TESTS (deterministic, fast)
 
 Executar via `scripts/ci/validate-harness.py --check all`:
 
@@ -34,7 +34,7 @@ TEST-S10: todos os comandos /hes documentados no README existem no SKILL.md
 
 ---
 
-## ◈ TIPO 2 — BEHAVIORAL TESTS (LLM-as-judge, more lentos)
+## ◈ TYPE 2 — BEHAVIORAL TESTS (LLM-as-judge, slower)
 
 ```
 TEST-B01: dado feature=GREEN, SKILL.md roteia para impl-agent?
@@ -60,21 +60,21 @@ TEST-B05: dado HIGH finding no bandit, gate SECURITY bloqueia?
 
 ---
 
-## ◈ flow DE execution
+## ◈ EXECUTION FLOW
 
 ### STEP 1 — Structural tests
 ```bash
-bash scripts/hooks/log-action.sh TOOL_CALL STARTED "harness-tests" "structural"
+bash scripts/hooks/log-action.sh TOOL_CALL STARTED "harness-tests" "structural tests"
 python3 scripts/ci/validate-harness.py --check all
 bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "harness-tests" "structural: {N} passed"
 ```
 
-### STEP 2 — Behavioral tests (se --behavioral ou --all)
+### STEP 2 — Behavioral tests (if --behavioral or --all)
 ```
 Para cada TEST-B:
-  1. Preparar input (mock de current.json ou output de ferramenta)
-  2. LLM executa o comportamento esperado
-  3. LLM-as-judge avalia: o comportamento foi correto?
+  1. Prepare input (mock current.json or tool output)
+  2. LLM executes the expected behavior
+  3. LLM-as-judge evaluates: was the behavior correct?
   4. Log resultado
 ```
 
@@ -82,8 +82,8 @@ Para cada TEST-B:
 ```
 🧪 HES Self-Test Report
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Structural: {N}/{total} passed
-Behavioral: {N}/{total} passed
+Structural : {N}/{total} passed
+Behavioral : {N}/{total} passed
 
 Failures:
   [TEST-S04] State machine missing phase SECURITY
@@ -95,12 +95,12 @@ GATE: ✅ All tests passed
 
 ---
 
-## ◈ COMANDOS
+## ◈ COMMANDS
 
 ```
-/hes test                   → roda structural (rápido)
-/hes test --structural      → apenas structural tests
-/hes test --behavioral      → apenas behavioral tests (LLM-as-judge)
+/hes test                   → run structural tests (fast)
+/hes test --structural      → structural tests only
+/hes test --behavioral      → behavioral tests only (LLM-as-judge)
 /hes test --all             → structural + behavioral
 ```
 
@@ -109,16 +109,16 @@ GATE: ✅ All tests passed
 ▶ NEXT ACTION
 
 ```
-🧪 Harness self-tests executados.
+🧪 Harness self-tests complete.
 
-  [A] "todos os testes passaram"
-      → Harness está saudável — pode mergear
+  [A] "all tests passed"
+      → Harness is healthy — safe to merge
 
-  [B] "TEST-S{N} falhou: {descrição}"
-      → Corrigir antes de continuar: {instrução de fix}
+  [B] "TEST-S{N} failed: {description}"
+      → Fix before continuing: {fix instruction}
 
   [C] "/hes harness"
-      → Diagnóstico de cobertura das 3 dimensões (complementar)
+      → Coverage diagnostics across 3 dimensions (complementary)
 
 📄 Skill-file: skills/12-harness-tests.md
 ```

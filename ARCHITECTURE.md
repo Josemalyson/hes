@@ -160,11 +160,11 @@ Project bootstrap states (resolved before feature state machine):
                       │
                       ▼
          ┌────────────────────────────────────┐
-         │  PRÉ-FLIGHT (v4.0 — /hes start --parallel)     │
+         │  PRE-FLIGHT (v4.0 — /hes start --parallel)      │
          │                                    │
          │  planner.md ← analisa escopo       │
          │       │                            │
-         │       ├── single-agent mode ───────┼──→ fluxo sequencial (padrão)
+         │       ├── single-agent mode ───────┼──→ sequential flow (default)
          │       │                            │
          │       └── multi-agent mode ────────┼──→ orchestrator.md
          │               │                   │        │

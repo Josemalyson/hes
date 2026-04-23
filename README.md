@@ -51,6 +51,8 @@ It starts from the moment you invoke HES in your project. As soon as the LLM see
 ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
 ```
 
+
+
 Each phase has a specific purpose and strict gates that the LLM evaluates before advancement:
 
 | Phase         | What the LLM Executes                                                                             | Gate the LLM Evaluates         |
@@ -115,7 +117,7 @@ HES v3.5.0 inclui Files de configuration nativos for **9 ferramentas** — zero 
 
 ### Native Support by Tool
 
-| Ferramenta         | file Nativo                             | also Lê    |
+| Tool               | Native File                             | Also Reads |
 |--------------------|--------------------------------------------|--------------|
 | **Claude Code**    | `CLAUDE.md` + `.claude/CLAUDE.md`          | `SKILL.md`   |
 | **OpenAI Codex**   | `AGENTS.md`                                | —            |
@@ -250,8 +252,8 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 | `/hes domain <n>`                 | LLM harness              | Creates/activates a DDD domain                               |
 | `/hes lessons`                    | LLM harness              | Shows lessons.md + pending promotions to skills              |
 | `/hes report`                     | LLM report-agent         | Generates batch learning report from events.log              |
-| `/hes insights`                   | LLM harness-evolver      | *(v3.8)* Dashboard de aprendizado e métricas de evolução      |
-| `/hes insights --evolve`          | LLM harness-evolver      | *(v3.8)* Propõe improvements ao harness a partir do events.log  |
+| `/hes insights`                   | LLM harness-evolver      | *(v3.8)* Learning dashboard + evolution metrics      |
+| `/hes insights --evolve`          | LLM harness-evolver      | *(v3.8)* Proposes harness improvements from events.log  |
 | `/hes refactor <module>`          | LLM refactor-agent       | Executes guided safe refactoring                             |
 | `/hes harness`                    | LLM harness-health-agent | Runs harness diagnostics (3 dimensions)                      |
 | `/hes review <PR\|branch>`        | LLM reviewer-agent       | *(v4.0)* Revisão autônoma de PR — 5 dimensões                |

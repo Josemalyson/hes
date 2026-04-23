@@ -4,7 +4,7 @@
 ## Princípios
 - Todos os skill-files devem funcionar com qualquer modelo
 - Instruções devem ser declarativas, não dependentes de modelo
-- Ferramentas invocadas via shell commands (universal)
+- Tools invocadas via shell commands (universal)
 
 ## Compaction trigger padrão: > 80K tokens
 ## Sem tool-specific syntax — usar bash scripts universais

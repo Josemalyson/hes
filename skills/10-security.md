@@ -37,14 +37,14 @@ bash scripts/hooks/log-action.sh TOOL_CALL STARTED "security-scan" "starting SEC
 
 ---
 
-## ◈ STEP 1 — PRE-FLIGHT: VERIFICAR TOOLS
+## ◈ STEP 1 — PRE-FLIGHT: VERIFY TOOLS
 
 ```bash
 # Verify Bandit
 if ! pip show bandit &>/dev/null 2>&1; then
-  bash scripts/hooks/log-action.sh TOOL_CALL STARTED "pip install bandit" "instalando"
+  bash scripts/hooks/log-action.sh TOOL_CALL STARTED "pip install bandit" "installing"
   pip install bandit --break-system-packages -q
-  bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "pip install bandit" "instalado"
+  bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "pip install bandit" "installed"
 fi
 
 # Detect Shell files
@@ -56,9 +56,9 @@ SHELL_FILES=$(find . -name "*.sh" \
 
 # Verify Semgrep (only if Shell files exist)
 if [ "$SHELL_FILES" -gt 0 ] && ! pip show semgrep &>/dev/null 2>&1; then
-  bash scripts/hooks/log-action.sh TOOL_CALL STARTED "pip install semgrep" "instalando"
+  bash scripts/hooks/log-action.sh TOOL_CALL STARTED "pip install semgrep" "installing"
   pip install semgrep --break-system-packages -q
-  bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "pip install semgrep" "instalado"
+  bash scripts/hooks/log-action.sh TOOL_CALL SUCCESS "pip install semgrep" "installed"
 fi
 ```
 
@@ -76,7 +76,7 @@ bandit -r . \
   --exit-zero
 
 BANDIT_VERSION=$(pip show bandit | grep Version | awk '{print $2}')
-bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "bandit -r ." "report gerado (bandit v$BANDIT_VERSION)"
+bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "bandit -r ." "report generated (bandit v$BANDIT_VERSION)"
 ```
 
 ---
@@ -85,7 +85,7 @@ bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "bandit -r ." "report gerado (
 
 ```bash
 if [ "$SHELL_FILES" -gt 0 ]; then
-  bash scripts/hooks/log-action.sh EXEC_CMD STARTED "semgrep p/shell-hardening" "scan Shell"
+  bash scripts/hooks/log-action.sh EXEC_CMD STARTED "semgrep p/shell-hardening" "scanning shell files"
 
   semgrep --config=p/shell-hardening \
     --exclude=".hes" --exclude="venv" --exclude=".git" \
@@ -93,7 +93,7 @@ if [ "$SHELL_FILES" -gt 0 ]; then
     --output .hes/state/semgrep-report.json \
     . 2>/dev/null || true
 
-  bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "semgrep p/shell-hardening" "report gerado"
+  bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "semgrep p/shell-hardening" "report generated"
 else
   bash scripts/hooks/log-action.sh EXEC_CMD SKIPPED "semgrep" "no Shell files detected"
 fi
@@ -142,42 +142,42 @@ print(json.dumps(by_severity, indent=2))
 For each finding to fix, the LLM runs the loop:
 
 ```
-1. bash scripts/hooks/log-action.sh WRITE_FILE STARTED "{file}:{line}" "corrigindo {test_id}"
+1. bash scripts/hooks/log-action.sh WRITE_FILE STARTED "{file}:{line}" "fixing {test_id}"
 
-2. LLM lê o arquivo com contexto (±15 linhas ao redor)
+2. LLM reads the file with context (±15 surrounding lines)
 
-3. LLM aplica correção conforme guia abaixo
+3. LLM applies fix according to the guide below
 
-4. LLM escreve arquivo corrigido
+4. LLM writes the corrected file
 
-5. LLM re-executa bandit SOMENTE no arquivo:
+5. LLM re-runs bandit on the file only:
    bandit {file} -f json --exit-zero
 
 6. If finding is gone:
-   bash scripts/hooks/log-action.sh WRITE_FILE SUCCESS "{file}:{line}" "{test_id} corrigido"
+   bash scripts/hooks/log-action.sh WRITE_FILE SUCCESS "{file}:{line}" "{test_id} fixed"
 
 7. If persists (attempt 1 → 2):
    → LLM tries alternative approach
 
 8. If still persists after 2 attempts:
-   bash scripts/hooks/log-action.sh WRITE_FILE FAILED "{file}:{line}" "{test_id} requires manual intervention"
+   bash scripts/hooks/log-action.sh WRITE_FILE FAILED "{file}:{line}" "{test_id} — requires manual intervention"
    → LLM documents as exception with detailed technical justification
    → LLM escalates to user if HIGH
 ```
 
 ### Fix guide by test_id
 
-| test_id | Problema | Correção padrão |
+| test_id | Problem | Default fix |
 |---|---|---|
-| B101 | assert em prod | Replace with `raise ValueError` ou `if/raise` explícito |
-| B105/B106/B107 | Hardcoded credential | `os.environ.get('VAR_NAME')` ou `secrets` manager |
+| B101 | assert in prod | Replace with `raise ValueError` or explicit `if/raise` |
+| B105/B106/B107 | Hardcoded credential | `os.environ.get('VAR_NAME')` or `secrets` manager |
 | B301/B302 | pickle inseguro | Replace with `json.loads()` ou `orjson` |
 | B311 | random for security | `secrets.token_hex(16)` ou `secrets.randbelow(n)` |
 | B324 | MD5/SHA1 | `hashlib.sha256(data).hexdigest()` |
 | B501/B502/B503 | TLS/SSL fraco | `ssl.PROTOCOL_TLS_CLIENT` + `check_hostname=True` |
 | B601/B602/B603 | Shell injection | `subprocess.run([cmd, arg], shell=False)` |
 | B608 | SQL injection | Prepared parameters: `cursor.execute(sql, (param,))` |
-| B701/B702 | Jinja2 sem autoescape | `Environment(autoescape=True)` |
+| B701/B702 | Jinja2 without autoescape | `Environment(autoescape=True)` |
 
 ---
 
@@ -212,7 +212,7 @@ bash scripts/hooks/log-action.sh GENERATE_ARTIFACT SUCCESS "security-exceptions.
 
 ---
 
-## ◈ STEP 7 — end FULL RE-SCAN
+## ◈ STEP 7 — FULL RE-SCAN
 
 ```bash
 bash scripts/hooks/log-action.sh EXEC_CMD STARTED "bandit final re-scan" "validating fixes"
@@ -240,7 +240,7 @@ with open(".hes/state/security-report-final.json") as f:
 high = [r for r in report.get("results", []) if r["issue_severity"] == "HIGH"]
 
 if high:
-    print(f"GATE FAILED: {len(high)} HIGH finding(s) restantes")
+    print(f"GATE FAILED: {len(high)} HIGH finding(s) remaining")
     for h in high:
         print(f"  [{h['test_id']}] {h['filename']}:{h['line_number']} — {h['issue_text']}")
     sys.exit(1)
@@ -250,10 +250,10 @@ else:
 
 ```bash
 if python3 .hes/scripts/check-security-gate.py; then
-  bash scripts/hooks/log-action.sh GATE_CHECK SUCCESS "security-gate" "zero HIGH findings — avançando para REVIEW"
+  bash scripts/hooks/log-action.sh GATE_CHECK SUCCESS "security-gate" "zero HIGH findings — advancing to REVIEW"
   GATE_PASSED=true
 else
-  bash scripts/hooks/log-action.sh GATE_CHECK FAILED "security-gate" "HIGH findings restantes — bloqueado"
+  bash scripts/hooks/log-action.sh GATE_CHECK FAILED "security-gate" "HIGH findings remaining — blocked"
   GATE_PASSED=false
 fi
 ```
@@ -305,7 +305,7 @@ with open(".hes/state/events.log", "a") as f:
 
 ## ◈ STEP 10 — UPDATE STATE
 
-Se gate passou:
+If gate passed:
 
 ```python
 import json
@@ -333,21 +333,21 @@ bash scripts/hooks/log-action.sh WRITE_FILE SUCCESS "current.json" "state → RE
 ```
 🔐 HES Security Scan — {feature}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Ferramentas  : bandit v{version} | semgrep v{version}
-Arquivos     : {N} Python | {M} Shell
+Tools        : bandit v{version} | semgrep v{version}
+Files        : {N} Python | {M} Shell
 
-FINDINGS (pré-correção):
-  🔴 HIGH   : {N_h} → {fixed_h} auto-corrigidos
-  🟡 MEDIUM : {N_m} → {fixed_m} corrigidos, {exc_m} com exceção
-  🟢 LOW    : {N_l} → documentados
+FINDINGS (pre-fix):
+  🔴 HIGH   : {N_h} → {fixed_h} auto-fixed
+  🟡 MEDIUM : {N_m} → {fixed_m} fixed, {exc_m} excepted
+  🟢 LOW    : {N_l} → documented
 
-RESULTADO FINAL:
+FINAL RESULT:
   🔴 HIGH   : 0  ← required for gate
   🟡 MEDIUM : {remaining_m}
   🟢 LOW    : {remaining_l}
 
-GATE: ✅ PASSOU — avançando para REVIEW
-      ❌ BLOQUEADO — corrigir findings HIGH antes de continuar
+GATE: ✅ PASSED — advancing to REVIEW
+      ❌ BLOCKED — fix HIGH findings before continuing
 ```
 
 ---
@@ -367,7 +367,7 @@ The LLM ONLY advances to REVIEW if ALL conditions are met:
 
 ---
 
-## ◈ Invocation MANUAL
+## ◈ MANUAL INVOCATION
 
 ```
 /hes security           → runs full scan on current feature
@@ -384,14 +384,14 @@ The LLM ONLY advances to REVIEW if ALL conditions are met:
   [A] "gate passed, zero HIGH"
       → Advancing to REVIEW (skills/07-review.md)
 
-  [B] "HIGH finding {test_id} em {file}:{line}"
-      → Auto-fix loop (STEP 5) — tentativa {N}/2
+  [B] "HIGH finding {test_id} in {file}:{line}"
+      → Auto-fix loop (STEP 5) — attempt {N}/2
 
-  [C] "gate falhou após 2 tentativas"
+  [C] "gate failed after 2 attempts"
       → Escalate to user — list blocking findings
 
 📄 Next skill-file: skills/07-review.md
-🤖 Agente: review-agent
+🤖 Agent: review-agent
 💡 Tip: Security scan runs BEFORE code review.
    It makes no sense to review code containing known vulnerabilities.
    Tool-first, human-review-second.

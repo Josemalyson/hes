@@ -53,24 +53,24 @@
 
 ## ◈ DIMENSION 3 — SECURITY (Automated Scan Verification)
 
-> **HES v3.4.0**: O scan automatizado (Bandit + Semgrep) já was executado na phase SECURITY.
-> this dimensão verifica o resultado do scan e complementa with revisão conceitual de security
-> em aspectos que ferramentas estáticas not cobrem.
+> **HES v3.4.0**: The automated scan (Bandit + Semgrep) was already run in the SECURITY phase.
+> This dimension verifies the scan result and complements it with a conceptual security review
+> covering aspects that static tools do not catch.
 
 ```
-[ ] security-report-final.json existe em .hes/state/ ?
-[ ] gate SECURITY passou (zero HIGH findings) ?
-[ ] Exceções documentadas em security-exceptions.json têm justificativas válidas?
+[ ] security-report-final.json exists in .hes/state/?
+[ ] SECURITY gate passed (zero HIGH findings)?
+[ ] Exceptions documented in security-exceptions.json have valid justifications?
 
---- Revisão complementar (não coberta por Bandit/Semgrep) ---
-[ ] Authorization logic correta — recursos verificados antes de acesso
-[ ] Princípio do menor privilégio aplicado nas queries e operações
-[ ] Rate limiting / throttling considerado em endpoints públicos
-[ ] Logs de segurança (tentativas de acesso, falhas de auth) instrumentados
-[ ] Dados externos sanitizados antes de uso interno
+--- Complementary review (not covered by Bandit/Semgrep) ---
+[ ] Authorization logic correct — resources verified before access
+[ ] Principle of least privilege applied in queries and operations
+[ ] Rate limiting / throttling considered on public endpoints
+[ ] Security logs (access attempts, auth failures) instrumented
+[ ] External data sanitized before internal use
 ```
 
-**Referência:** `.hes/state/security-report-end.json` | `.hes/state/security-exceptions.json`
+**Reference:** `.hes/state/security-report-end.json` | `.hes/state/security-exceptions.json`
 
 ---
 

@@ -330,7 +330,7 @@ After 3 unsuccessful attempts:
       → Serious problem: the test is not testing the right thing. Let's review together.
 
 📄 Next skill file: skills/06-implementation.md
-💡 Tip (Fowler): tests are sensors. A good sensor fails exactly when the code
+💡 Tip (Fowler): Tests are sensors. A good sensor fails exactly when the code
    is wrong and passes exactly when it is right.
    The error message from the failing test is the implementation contract.
 ```

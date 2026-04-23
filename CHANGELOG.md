@@ -4,13 +4,13 @@
 
 Complete implementation of PLAN.md — 15 gaps vs. 2026 market standards.
 
-### TIER 1 — Crítico
+### TIER 1 — Critical
 
 **P1-A: Eval Harness + LLM-as-judge**
 - `skills/11-eval.md` — skill complete de eval with pass@k e pass^k
 - `.hes/evals/tasks/` — golden dataset (discovery, spec, security, review)
-- `.hes/evals/baselines/` — baseline scores for comparação de regressão
-- Graders: determinísticos (rápidos) + LLM-as-judge (qualitativos)
+- `.hes/evals/baselines/` — baseline scores for regression comparison
+- Graders: deterministic (fast) + LLM-as-judge (qualitative)
 - Comandos: `/hes eval`, `/hes eval --phase`, `/hes eval --llm-judge`
 
 **P1-B: Telemetria Estruturada**
@@ -30,7 +30,7 @@ Complete implementation of PLAN.md — 15 gaps vs. 2026 market standards.
 **P2-A: CI/CD GitHub Actions**
 - `.github/workflows/harness-validation.yml` — validation em todo PR/push
 - `scripts/ci/validate-harness.py` — validator (skills, versions, state-machine, headers)
-- Checks: registry válido, skill-files existem, versions consistentes, Python compila
+- Checks: valid registry, skill-files exist, consistent versions, Python compiles
 
 **P2-B: Typed Handoff Schemas**
 - `skills/reference/handoff-schemas.md` — spec complete
@@ -39,25 +39,25 @@ Complete implementation of PLAN.md — 15 gaps vs. 2026 market standards.
 - `.hes/schemas/design-output.schema.json`
 - `.hes/schemas/security-output.schema.json`
 - `.hes/schemas/review-output.schema.json`
-- RULE-27: LLM valida schema before de toda transição de phase
+- RULE-27: LLM validates schema before every phase transition
 
 **P2-C: Context Engineering (Tool Output Offloading)**
-- `skills/reference/context-engineering.md` — spec + threshold + padrões por ferramenta
+- `skills/reference/context-engineering.md` — spec + thresholds + patterns by tool
 - `scripts/hooks/context-offload.sh` — save, summary, clean
 - Threshold: > 8.000 chars → offload for `.hes/context/tool-outputs/`
 - RULE-28: LLM offloads tool outputs grandes, usa head+tail no contexto
 
-### TIER 3 — Diferenciação
+### TIER 3 — Differentiation
 
 **P3-A: Multi-Model Support**
 - `.hes/models/claude.md` — quirks Claude (context window, tools, CLAUDE.md)
 - `.hes/models/gpt-4o.md` — quirks GPT-4o (function_calling, AGENTS.md)
 - `.hes/models/default.md` — defaults model-agnostic
-- `model` field adicionado ao schema de current.json
+- `model` field added ao schema de current.json
 
 **P3-C: Skill Versioning**
 - `skills/reference/skill-versioning.md` — guide complete
-- Schema de header obrigatório for skill-files
+- Schema de header required for skill-files
 - `.hes/state/skill-versions.json` for rastreio de versions instaladas
 
 **P3-D: Harness Self-Testing**
@@ -68,7 +68,7 @@ Complete implementation of PLAN.md — 15 gaps vs. 2026 market standards.
 ### Core updates
 
 **SKILL.md v3.4.0 → v3.5.0:**
-- RULE-26, RULE-27, RULE-28 adicionadas
+- RULE-26, RULE-27, RULE-28 addeds
 - Commands: `/hes eval`, `/hes test`
 - Routing: eval-agent, harness-test-agent
 - Schema current.json: step_budget, token_tracking, model
@@ -98,14 +98,14 @@ Foco em security automatizada e rastreabilidade de execution intra-phase.
 - `skills/10-security.md` — skill complete de security scan
 - Integra **Bandit** (Python, primary) + **Semgrep** (Shell, secondary)
 - Auto-fix loop por test_id (B105, B301, B311, B324, B601, B608...)
-- Gate bloqueante: zero HIGH findings obrigatório for avançar for REVIEW
-- Exceções MEDIUM/LOW documentadas em `.hes/state/security-exceptions.json`
-- Comando `/hes security` adicionado
+- Blocking gate: zero HIGH findings required to advance to REVIEW
+- MEDIUM/LOW exceptions documented in `.hes/state/security-exceptions.json`
+- Comando `/hes security` added
 
 **Action Event Protocol — debug tracking intra-phase:**
-- `scripts/hooks/log-action.sh` — logger de ações do LLM no events.log
+- `scripts/hooks/log-action.sh` — LLM action logger to events.log
 - `skills/reference/action-event-protocol.md` — specification complete do protocolo
-- `session-id` UUID gerado no bootstrap (`00-bootstrap.md` STEP 2)
+- `session-id` UUID generated no bootstrap (`00-bootstrap.md` STEP 2)
 - Schema de evento expandido: session_id, action_id, action_type, status por ação
 
 **Infraestrutura:**
@@ -127,7 +127,7 @@ Foco em security automatizada e rastreabilidade de execution intra-phase.
 - version bumped: 3.3.0 → 3.4.0
 
 **skills/00-bootstrap.md:**
-- STEP 2: creation de `.hes/state/session-id` (UUID único por sessão)
+- STEP 2: creation de `.hes/state/session-id` (UUID único per session)
 - STEP 2: creation de `.hes/scripts/` directory
 - STEP 3: schema current.json with field `security`
 
@@ -141,8 +141,8 @@ Foco em security automatizada e rastreabilidade de execution intra-phase.
 - Checklist de revisão complementar (aspectos not cobertos por Bandit/Semgrep)
 
 **.hes/agents/registry.json:**
-- `security-agent` adicionado ao array principal (between GREEN e REVIEW)
-- `security-agent` adicionado ao system_agents (trigger: `/hes security`)
+- `security-agent` added ao array principal (between GREEN e REVIEW)
+- `security-agent` added ao system_agents (trigger: `/hes security`)
 - `harness_version` bumped: 3.3.0 → 3.4.0
 
 ### Rules added ao SKILL.md
@@ -191,7 +191,7 @@ Refactoring focused on consistency e modernização técnica:
 - 00-bootstrap.md: v3.2 → v3.3.0
 - agent-registry.md: v3.2+ → v3.3+
 - agent-identity template: v3.2 → v3.3
-- CHANGELOG.md: adicionado entry v3.3.0
+- CHANGELOG.md: added entry v3.3.0
 
 **Files updated:**
 - `SKILL.md` — execution mandate, language detection, audience mode, auto-install
@@ -207,7 +207,7 @@ Refactoring focused on consistency e modernização técnica:
 
 ## v3.1.0 (2025)
 
-Refatoração baseada em leitura de literatura técnica:
+Refatoração based em leitura de literatura técnica:
 - Fowler, Birgitta Böckeler (2026) — "Harness Engineering for Coding Agent Users" (martinfowler.with)
 - LangChain / Harrison Chase (2026) — "Continual Learning for AI Agents"
 - LangChain / Harrison Chase (2026) — "Your Harness, Your Memory"
@@ -216,7 +216,7 @@ Refatoração baseada em leitura de literatura técnica:
 ### Added
 
 **Conceitual:**
-- Taxonomia Guide/Sensor (feedforward/feedback) how modelo organizador do harness
+- Taxonomia Guide/Sensor (feedforward/feedback) how modelo organizador of the harness
 - Dimensões de regulação: Maintainability | Architecture Fitness | Behaviour Harness
 - Camadas de aprendizado: Harness Layer / Context Layer / Memory Hot Path / Offline
 - Harnessability how conceito explícito for avaliação de projects legados
@@ -226,10 +226,10 @@ Refatoração baseada em leitura de literatura técnica:
 **new Files:**
 - `skills/harness-health.md` — diagnóstico das 3 dimensões de regulação (Fowler)
 
-**Files atualizados:**
+**Files updateds:**
 - `SKILL.md` — modelo conceitual, protocol de roteamento, context compaction, REGRA-13 e REGRA-14
-- `ARCHITECTURE.md` — completamente reescrito with taxonomia Fowler how estrutura organizadora
-- `SETUP.md` — atualizado for v3.1, new comandos, tabela de novidades
+- `ARCHITECTURE.md` — completemente reescrito with taxonomia Fowler how estrutura organizadora
+- `SETUP.md` — updated for v3.1, new comandos, tabela de novidades
 - `skills/00-bootstrap.md` — `fitness/` folder, ArchUnit setup, updated current.json schema
 - `skills/01-discovery.md` — papel explícito how guide inferencial do behaviour harness
 - `skills/02-spec.md` — spec how "structured versioned prompt" (LangChain), rastreabilidade reforçada
@@ -281,7 +281,7 @@ HES how file monolítico (~1200 linhas).
 - Template de discovery, spec, design, data, tests, review
 - lessons.md e context.md
 - Protocolo de retomada de sessão
-- Bloco next AÇÃO obrigatório
+- Bloco next AÇÃO required
 - Detecção de state por existência de Files
 - REGRAS ABSOLUTAS (01–10)
 
@@ -303,20 +303,20 @@ Plano arquitetural for transformação do HES de orquestrador sequencial em fáb
 **new Skill-File Stubs (planejados for v3.6 → v4.0)**
 - `skills/planner.md` — Agent de decomposição de tasks (target: v3.6)
 - `skills/orchestrator.md` — Maestro da frota de agents (target: v3.7)
-- `skills/harness-evolver.md` — Auto-evolução do harness (target: v3.8)
+- `skills/harness-evolver.md` — Auto-evolução of the harness (target: v3.8)
 - `skills/optimizer.md` — Otimização for legibilidade de Agent (target: v3.9)
 - `skills/reviewer.md` — Revisão autônoma de PR (target: v4.0)
 
 **New Configuration Files (planned for v3.6)**
 - `security-policy.yml` — Políticas de security how code (3 modos: default, enterprise, relaxed)
-- `.hes/state/trust-policy.yml` — Política de confiança for auto-modificação do harness
+- `.hes/state/trust-policy.yml` — Política de confiança for auto-modificação of the harness
 
 **Registry Updated**
-- 5 new agents stub adicionados ao system_agents
+- 5 new agents stub addeds ao system_agents
 - field `status: stub` e `target_version` for each new Agent
-- `plan_version: 4.0.0-alpha` adicionado ao registry
+- `plan_version: 4.0.0-alpha` added ao registry
 
-### Comandos Planejados (not implementados — stubs only)
+### Comandos Planejados (not implementeds — stubs only)
 
 ```
 /hes start --parallel <feature>   — orquestração multi-agente (v3.7)

@@ -1,5 +1,5 @@
 # HES — GPT-4o Adaptations
-# Aplica quando: model = "gpt-4o*" em current.json
+# Applies when: model = "gpt-4o*" in current.json
 
 ## Context Window
 - gpt-4o: 128K tokens

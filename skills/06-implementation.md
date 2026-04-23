@@ -209,7 +209,7 @@ pytest --cov=src --cov-report=term-missing -v
 
 ---
 
-▶ NEXT ACTION — SECURITY (obrigatório before de REVIEW)
+▶ NEXT ACTION — SECURITY (required before REVIEW)
 
 ```
 🟢 Implementation completed?
@@ -221,7 +221,7 @@ Confirm before proceeding to SECURITY phase:
   4. ArchUnit passing (if configured)?
 
   [A] "green build, coverage ok"
-      → Load skills/10-security.md — executar security scan (Bandit + Semgrep)
+      → Load skills/10-security.md — run security scan (Bandit + Semgrep)
       → Gate SECURITY → REVIEW: zero HIGH findings
 
   [B] "test X failing: [error]"
@@ -233,7 +233,7 @@ Confirm before proceeding to SECURITY phase:
 📄 Next skill file: skills/10-security.md
 🤖 Next agent: security-agent
 💡 Tip: Security scan runs BEFORE code review.
-   Não faz sentido revisar código com vulnerabilidades conhecidas (Bandit B-findings).
+   No point reviewing code with known vulnerabilities (Bandit B-findings).
    Tool-first → review-second.
-   Após gate SECURITY passar → skills/07-review.md
+   After SECURITY gate passes → skills/07-review.md
 ```
