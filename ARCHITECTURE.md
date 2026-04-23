@@ -1,5 +1,4 @@
 # HES v3.5.0 — System Architecture
-# v4.0 Roadmap: PLAN-v4.0.md
 
 > Technical reference document for HES — Harness Engineer Standard.
 > Based on: Fowler (2026), LangChain/Harrison (2026), OpenAI (2026), Google Research (2026).
@@ -299,9 +298,7 @@ Low    → Minimal harness (only hooks + specs) + harnessability sprint
 project/
 ├── SKILL.md                      ← Orchestrator (read first always)
 ├── ARCHITECTURE.md               ← This document
-├── INSTALL.md                    ← Installation by environment
-├── PLAN-v4.0.md                  ← Roadmap arquitetural v3.6 → v4.0
-├── security-policy.yml           ← Políticas de segurança como código (v3.6+)
+├── INSTALL.md                    ← Installation guide
 │
 └── skills/
     ├── 00-bootstrap.md           ← HES structure + git hooks + domains
@@ -350,17 +347,15 @@ configuration directories alongside the distributable skill-files:
 
 ```
 hes/ (repository root)
-├── .claude/                      ← Claude Code agent identity (CLAUDE.md)
+├── .claude/                      ← Claude Code agent identity
 │   └── CLAUDE.md                 ← Loaded automatically by Claude Code on every session
-├── .qwen/                        ← Qwen agent identity (equivalent to CLAUDE.md)
-│   └── (agent config)
 ├── .hes/                         ← HES state for HES development itself
 │   ├── state/current.json        ← Active feature being developed in HES
 │   └── state/events.log          ← Development cycle traces
 └── images/                       ← Documentation assets
 ```
 
-> **Note**: `.claude/` and `.qwen/` are platform-specific entry points.
+> **Note**: `.claude/` (and equivalent per-tool dirs) are platform-specific entry points.
 > They are NOT distributed to the user's project. Only `SKILL.md` and `skills/` are distributed.
 > The `.hes/` directory in the repository root tracks HES's own development state.
 
@@ -400,7 +395,6 @@ hes/ (repository root)
 ---
 
 *HES v3.5.0 — Architecture Document*
-*v4.0 Roadmap: PLAN-v4.0.md*
 *Referências: Fowler (2026) · LangChain Harrison (2026) · OpenAI (2026) · Google Research (2026)*
 *Josemalyson Oliveira | 2026*
 
@@ -542,4 +536,4 @@ RULE-32  LLM VALIDATES security-policy.yml active_policy before SECURITY gate
 RULE-33  LLM APPLIES optimizer.md transformations only after test suite passes
 ```
 
-> see [PLAN-v4.0.md](PLAN-v4.0.md) for specification complete de each componente.
+> See `skills/planner.md`, `skills/orchestrator.md`, and `skills/harness-evolver.md` for full specifications.

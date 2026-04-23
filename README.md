@@ -51,8 +51,6 @@ It starts from the moment you invoke HES in your project. As soon as the LLM see
 ZERO → DISCOVERY → SPEC → DESIGN → DATA → RED → GREEN → SECURITY → REVIEW → DONE
 ```
 
-> **v4.0 Roadmap**: A phase pré-flight `PLANNER` permitirá que o HES decomponha features em subtarefas paralelas, despachando a frota de agents especializados via `orchestrator.md`. O flow sequencial continua disponível how padrão. Veja [PLAN-v4.0.md](PLAN-v4.0.md).
-
 Each phase has a specific purpose and strict gates that the LLM evaluates before advancement:
 
 | Phase         | What the LLM Executes                                                                             | Gate the LLM Evaluates         |
@@ -64,6 +62,7 @@ Each phase has a specific purpose and strict gates that the LLM evaluates before
 | **DATA**      | LLM designs schema, writes SQL migrations, DTOs                                                   | Migrations reviewed            |
 | **RED**       | LLM writes failing tests first (TDD red phase)                                                    | ≥1 failing test (proof of RED) |
 | **GREEN**     | LLM writes minimal implementation to pass tests                                                   | Build + all tests passing      |
+| **SECURITY**  | LLM runs Bandit + Semgrep, auto-fixes HIGH findings, validates gate                               | 0 HIGH findings                |
 | **REVIEW**    | LLM executes 5-dimension review: behavior, maintainability, security, observability, architecture | Checklist complete             |
 | **DONE**      | LLM marks feature complete — ready for next                                                       | Summary + next feature         |
 
@@ -128,8 +127,8 @@ HES v3.5.0 inclui Files de configuration nativos for **9 ferramentas** — zero 
 | **Windsurf**       | `.windsurfrules`                           | `AGENTS.md`  |
 | **Kiro (AWS)**     | `.kiro/steering/hes.md`                    | `SKILL.md`   |
 
-> **AGENTS.md is o hub cross-tool**: lido nativamente por Codex, OpenCode, Cursor, Windsurf e Copilot.
-> **SKILL.md is a fonte da verdade**: o orquestrador complete (673 linhas, 33 regras, state machine).
+> **AGENTS.md is the cross-tool hub**: read natively by Codex, OpenCode, Cursor, Windsurf and Copilot.
+> **SKILL.md is the source of truth**: the full orchestrator (700+ lines, 33 rules, state machine).
 
 ### 🤖 Fastest: Agent Auto-Install
 
@@ -147,13 +146,14 @@ The agent fetches the install protocol, auto-detects your project metadata, copi
 
 ```bash
 git clone https://github.com/Josemalyson/hes.git /tmp/hes
+chmod +x /tmp/hes/setup
 cd /tmp/hes && ./setup           # auto-detects installed tools
-# or target a specific tool:
-./setup --host claude            # Claude Code
-./setup --host codex             # Codex CLI / OpenCode
-./setup --host cursor            # Cursor
-./setup --host kiro              # Kiro (AWS)
-./setup --host all               # all tools
+# or target specific tools:
+./setup --tools claude           # Claude Code
+./setup --tools codex            # Codex CLI / OpenCode
+./setup --tools cursor           # Cursor
+./setup --tools kiro             # Kiro (AWS)
+./setup --tools all              # all tools
 ```
 
 What gets installed per tool:
@@ -265,7 +265,7 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 | `/hes checkpoint`                 | LLM session-manager      | Saves checkpoint without clearing                            |
 | `/hes unlock --force`             | LLM session-manager      | Bypasses phase lock (logs risk event)                        |
 
-> **Legenda**: *(vX.Y)* = planejado for this version — stub disponível, implementation complete em roadmap. see [PLAN-v4.0.md](PLAN-v4.0.md).
+> *(vX.Y)* = planned for that version — stub available in `skills/`, full implementation on roadmap.
 
 ---
 
@@ -343,7 +343,6 @@ Set mode:
 ```
 your-project/
 ├── SKILL.md                       ← Entry point (orchestrator)
-├── PLAN-v4.0.md                   ← Roadmap arquitetural v3.6 → v4.0
 ├── security-policy.yml            ← Políticas de segurança como código (v3.6+)
 ├── skills/                        ← Skill files (one per phase/agent)
 │   ├── 00-bootstrap.md
@@ -520,15 +519,13 @@ When session exceeds 100 messages, context is offloaded to checkpoint files and 
 
 HES is evoluindo de orquestrador sequencial for fábrica de software autônoma. Os stubs já estão disponíveis no repositório.
 
-| version | Target | Feature Principal |
+| version | Target | Feature |
 |---|---|---|
 | **v3.6** | Q2 2026 | `planner.md` + Git worktrees + `security-policy.yml` |
-| **v3.7** | Q3 2026 | `orchestrator.md` + frota de agents paralelos |
-| **v3.8** | Q4 2026 | `harness-evolver.md` + auto-evolução with trust policy |
+| **v3.7** | Q3 2026 | `orchestrator.md` + parallel agent fleet |
+| **v3.8** | Q4 2026 | `harness-evolver.md` + auto-evolution with trust policy |
 | **v3.9** | Q1 2027 | `optimizer.md` + MCP + LangSmith |
-| **v4.0** | Q2 2027 | `reviewer.md` + sandbox + auditoria criptográfica |
-
-see detalhes complete em [PLAN-v4.0.md](PLAN-v4.0.md).
+| **v4.0** | Q2 2027 | `reviewer.md` + sandbox + cryptographic audit trail |
 
 ---
 
@@ -581,7 +578,7 @@ cp -r /tmp/hes/skills/reference ./skills/ 2>/dev/null || true
 
 # Commit the update
 git add SKILL.md skills/
-git commit -m "chore: update HES to v3.3.0"
+git commit -m "chore: update HES to v3.5.0"
 ```
 
 Your project state in `.hes/` is preserved across updates.
