@@ -125,3 +125,43 @@ cd /tmp/hes && git pull
 ```
 
 Project state in `.hes/` is preserved across updates.
+
+---
+
+## Uninstall HES
+
+To completely remove HES from a project, run `/hes uninstall` in your AI assistant.
+
+The uninstall skill (`skills/13-uninstall.md`) handles everything automatically:
+
+1. **Inventory** — scans and lists every HES-owned file actually present
+2. **Confirmation #1** — shows the manifest, asks `[A] yes / [B] cancel`
+3. **Confirmation #2** — requires typing `REMOVE HES` exactly
+4. **Export** — saves `hes-history-export-<date>.jsonl` and `hes-lessons-export-<date>.md` to project root before deletion
+5. **Removal** — deletes `.hes/`, `skills/`, `SKILL.md`, IDE configs (`.claude/`, `.cursor/`, `.kiro/`, `.agents/`, `.github/copilot-instructions.md`, `.windsurfrules`), and `scripts/` (if HES-generated only)
+6. **Validation** — confirms no HES artifacts remain
+
+**What is NOT removed:** `src/`, `app/`, `tests/`, `package.json`, `pom.xml`, `pyproject.toml`, `.env` — your application code is never touched.
+
+### Manual removal (fallback)
+
+If the AI assistant does not have shell tool access:
+
+```bash
+# Export before removing
+cp .hes/state/events.log hes-history-export.jsonl 2>/dev/null || true
+cp .hes/tasks/lessons.md hes-lessons-export.md 2>/dev/null || true
+
+# Remove HES artifacts
+rm -rf .hes/ skills/ SKILL.md AGENTS.md ARCHITECTURE.md INSTALL.md \
+       CHANGELOG.md CONTRIBUTING.md security-policy.yml setup scripts/
+
+# Remove IDE configs (HES-generated only)
+rm -f  .claude/CLAUDE.md .cursor/rules/hes.mdc .kiro/steering/hes.md \
+       .github/copilot-instructions.md .github/workflows/harness-validation.yml \
+       .windsurfrules
+rm -rf .claude/commands/ .cursor/skills/ .kiro/skills/ .agents/skills/ .gemini/
+
+# Clean up empty dirs
+rmdir .claude .cursor .kiro .agents 2>/dev/null || true
+```

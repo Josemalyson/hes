@@ -266,6 +266,7 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 | `/clear` or `/new`                | LLM session-manager      | Saves checkpoint + clears session                            |
 | `/hes checkpoint`                 | LLM session-manager      | Saves checkpoint without clearing                            |
 | `/hes unlock --force`             | LLM session-manager      | Bypasses phase lock (logs risk event)                        |
+| `/hes uninstall`                  | LLM uninstall-agent      | Removes all HES artifacts — double confirmation required     |
 
 > *(vX.Y)* = planned for that version — stub available in `skills/`, full implementation on roadmap.
 
@@ -562,6 +563,26 @@ Or manually: [Create Issue](../../issues/new)
 ```
 
 Or manually: [Create Improvement](../../issues/new)
+
+---
+
+## Uninstalling HES
+
+To completely remove HES from a project, run `/hes uninstall` in your AI assistant.
+
+The agent executes the full removal automatically in 7 steps:
+
+1. **Inventory** — scans every HES-owned file actually present
+2. **Confirmation #1** — shows the manifest, asks `[A] yes / [B] cancel`
+3. **Confirmation #2** — requires typing `REMOVE HES` exactly
+4. **Export** — saves `hes-history-export-<date>.jsonl` and `hes-lessons-export-<date>.md` to project root before deleting anything
+5. **Removal** — deletes `.hes/`, `skills/`, `SKILL.md`, all IDE configs (`.claude/`, `.cursor/`, `.kiro/`, `.agents/`, `.windsurfrules`, etc.) and `scripts/` (if HES-generated only)
+6. **Validation** — confirms no HES artifacts remain with `ls` evidence
+7. **Announcement** — reports what was removed and what was preserved
+
+**Never removed:** `src/`, `app/`, `tests/`, `package.json`, `pom.xml`, `pyproject.toml`, `.env` — your application code is never touched.
+
+For manual removal (if the agent has no shell access), see [INSTALL.md → Uninstall HES](INSTALL.md#uninstall-hes).
 
 ---
 
