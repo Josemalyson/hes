@@ -1,271 +1,265 @@
-# HES Skill — Legacy: Inventory + Harnessability Assessment
+# HES Skill — Legacy / Orphan: Automated Inventory + Auto-Bootstrap
 
-> Skill loaded when: global state = LEGACY
-> (project with existing `src/` but no `.hes/` structure)
+> **Loaded when:** ORPHAN (.hes/ without current.json) OR LEGACY (existing src/ without .hes/).
+> **Execution mode: FULLY AUTOMATED** — same convergence target as ZERO: HARNESS_READY.
+> **No user menus.** Run inventory, assess, install, announce HARNESS_READY, ask first feature.
 >
-> "Legacy teams, especially with applications that have accrued a lot of technical debt,
->  face the harder problem: the harness is most needed where it is hardest to build."
->  — Fowler, 2026
+> "Legacy teams face the harder problem: the harness is most needed where it is hardest to build."
+> — Fowler, 2026
 
 ---
 
-## ◈ PROTOCOL
+## ◈ CONVERGENCE CONTRACT
+
+ORPHAN, LEGACY, and ZERO are **three parallel paths to the same destination**:
 
 ```
-1. Announce the inventory protocol
-2. Collect project information
-3. Assess harnessability (NEW in v3.1)
-4. Generate architectural inventory
-5. Generate tech debt map
-6. Execute bootstrap (skills/00-bootstrap.md — step 2 onwards)
-7. Return to skills/01-discovery.md with inventory context
+ZERO    ──────────────────────────────────────────────────────► HARNESS_READY
+ORPHAN  → auto-detect artifacts → fill gaps → rebuild state  ► HARNESS_READY
+LEGACY  → auto-inventory → harnessability → full bootstrap   ► HARNESS_READY
 ```
+
+Every path MUST terminate at HARNESS_READY before the first feature starts.
+User confirmation is required **once**: the name of the first feature.
 
 ---
 
-## ◈ STEP 1 — ANNOUNCE
+## ◈ STEP 0 — DETECT SUBTYPE (automated)
 
 ```
-🔍 HES detected an existing project without harness installed.
+1. Check .hes/state/current.json:
+   → EXISTS    → ORPHAN path (state file missing, reconstruct from artifacts)
+   → MISSING   → LEGACY path (no .hes/ at all, full install)
 
-Before any modification, I will:
-  1. Inventory what exists
-  2. Assess project harnessability
-  3. Install the harness with guides and sensors appropriate to the maturity level
-
-This protects the project from inconsistent changes relative to its current state.
-```
-
----
-
-## ◈ STEP 2 — COLLECT INFORMATION (maximum 5 questions)
-
-```
-I need to understand the existing project:
-
-1. Project name and main purpose:
-2. Main stack? (language, framework, database, versions)
-3. How many years old (approximately)?
-4. Is there a test suite? If yes: estimated coverage and framework?
-5. What problem or feature motivated you to call HES now?
+2. Log detection:
+   bash scripts/hooks/log-action.sh LLM_DECISION STARTED \
+     "legacy-detect" "detecting subtype: ORPHAN or LEGACY"
 ```
 
 ---
 
-## ◈ STEP 3 — HARNESSABILITY ASSESSMENT (NEW in v3.1)
+## ◈ PATH A — ORPHAN (automated recovery)
 
-> "Not every codebase is equally amenable to harnessing." — Fowler, 2026
-> "Greenfield teams can bake harnessability in from day one.
->  Legacy teams face the harder problem." — Fowler, 2026
+> .hes/ exists but current.json is missing or corrupt.
+> Reconstruct state from existing artifacts — do NOT overwrite real work.
 
-Assess the project on the following axes:
+### A1 — Reconstruct state from artifacts
 
-### 3a — Language and Typing
+```bash
+bash scripts/hooks/log-action.sh READ_FILE STARTED ".hes/" "scanning orphan artifacts"
 
-```
-[ ] Is the language strongly typed? (Java, TypeScript, Kotlin, Go, C#)
-    → Yes: type checker available as free computational sensor
-    → No: quality sensors depend more on linters (less reliable)
-
-[ ] Framework with strong conventions? (Spring Boot, NestJS, Django)
-    → Yes: module boundaries easier to define and verify
-    → No: lower harnessability — boundaries need to be made explicit
+# Scan existing artifacts
+find .hes/specs/ -name "*.md" 2>/dev/null | sort
+find .hes/decisions/ -name "*.md" 2>/dev/null | sort
+ls .hes/state/ 2>/dev/null || true
 ```
 
-### 3b — Modularity
+Infer from artifacts:
+- `features` map → scan `.hes/specs/{feature}/` directories
+- `domains` → scan `.hes/domains/` directories
+- `stack` → detect from pom.xml / package.json / pyproject.toml
+- `project` → git remote or directory name
 
-```
-[ ] Does the code have clear package/module boundaries?
-    → Yes: ArchUnit/dep-cruiser can verify automatically
-    → No: high risk of silent architectural regression
+### A2 — Rebuild current.json
 
-[ ] Is there a clear separation of concerns (Controller/Service/Repo)?
-    → Yes: layer fitness functions are immediately applicable
-    → No: structural refactoring needed before effective harnessing
+Generate current.json with inferred values:
 
-[ ] Is there circular coupling between modules?
-    → Execute: mvn dependency:analyze / npx madge --circular src/
-    → Yes → high risk, prioritize as critical tech debt
-```
-
-### 3c — Testability
-
-```
-[ ] Does the code have dependency injection (DI)?
-    → Yes: mocking facilitated, unit tests viable
-    → No: hard to test in isolation — high test cost
-
-[ ] Is there a working test suite?
-    → Yes: current coverage? framework?
-    → No: any change is blind — maximum priority before features
-
-[ ] Are there static objects / singletons that make testing difficult?
-    → Yes → low harnessability in that area
+```json
+{
+  "project": "{{INFERRED}}",
+  "stack": "{{INFERRED}}",
+  "ide": "{{DETECTED}}",
+  "active_feature": null,
+  "features": { "{{RECOVERED_FEATURE}}": "{{LAST_KNOWN_PHASE}}" },
+  "domains": ["{{RECOVERED}}"],
+  "dependency_graph": {},
+  "harness_version": "3.5.0",
+  "user_language": "{{DETECTED}}",
+  "audience_mode": "expert",
+  "completed_cycles": 0,
+  "last_updated": "{{NOW}}",
+  "security": { "last_scan": null, "last_gate_result": null, "exceptions_count": 0 },
+  "session": { "checkpoint": null, "phase_lock": null, "messages_in_session": 0 }
+}
 ```
 
-### 3d — Harnessability Score
+### A3 — Fill missing artifacts
+
+Run INSTALLED_INCOMPLETE check (same as SKILL.md Step 0):
 
 ```
-High   → Strong typing + clear boundaries + DI + existing tests
-         → Full harness can be installed immediately
-
-Medium → Some characteristics present but not all
-         → Install harness incrementally, start with simplest sensors
-
-Low    → No strong typing OR no tests OR circular coupling
-         → Prioritize harnessability refactoring BEFORE new features
-         → Install only git hooks and specs as first step
+REQUIRED = [
+  ".hes/tasks/lessons.md",
+  ".hes/tasks/backlog.md",
+  ".hes/state/session-checkpoint.json",
+  ".hes/state/setup-validation.json",
+  ".hes/state/session-id",
+  "<IDE_CONFIG>"
+]
+→ Generate each missing artifact silently
 ```
 
----
+### A4 — Log recovery event
 
-## ◈ STEP 4 — GENERATE `.hes/inventory/architecture.md`
-
-```markdown
-# Architectural Inventory — {{PROJECT_NAME}}
-
-Date: {{CURRENT_DATE}} | Analyst: HES Auto-Discovery
-
----
-
-## Overview
-
-| Attribute | Value |
-|---------|-------|
-| Type | Monolith / Microservice / Modular Monolith |
-| Language | {{LANGUAGE}} + {{VERSION}} |
-| Framework | {{FRAMEWORK}} + {{VERSION}} |
-| Database | {{DATABASE}} |
-| Estimated age | {{YEARS}} years |
-
-## Harnessability Score
-
-| Axis | Score | Notes |
-|------|-------|-----------|
-| Typing | High/Medium/Low | |
-| Modularity | High/Medium/Low | |
-| Testability | High/Medium/Low | |
-| **Overall Score** | **High/Medium/Low** | |
-
-## Entry Points
-
-| Type | File | Route/Endpoint | Authentication |
-|------|---------|--------------|-------------|
-| _to fill_ | | | |
-
-> Execute to identify:
-> Java:   `grep -r "@RestController\|@Controller" src/ --include="*.java" -l`
-> Node:   `grep -r "router\.\|app\.\(get\|post\|put\|delete\)" src/ -l`
-> Python: `grep -r "@app.route\|@router" src/ -l`
-
-## Critical Dependencies
-
-| Dependency | Current Version | Notes |
-|-------------|-------------|-----------|
-| _to fill_ | | |
-
-## Test Coverage
-
-| Metric | Value |
-|---------|-------|
-| Estimated coverage | {{X}}% |
-| Test framework | |
-| Unit tests | Yes / No |
-| Integration tests | Yes / No |
-
-## Modules / Packages
-
-| Module | Responsibility | Health | Harnessable? |
-|--------|-----------------|-------|-------------|
-| | | 🟢/🟡/🔴 | Yes/No |
-
-## Circular Coupling
-
-[ ] Verify: `mvn dependency:analyze` or `npx madge --circular src/`
-Result: {{NONE / LIST_OF_CYCLES}}
-
-## Identified Risks
-
-- [ ] _to fill after analysis_
+```json
+{
+  "timestamp": "{{NOW}}",
+  "feature": "global",
+  "from": "ORPHAN",
+  "to": "HARNESS_READY",
+  "agent": "hes-legacy-agent",
+  "metadata": {
+    "subtype": "ORPHAN",
+    "recovered_features": ["{{LIST}}"],
+    "artifacts_rebuilt": ["{{LIST}}"]
+  }
+}
 ```
 
 ---
 
-## ◈ STEP 5 — GENERATE `.hes/inventory/tech-debt.md`
+## ◈ PATH B — LEGACY (automated full install)
 
-```markdown
-# Tech Debt — {{PROJECT_NAME}}
+> No .hes/ exists. Project has src/ code. Run inventory then bootstrap.
 
-Date: {{CURRENT_DATE}}
+### B1 — Auto-inventory (no questions asked)
 
----
+```bash
+bash scripts/hooks/log-action.sh EXEC_CMD STARTED "auto-inventory" "scanning project"
 
-## 🔴 CRITICAL — blocks delivery or causes production risk
+# Project name
+PROJECT=$(git remote get-url origin 2>/dev/null | sed 's/.*\///' | sed 's/\.git//' || basename "$(pwd)")
 
-| Debt | Location | Impact | Effort | Strategy |
-|--------|------------|---------|---------|-----------|
-| | | | S/M/L | Hotfix/Refactor/Rewrite |
+# Stack detection
+STACK=""
+[ -f "pom.xml" ]          && STACK="Java + Maven"
+[ -f "build.gradle" ]     && STACK="Java + Gradle"
+[ -f "package.json" ]     && STACK="Node.js + $(node -e "console.log(require('./package.json').dependencies?.express ? 'Express' : 'Unknown')" 2>/dev/null || echo 'npm')"
+[ -f "pyproject.toml" ]   && STACK="Python + $(grep 'fastapi\|django\|flask' pyproject.toml -i -m1 | awk -F'[=^~]' '{print $1}' | tr -d '\" ' || echo 'Python')"
+[ -f "requirements.txt" ] && STACK="Python + pip"
+[ -f "go.mod" ]           && STACK="Go"
+[ -f "Cargo.toml" ]       && STACK="Rust + Cargo"
+[ -z "$STACK" ]           && STACK="Unknown (set manually in current.json)"
 
-## 🟡 HIGH — degrades quality, complicates maintenance
+# IDE detection
+IDE="generic"
+[ -d ".claude" ]   && IDE="claude-code"
+[ -d ".cursor" ]   && IDE="cursor"
+[ -d ".vscode" ]   && IDE="vscode"
+[ -d ".windsurf" ] && IDE="windsurf"
+[ -d ".kiro" ]     && IDE="kiro"
 
-| Debt | Location | Impact | Effort | Strategy |
-|--------|------------|---------|---------|-----------|
+# Domain scan
+DOMAINS=$(find src -maxdepth 3 -type d 2>/dev/null | grep -E 'domain|module|bounded' | sed 's/.*\///' | sort -u | paste -sd ',' || echo "")
+```
 
-## 🟢 MEDIUM — desirable improvement, no urgency
+### B2 — Harnessability assessment (LLM auto-scores)
 
-| Debt | Location | Impact | Effort | Strategy |
-|--------|------------|---------|---------|-----------|
+Assess silently and store in setup-validation.json:
 
----
+```
+TYPING:      strongly_typed? (Java/TS/Go/Kotlin = HIGH, Python = MEDIUM, JS = LOW)
+MODULARITY:  clear src/domain|module|service structure? (HIGH/MEDIUM/LOW)
+TESTABILITY: test suite present? coverage >= 60%? DI used? (HIGH/MEDIUM/LOW)
 
-## Module Strategy Decision
+OVERALL_SCORE = min(TYPING, MODULARITY, TESTABILITY)
+```
 
-| Module | Coverage | Harnessability | Recommended Strategy |
-|--------|----------|---------------|----------------------|
-| | | High/Medium/Low | Immediate harnessing / Refactor first / Rewrite |
+Record to `.hes/state/setup-validation.json`:
+```json
+{
+  "timestamp": "{{NOW}}",
+  "subtype": "LEGACY",
+  "harnessability": { "typing": "...", "modularity": "...", "testability": "...", "score": "HIGH|MEDIUM|LOW" },
+  "project": "{{PROJECT}}", "stack": "{{STACK}}", "ide": "{{IDE}}",
+  "structure_valid": true,
+  "issues": []
+}
+```
+
+### B3 — Generate full .hes/ structure (mirrors 00-bootstrap.md)
+
+```bash
+bash scripts/hooks/log-action.sh EXEC_CMD STARTED "mkdir .hes" "creating harness structure"
+
+mkdir -p .hes/state .hes/specs .hes/decisions .hes/tasks .hes/inventory .hes/context/tool-outputs
+
+python3 -c "import uuid; print(str(uuid.uuid4()))" > .hes/state/session-id
+
+bash scripts/hooks/log-action.sh EXEC_CMD SUCCESS "mkdir .hes" "structure created"
+```
+
+Generate `current.json`, `events.log`, `session-checkpoint.json`, `lessons.md`, `backlog.md` —
+all using the same templates as `00-bootstrap.md` Steps 3–7.
+
+### B4 — Install IDE config (mirrors 00-bootstrap.md Step 5)
+
+Load and apply `skills/reference/templates/agent-identity.md` for detected IDE.
+
+### B5 — Generate inventory files
+
+Generate `.hes/inventory/architecture.md` and `.hes/inventory/tech-debt.md`
+with auto-filled values from B1 scan (no user input required).
+
+### B6 — Configure fitness sensors proportional to harnessability score
+
+```
+HIGH   → Full ArchUnit/dep-cruiser/import-linter + coverage ≥ 80%
+MEDIUM → Linter + git hooks + coverage ≥ 60% (evolve to 80%)
+LOW    → Git hooks only (LLM-executed) + note in CLAUDE.md
+```
+
+### B7 — Log install event
+
+```json
+{
+  "timestamp": "{{NOW}}",
+  "feature": "global",
+  "from": "LEGACY",
+  "to": "HARNESS_READY",
+  "agent": "hes-legacy-agent",
+  "metadata": {
+    "subtype": "LEGACY",
+    "stack": "{{STACK}}",
+    "harnessability_score": "{{SCORE}}",
+    "ide": "{{IDE}}",
+    "harness_version": "3.5.0"
+  }
+}
 ```
 
 ---
 
-## ◈ STEP 6 — INSTALL HARNESSES PROPORTIONAL TO SCORE
+## ◈ STEP FINAL — ANNOUNCE HARNESS_READY (both paths)
 
 ```
-Harnessability HIGH:
-  → Execute full bootstrap (skills/00-bootstrap.md)
-  → Propose ArchUnit/dep-cruiser immediately (architecture fitness)
-  → Install coverage target ≥ 80%
-
-Harnessability MEDIUM:
-  → Execute bootstrap (git hooks + specs)
-  → Defer ArchUnit until main module has clear boundaries
-  → Install linter + coverage target ≥ 60% (evolve to 80%)
-
-Harnessability LOW:
-  → Install ONLY git hooks (LLM-executed safety checks)
-  → Create specs for the motivating feature BEFORE any code
-  → Plan harnessability sprint before new features
-  → Note in CLAUDE.md: "Codebase with low harnessability — review manually before implementing"
+✅ HES Harness Ready — {{PROJECT_NAME}}
+   Path     : {{ORPHAN | LEGACY}} → HARNESS_READY
+   Stack    : {{STACK}}
+   IDE      : {{IDE}}
+   Score    : {{HARNESSABILITY or N/A for ORPHAN}}
+   State    : current.json ✅ | events.log ✅ | lessons.md ✅
 ```
+
+Then immediately:
+
+```
+What is the first feature you want to develop?
+```
+
+→ On answer: set `active_feature`, transition to DISCOVERY, load `skills/01-discovery.md`.
 
 ---
 
-▶ NEXT ACTION
+▶ NEXT ACTION — DISCOVERY
 
 ```
-🔍 Inventory + Harnessability Assessment completed.
+  → "I want to implement [feature name]"
+    ✓ Updates current.json: active_feature + features[name] = "DISCOVERY"
+    ✓ Logs HARNESS_READY → DISCOVERY transition
+    ✓ Loads skills/01-discovery.md
 
-Score: {{HIGH/MEDIUM/LOW}} → Harness {{FULL/INCREMENTAL/MINIMAL}}
-
-  [A] "install the harness and start discovery of [feature]"
-      → Execute bootstrap proportional to score and start Discovery
-
-  [B] "I want to see the tech debt before deciding"
-      → Show .hes/inventory/tech-debt.md and discuss priorities
-
-  [C] "I need to improve harnessability first"
-      → Load skills/refactor.md for harnessability protocol
-
-📄 Next skill file: skills/01-discovery.md
-💡 Tip (Fowler): low harnessability does not prevent harness — it only changes the starting point.
-   Start with the simplest sensors (git hooks + specs) and evolve incrementally.
+📄 Next skill-file: skills/01-discovery.md
+💡 Tip: ORPHAN/LEGACY → HARNESS_READY is automatic. You never need to run it manually.
+   It self-heals the harness and converges to the same state as a clean install.
 ```
