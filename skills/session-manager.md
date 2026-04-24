@@ -250,24 +250,14 @@ Context tokens remaining: {{N}}
 
 ---
 
-▶ NEXT ACTION — AFTER SESSION MANAGED
+────────────────────────────────────────────────────────────────
+  SESSION
+────────────────────────────────────────────────────────────────
+  → resume
 
-```
-Session lifecycle handled.
+  A  continue current feature — load current phase skill
+  B  switch feature — "/hes switch [feature]"
+  C  start new feature — "/hes start [name]"
 
-  [A] "continue feature [name]"
-      → Return to current phase skill-file: skills/{{XX-phase}}.md
-
-  [B] "save checkpoint and clear"
-      → Execute STEP 1 + confirm clear
-
-  [C] "view full status"
-      → Execute STEP 5 (/hes status output)
-
-  [D] "rollback to {{phase}}"
-      → Revert state in current.json + log rollback event
-
-📄 Skill-file: skills/session-manager.md (you are here)
-💡 Tip: clean sessions = focused context = more accurate agent.
-   Do not wait for context to overflow — clear preventively every 30-40 messages.
-```
+  💡 Checkpoint saved. State is consistent in current.json.
+────────────────────────────────────────────────────────────────

@@ -1,7 +1,10 @@
-# HES Skill — 01: Discovery
+# 01 · DISCOVERY — Feature Scoping
 
-> Skill loaded when: feature.state = DISCOVERY
-> Precondition: `.hes/state/current.json` exists with active_feature defined.
+phase  DISCOVERY  ·  pre  ZERO  ·  next  SPEC
+gate   business rules captured + user approval
+skill  skills/01-discovery.md
+
+> Never invent business rules. Every RN comes from the user.
 
 ---
 
@@ -140,23 +143,16 @@ Feature: {{FEATURE_SLUG}} | Domain: {{DOMAIN_IF_APPLICABLE}}
 
 ---
 
-▶ NEXT ACTION — DISCOVERY APPROVAL
 
-```
-📋 Discovery generated: .hes/specs/{{FEATURE_SLUG}}/01-discovery.md
+────────────────────────────────────────────────────────────────
+  DISCOVERY complete
+  .hes/specs/{{FEATURE_SLUG}}/01-discovery.md generated
+────────────────────────────────────────────────────────────────
+  → SPEC                                       skills/02-spec.md
 
-Review the document and:
+  A  approve — advance to SPEC
+  B  adjust — "I need to change [what]"
+  C  add rule — "one more business rule: [rule]"
 
-  [A] "approve discovery" or "ok"
-      → I'll generate the SPEC with BDD scenarios (skills/02-spec.md)
-
-  [B] "adjust [what]"
-      → I'll fix and present again for approval
-
-  [C] "I have one more business rule: [rule]"
-      → I'll incorporate and present again
-
-📄 Next skill-file: skills/02-spec.md
-💡 Tip: pay special attention to Business Rules (RN-xx).
-   Each uncaptured RN here will require rework in the spec and tests.
-```
+  💡 Each uncaptured RN here costs rework in SPEC and RED phase.
+────────────────────────────────────────────────────────────────

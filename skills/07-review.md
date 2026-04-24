@@ -226,31 +226,15 @@ curl -X {{METHOD}} {{URL}} \
 
 ---
 
-▶ NEXT ACTION — AFTER DONE
+────────────────────────────────────────────────────────────────
+  REVIEW complete
+  {{FEATURE_NAME}} · 5 dimensions verified · DONE
+────────────────────────────────────────────────────────────────
+  → DONE                                   feature cycle complete
 
-```
-🏁 Cycle {{completed_cycles}} complete! {{FEATURE_NAME}} delivered.
+  A  start next feature — "feature name: [name]"
+  B  rollback — "/hes rollback [PHASE]" — reopen a phase
+  C  report — "/hes report" — batch learning from events.log
 
-Summary:
-  📋 Specs    : .hes/specs/{{FEATURE_SLUG}}/
-  🏛  ADR     : .hes/decisions/ADR-{{NNN}}.md
-  📚 Lessons  : .hes/tasks/lessons.md (updated)
-  🔀 PR       : ready for human review
-
-  [A] "next feature: [name]"
-      → Starting Discovery (skills/01-discovery.md)
-
-  [B] "I want to see the backlog"
-      → Showing prioritized .hes/tasks/backlog.md
-
-  [C] "/hes report"  (recommended if completed_cycles % 3 == 0)
-      → Batch learning on events.log → harness improvement
-
-  [D] "/hes harness"
-      → Harness health diagnosis across 3 dimensions
-
-📄 Next skill file: skills/01-discovery.md or skills/report.md
-💡 Tip: review is an inferential sensor — it complements, but does not replace,
-   computational sensors (linter, ArchUnit, coverage).
-   Together they form the behaviour + architecture fitness harness.
-```
+  💡 lessons.md was updated. Lesson repeated 2× → promote to skill-file.
+────────────────────────────────────────────────────────────────

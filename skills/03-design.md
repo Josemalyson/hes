@@ -227,30 +227,15 @@ Check if the execution flow defines new boundaries to be captured:
 
 ---
 
-▶ NEXT ACTION — DESIGN APPROVAL
+────────────────────────────────────────────────────────────────
+  DESIGN complete
+  .hes/specs/{{FEATURE_SLUG}}/03-design.md · ADR-{{NNN}}.md
+────────────────────────────────────────────────────────────────
+  → DATA                                       skills/04-data.md
 
-```
-🏗  Design generated:
-    .hes/specs/{{FEATURE_SLUG}}/03-design.md
-    .hes/decisions/ADR-{{NNN}}.md
+  A  approve — advance to DATA layer
+  B  adjust design — "component [X]: [what to change]"
+  C  question — clarify before deciding
 
-Validate before approving:
-  • Do components use patterns already existing in the project?
-  • Does the ADR explain why alternatives were rejected?
-  • Does the execution flow cover all BDD scenarios from the spec?
-  • Do design decisions maximize harnessability?
-
-  [A] "approve design"
-      → I'll generate schema and migrations (skills/04-data.md)
-
-  [B] "adjust [what]"
-      → I'll fix design and/or ADR
-
-  [C] "I prefer Option B from the ADR"
-      → I'll update the decision and adjust the design
-
-📄 Next skill-file: skills/04-data.md
-💡 Tip (Fowler): "Technology decisions determine how governable the codebase will be."
-   Constructor DI, clear package boundaries, and typed exceptions are the 3 decisions
-   that most impact the harnessability of a Java/Spring Boot service.
-```
+  💡 ADRs are immutable decisions. Changing them later is a new ADR.
+────────────────────────────────────────────────────────────────

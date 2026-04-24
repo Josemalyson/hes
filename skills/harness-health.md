@@ -326,25 +326,15 @@ Register in events.log:
 
 ---
 
-▶ NEXT ACTION — AFTER DIAGNOSIS
+────────────────────────────────────────────────────────────────
+  HARNESS HEALTH complete
+  {{N}}/{{MAX}} score · {{N}} critical · {{N}} warnings
+────────────────────────────────────────────────────────────────
+  → next action
 
-```
-🔍 Harness health evaluated.
+  A  fix critical issues — auto-execute suggested fixes
+  B  start feature — "feature name: [name]"
+  C  view details — "explain [dimension]"
 
-  [A] "implement [improvement X]"
-      → I'll execute the configuration steps for that improvement
-
-  [B] "generate the full report as a file"
-      → Save to .hes/tasks/harness-health-{{DATE}}.md
-
-  [C] "continue feature [name]"
-      → Return to active feature's skill-file
-
-  [D] "/hes report"
-      → Cycle report + lessons to close the learning loop
-
-📄 Skill-file: skills/harness-health.md (you are here)
-💡 Tip (Fowler): "Building this outer harness is emerging as an ongoing
-   engineering practice, not a one-time configuration."
-   The harness is never "done" — it evolves with the project.
-```
+  💡 Recurring issue → fix the harness, not just the instance (R14).
+────────────────────────────────────────────────────────────────

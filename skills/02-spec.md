@@ -176,26 +176,15 @@ Content-Type: application/json
 
 ---
 
-▶ NEXT ACTION — SPEC APPROVAL
+────────────────────────────────────────────────────────────────
+  SPEC complete
+  .hes/specs/{{FEATURE_SLUG}}/02-spec.md · {{N}} BDD scenarios · API contract
+────────────────────────────────────────────────────────────────
+  → DESIGN                                     skills/03-design.md
 
-```
-📐 Spec generated: .hes/specs/{{FEATURE_SLUG}}/02-spec.md
+  A  approve — advance to DESIGN
+  B  adjust scenario — "scenario {{N}}: [what to change]"
+  C  missing rule — "add business rule: [rule]"
 
-Validate especially:
-  • Does each RN from discovery have at least 1 BDD scenario?
-  • Are error messages specific (not "Invalid error")?
-  • Does the API contract cover all entity fields?
-
-  [A] "approve spec"
-      → I'll generate the Design and ADR (skills/03-design.md)
-
-  [B] "adjust [what]"
-      → I'll fix and present again
-
-  [C] "missing scenario for [situation]"
-      → I'll add it and present with updated traceability
-
-📄 Next skill-file: skills/03-design.md
-💡 Tip: error messages from the spec become literal strings in tests.
-   Any change after RED requires rewriting the tests.
-```
+  💡 Each BDD scenario becomes a test in RED phase. Be precise with "Then".
+────────────────────────────────────────────────────────────────

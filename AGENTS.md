@@ -70,6 +70,7 @@ ALWAYS validate handoff schema before phase transition
 | `/hes insights [--evolve]`      | skills/harness-evolver.md *(stub)*|
 | `/hes review <PR\|branch>`      | skills/reviewer.md *(stub v4.0)*  |
 | `/hes optimize [path]`          | skills/optimizer.md *(stub v3.9)* |
+| `/hes uninstall`                | skills/13-uninstall.md            |
 
 ---
 
