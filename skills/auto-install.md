@@ -98,15 +98,46 @@ elif [ -f "go.mod" ] → "Go"
 else → "Unknown (user specifies)"
 ```
 
-**IDE detection:**
+**IDE / tool detection (suggest only — never auto-install):**
 ```
-if [ -d ".claude" ] → "claude-code"
-elif [ -d ".cursor" ] → "cursor"
-elif [ -d ".vscode" ] → "vscode"
-elif [ -d ".windsurf" ] → "windsurf"
-elif [ -d ".openhands" ] → "openhands"
-else → "generic"
+Scan for presence of:
+  [ ] claude CLI  → suggest "Claude Code"
+  [ ] .cursor/    → suggest "Cursor"
+  [ ] .vscode/    → suggest "VS Code / Copilot"
+  [ ] codex CLI   → suggest "Codex CLI"
+  [ ] gemini CLI  → suggest "Gemini CLI"
+  [ ] opencode CLI→ suggest "OpenCode"
+  [ ] kiro-cli    → suggest "Kiro (AWS)"
 ```
+
+**→ ALWAYS ask the user which tool(s) to install for, even when detected.**
+
+Display exactly:
+
+```
+  Detected tools:
+    ✓ Claude Code
+    ✓ Cursor
+    · Gemini CLI       (not detected)
+    · GitHub Copilot   (available, project-only)
+
+  Which AI tool(s) do you want to install HES for?
+  Enter number(s) separated by spaces — detection is a suggestion only.
+
+    1.  Claude Code
+    2.  Codex CLI
+    3.  Gemini CLI
+    4.  OpenCode
+    5.  Cursor
+    6.  Windsurf
+    7.  GitHub Copilot / VS Code
+    8.  Kiro (AWS)
+
+  > [wait for user input]
+```
+
+Only after the user explicitly selects tools → proceed to install.
+Never install all detected tools automatically. Detection informs — the user decides.
 
 ---
 
@@ -173,35 +204,34 @@ mkdir -p .claude/commands .hes/state .hes/specs .hes/decisions .hes/tasks .hes/i
 
 ---
 
-## ◈ STEP 5 — GENERATE IDE CONFIG
+## ◈ STEP 5 — GENERATE IDE CONFIG (selected tool only)
 
-### Auto-detect and generate agent identity file:
+Install the config file only for the tool(s) the user selected in the detection step.
+Never install for tools the user did not select.
 
-**For Claude Code (.claude/CLAUDE.md):**
-```markdown
-# HES — Harness Engineer Standard
+**Claude Code** (if selected):
+Write `.claude/CLAUDE.md` + `CLAUDE.md` in project root.
 
-On session start:
-1. Read SKILL.md completely
-2. Identify state via .hes/state/current.json
-3. Load correct skill-file based on current phase
-4. Execute phase-specific instructions
+**Cursor** (if selected):
+Write `.cursor/rules/hes.mdc`.
 
-On receiving /hes:
-- Run auto-install if .hes/ doesn't exist
-- Otherwise, resume from current state
-```
+**Codex CLI** (if selected):
+Write `.agents/skills/hes/SKILL.md`. `AGENTS.md` already written by core install.
 
-**For Cursor (.cursorrules):**
-```
-# HES Auto-Config
-On receiving /hes or any engineering task:
-1. Read SKILL.md in project root
-2. Read .hes/state/current.json
-3. Load skill-file corresponding to current state
-4. Follow skill-file instructions without deviation
-5. Use agentic tools for all file operations
-```
+**Gemini CLI** (if selected):
+Write `GEMINI.md` + `.agents/skills/hes/` (symlink `.gemini/skills/hes → .agents/skills/hes`).
+
+**OpenCode** (if selected):
+Write `.opencode/skills/hes/SKILL.md` + `.agents/skills/hes/SKILL.md`.
+
+**Windsurf** (if selected):
+Write `.windsurfrules` + `.agents/skills/hes/SKILL.md`.
+
+**GitHub Copilot / VS Code** (if selected):
+Write `.github/copilot-instructions.md`.
+
+**Kiro (AWS)** (if selected):
+Write `.kiro/steering/hes.md` + `.kiro/skills/hes/SKILL.md`.
 
 ---
 
@@ -230,25 +260,17 @@ On receiving /hes or any engineering task:
 
 ## ◈ STEP 7 — ANNOUNCE COMPLETION
 
-```
-✅ HES v3.3.0 — Auto-Installation Complete!
+────────────────────────────────────────────────────────────────
+  ZERO complete
+  HES 3.5.0 installed · {{PROJECT_NAME}} · {{STACK}}
+  tools: {{SELECTED_TOOLS}} · scope: project
+────────────────────────────────────────────────────────────────
+  → DISCOVERY                              skills/01-discovery.md
 
-Project       : {{PROJECT_NAME}}
-Stack         : {{STACK}}
-IDE           : {{IDE}}
-Files installed: 19 (1 orchestrator + 18 skills)
-State         : ZERO (ready to start first feature)
+  What is the first feature you want to build?
 
-  [A] "I want to start a new feature: [name]"
-      → Begin DISCOVERY phase
-
-  [B] "/hes status"
-      → View current state
-
-  [C] "This is an existing project, analyze it"
-      → Load LEGACY assessment
-
-  [D] "I want to refactor [module]"
+  💡 Name the feature as a verb phrase: "user auth", "payment processing".
+────────────────────────────────────────────────────────────────  [D] "I want to refactor [module]"
       → Load REFACTOR protocol
 
 💡 Tip: Your harness is now installed. Run /hes anytime to check state.

@@ -53,46 +53,74 @@ if [[ "$SCOPE" != "global" && $NON_INTERACTIVE -eq 0 ]]; then
   [[ -n "$din" ]] && PROJECT_DIR="$din"
 fi
 
-# Step 3: Detect tools
+# Step 3: Detect tools (suggest only — user chooses)
 h1 "Detecting installed AI tools..."
+ALL_TOOLS=("claude"      "codex"      "gemini"    "opencode" "cursor" "windsurf" "copilot"               "kiro")
+NAMES=(    "Claude Code" "Codex CLI"  "Gemini CLI" "OpenCode" "Cursor" "Windsurf" "GitHub Copilot/VSCode" "Kiro (AWS)")
 DETECTED=()
-command -v claude    &>/dev/null && DETECTED+=("claude")   && echo -e "  ${G}✓${D} Claude Code"
-command -v codex     &>/dev/null && DETECTED+=("codex")    && echo -e "  ${G}✓${D} OpenAI Codex CLI"
-command -v gemini    &>/dev/null && DETECTED+=("gemini")   && echo -e "  ${G}✓${D} Gemini CLI"
-command -v opencode  &>/dev/null && DETECTED+=("opencode") && echo -e "  ${G}✓${D} OpenCode"
-[[ -d "$HOME/.cursor"          ]] && DETECTED+=("cursor")  && echo -e "  ${G}✓${D} Cursor"
-[[ -d "$HOME/.config/windsurf" ]] && DETECTED+=("windsurf")&& echo -e "  ${G}✓${D} Windsurf"
-command -v kiro-cli  &>/dev/null && DETECTED+=("kiro")     && echo -e "  ${G}✓${D} Kiro (AWS)"
-DETECTED+=("copilot") && echo -e "  ${G}✓${D} GitHub Copilot (project-only)"
-[[ ${#DETECTED[@]} -le 1 ]] && DETECTED=("claude") && warn "No tools detected — defaulting to Claude Code"
 
-# Step 4: Tool selection
+command -v claude    &>/dev/null && DETECTED+=("claude")   && echo -e "  ${G}✓${D} Claude Code       — detected"
+command -v codex     &>/dev/null && DETECTED+=("codex")    && echo -e "  ${G}✓${D} Codex CLI         — detected"
+command -v gemini    &>/dev/null && DETECTED+=("gemini")   && echo -e "  ${G}✓${D} Gemini CLI        — detected"
+command -v opencode  &>/dev/null && DETECTED+=("opencode") && echo -e "  ${G}✓${D} OpenCode          — detected"
+[[ -d "$HOME/.cursor"          ]] && DETECTED+=("cursor")  && echo -e "  ${G}✓${D} Cursor            — detected"
+[[ -d "$HOME/.config/windsurf" ]] && DETECTED+=("windsurf")&& echo -e "  ${G}✓${D} Windsurf          — detected"
+command -v kiro-cli  &>/dev/null && DETECTED+=("kiro")     && echo -e "  ${G}✓${D} Kiro (AWS)        — detected"
+echo -e "  ${B}·${D} GitHub Copilot/VSCode — available (project-only)"
+
+# Step 4: Tool selection — user explicitly picks; detection is suggestion only
 if [[ -n "$TOOLS_ARG" ]]; then
-  [[ "$TOOLS_ARG" == "all" ]] && TOOLS=("claude" "codex" "gemini" "opencode" "cursor" "windsurf" "copilot" "kiro") \
-    || IFS=',' read -ra TOOLS <<< "$TOOLS_ARG"
-elif [[ $NON_INTERACTIVE -eq 1 ]]; then
-  TOOLS=("${DETECTED[@]}")
-else
-  h1 "Select tools (detected = pre-checked):"
-  ALL_TOOLS=("claude" "codex" "gemini" "opencode" "cursor" "windsurf" "copilot" "kiro")
-  NAMES=("Claude Code" "Codex CLI" "Gemini CLI" "OpenCode" "Cursor" "Windsurf" "GitHub Copilot/VSCode" "Kiro (AWS)")
-  for i in "${!ALL_TOOLS[@]}"; do
-    t="${ALL_TOOLS[$i]}"; sel=" "
-    for d in "${DETECTED[@]}"; do [[ "$d" == "$t" ]] && sel="x"; done
-    echo -e "  [${sel}] $((i+1)). ${W}${NAMES[$i]}${D}"
-  done
-  echo -e "\n  Enter numbers to toggle (e.g. '1 3'), or Enter to keep detected:"
-  read -rp "  > " tog
-  TOOLS=("${DETECTED[@]}")
-  if [[ -n "$tog" ]]; then
-    for num in $tog; do
-      idx=$((num-1)); t="${ALL_TOOLS[$idx]:-}"; [[ -z "$t" ]] && continue
-      found=0
-      for d in "${TOOLS[@]}"; do [[ "$d" == "$t" ]] && found=1; done
-      if [[ $found -eq 1 ]]; then TOOLS=("${TOOLS[@]/$t}"); else TOOLS+=("$t"); fi
-    done
-    TOOLS=($(printf '%s\n' "${TOOLS[@]}" | grep -v '^$' | sort -u))
+  # Non-interactive flag provided: honour it directly
+  if [[ "$TOOLS_ARG" == "all" ]]; then
+    TOOLS=("claude" "codex" "gemini" "opencode" "cursor" "windsurf" "copilot" "kiro")
+  else
+    IFS=',' read -ra TOOLS <<< "$TOOLS_ARG"
   fi
+elif [[ $NON_INTERACTIVE -eq 1 ]]; then
+  # --yes with no --tools: install only detected tools (still a conscious choice)
+  if [[ ${#DETECTED[@]} -eq 0 ]]; then
+    TOOLS=("claude")
+    warn "No tools detected — defaulting to Claude Code. Use --tools to override."
+  else
+    TOOLS=("${DETECTED[@]}")
+    info "Non-interactive mode: installing detected tools only: ${TOOLS[*]}"
+  fi
+else
+  # Interactive: show full list, mark detected, require explicit selection
+  echo ""
+  h1 "Which AI tool(s) do you want to install HES for?"
+  echo -e "  ${Y}Detected tools are marked with ✓ — but YOU decide what gets installed.${D}"
+  echo ""
+  for i in "${!ALL_TOOLS[@]}"; do
+    t="${ALL_TOOLS[$i]}"; marker="  "
+    for d in "${DETECTED[@]}"; do [[ "$d" == "$t" ]] && marker="${G}✓${D}"; done
+    echo -e "  ${marker} $((i+1)).  ${W}${NAMES[$i]}${D}"
+  done
+  echo ""
+  echo -e "  Enter the number(s) of the tool(s) you use, separated by spaces."
+  echo -e "  Examples:  ${W}1${D}  (Claude Code only)   ${W}1 4${D}  (Claude + OpenCode)   ${W}1 2 5${D}"
+  echo ""
+  TOOLS=()
+  while [[ ${#TOOLS[@]} -eq 0 ]]; do
+    read -rp "  > " selection
+    if [[ -z "$selection" ]]; then
+      warn "No selection made. Please enter at least one number."
+      continue
+    fi
+    for num in $selection; do
+      if ! [[ "$num" =~ ^[0-9]+$ ]] || [[ $num -lt 1 ]] || [[ $num -gt ${#ALL_TOOLS[@]} ]]; then
+        warn "Invalid option: $num — ignored"
+        continue
+      fi
+      idx=$((num-1))
+      TOOLS+=("${ALL_TOOLS[$idx]}")
+    done
+    # Deduplicate
+    TOOLS=($(printf '%s\n' "${TOOLS[@]}" | sort -u))
+    if [[ ${#TOOLS[@]} -eq 0 ]]; then
+      warn "No valid tools selected. Try again."
+    fi
+  done
 fi
 
 echo -e "\n  Installing for: ${W}${TOOLS[*]}${D}"
