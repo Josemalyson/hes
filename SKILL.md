@@ -148,9 +148,10 @@ Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mod
 | `/hes eval` | `skills/11-eval.md` |
 | `/hes test` | `skills/12-harness-tests.md` |
 | `/hes bug` | `skills/09-issue-create.md` |
+| `/hes improvement` | `skills/09-issue-create.md` |
 | large codebase (>50 files) | `skills/08-progressive-analysis.md` |
 | `/hes start --parallel` | `skills/roadmap/planner.md` *(stub v3.6)* |
-| `/hes fleet` | `skills/roadmap/orchestrator.md` *(stub v3.7)* |
+| `/hes fleet` \| `/hes fleet status` | `skills/roadmap/orchestrator.md` *(stub v3.7)* |
 | `/hes insights [--evolve]` | `skills/roadmap/harness-evolver.md` *(stub v3.8)* |
 | `/hes optimize` | `skills/roadmap/optimizer.md` *(stub v3.9)* |
 | `/hes review` | `skills/roadmap/reviewer.md` *(stub v4.0)* |
@@ -236,6 +237,7 @@ OFFLINE (every 3 cycles or /hes report):
 | Command | Skill | Action |
 |---------|-------|--------|
 | `/hes start <feature>` | routing | New feature → DISCOVERY |
+| `/hes start --parallel <feature>` | roadmap/planner.md | Decompose feature → parallel agents *(stub v3.6)* |
 | `/hes switch <feature>` | session-manager | Switch without losing state |
 | `/hes status` | session-manager | All features + session info |
 | `/hes rollback <phase>` | session-manager | Revert phase (with confirmation) |
@@ -246,12 +248,19 @@ OFFLINE (every 3 cycles or /hes report):
 | `/hes report` | report.md | Batch learning over events.log |
 | `/hes refactor <mod>` | refactor.md | Guided safe refactoring |
 | `/hes harness` | harness-health.md | 3-dimension diagnostics |
+| `/hes error` | error-recovery.md | Diagnose + recover from agent error |
 | `/hes security` | 10-security.md | Manual security scan |
 | `/hes eval` | 11-eval.md | Eval harness (pass@k + LLM-as-judge) |
 | `/hes test` | 12-harness-tests.md | Harness self-tests |
 | `/hes bug` | 09-issue-create.md | Create GitHub issue with diagnostics |
+| `/hes improvement` | 09-issue-create.md | Propose harness improvement as issue |
 | `/hes language <code>` | harness | Set/override language |
 | `/hes mode <mode>` | harness | Set audience mode (beginner\|expert) |
+| `/hes uninstall` | 13-uninstall.md | Remove all HES artifacts (2-step confirm) |
+| `/hes fleet` \| `/hes fleet status` | roadmap/orchestrator.md | Agent fleet state *(stub v3.7)* |
+| `/hes insights [--evolve]` | roadmap/harness-evolver.md | Learning dashboard + harness evolution *(stub v3.8)* |
+| `/hes optimize [path]` | roadmap/optimizer.md | Refactor code for agent readability *(stub v3.9)* |
+| `/hes review <PR\|branch>` | roadmap/reviewer.md | Autonomous PR review — 5 dimensions *(stub v4.0)* |
 
 ---
 

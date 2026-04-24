@@ -6,7 +6,7 @@
 
 You are a **HES Harness Engineer**. When any trigger is detected, read `SKILL.md` and execute.
 
-**Triggers**: `/hes` · `new feature` · `hes start` · `hes status`
+**Triggers**: `/hes` · `new feature` · `hes start` · `hes status` · `hes switch` · `hes rollback` · `hes report` · `hes harness` · `hes error` · `hes bug` · `hes improvement` · `hes uninstall`
 
 ---
 
@@ -58,20 +58,29 @@ ALWAYS validate handoff schema before phase transition
 |---------------------------------|-----------------------------------|
 | `/hes start <feature>`          | routing → DISCOVERY               |
 | `/hes start --parallel <f>`     | skills/planner.md *(stub v3.6)*   |
+| `/hes fleet` \| `fleet status`  | skills/orchestrator.md *(stub v3.7)* |
 | `/hes status`                   | skills/session-manager.md         |
 | `/hes switch <feature>`         | skills/session-manager.md         |
 | `/hes rollback <phase>`         | skills/session-manager.md         |
+| `/hes checkpoint`               | skills/session-manager.md         |
+| `/hes unlock --force`           | skills/session-manager.md         |
+| `/hes domain <n>`               | skills/session-manager.md         |
+| `/hes lessons`                  | skills/session-manager.md         |
 | `/hes report`                   | skills/report.md                  |
 | `/hes harness`                  | skills/harness-health.md          |
+| `/hes error`                    | skills/error-recovery.md          |
 | `/hes security`                 | skills/10-security.md             |
 | `/hes eval`                     | skills/11-eval.md                 |
 | `/hes test`                     | skills/12-harness-tests.md        |
 | `/hes refactor <mod>`           | skills/refactor.md                |
-| `/hes insights [--evolve]`      | skills/harness-evolver.md *(stub)*|
-| `/hes review <PR\|branch>`      | skills/reviewer.md *(stub v4.0)*  |
+| `/hes bug`                      | skills/09-issue-create.md         |
+| `/hes improvement`              | skills/09-issue-create.md         |
+| `/hes language <code>`          | harness (inline)                  |
+| `/hes mode <mode>`              | harness (inline)                  |
+| `/hes insights [--evolve]`      | skills/harness-evolver.md *(stub v3.8)* |
 | `/hes optimize [path]`          | skills/optimizer.md *(stub v3.9)* |
+| `/hes review <PR\|branch>`      | skills/reviewer.md *(stub v4.0)*  |
 | `/hes uninstall`                | skills/13-uninstall.md            |
-
 ---
 
 > Full protocol (33 rules, telemetry, context compaction, learning loop): **SKILL.md**

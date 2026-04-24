@@ -240,35 +240,38 @@ Each feature tracks its own state. Features can depend on each other, and HES ma
 
 > **LLM Responsibility**: The LLM executes all commands autonomously when invoked.
 
-| Command                           | LLM Executes             | Action                                                       |
-| --------------------------------- | ------------------------ | ------------------------------------------------------------ |
-| `/hes`                            | LLM harness              | Starts HES — detects state and routes autonomously           |
-| `/hes start <feature>`            | LLM harness              | New feature → DISCOVERY phase execution                      |
-| `/hes start --parallel <feature>` | LLM planner-agent        | *(v3.7)* Decomposes feature e inicia frota de agents        |
-| `/hes fleet status`               | LLM orchestrator-agent   | *(v3.7)* state da frota de agents em execution              |
-| `/hes switch <feature>`           | LLM session-manager      | Switches feature focus without losing state                  |
-| `/hes status`                     | LLM session-manager      | Shows state of all features + session info                   |
-| `/hes rollback <phase>`           | LLM session-manager      | Reverts to previous phase (with confirmation)                |
-| `/hes domain <n>`                 | LLM harness              | Creates/activates a DDD domain                               |
-| `/hes lessons`                    | LLM harness              | Shows lessons.md + pending promotions to skills              |
-| `/hes report`                     | LLM report-agent         | Generates batch learning report from events.log              |
-| `/hes insights`                   | LLM harness-evolver      | *(v3.8)* Learning dashboard + evolution metrics      |
-| `/hes insights --evolve`          | LLM harness-evolver      | *(v3.8)* Proposes harness improvements from events.log  |
-| `/hes refactor <module>`          | LLM refactor-agent       | Executes guided safe refactoring                             |
-| `/hes harness`                    | LLM harness-health-agent | Runs harness diagnostics (3 dimensions)                      |
-| `/hes review <PR\|branch>`        | LLM reviewer-agent       | *(v4.0)* Revisão autônoma de PR — 5 dimensões                |
-| `/hes optimize [path]`            | LLM optimizer-agent      | *(v3.9)* Refatora code for legibilidade de Agent         |
-| `/hes security`                   | LLM security-agent       | Security scan manual (Bandit + Semgrep)                      |
-| `/hes eval`                       | LLM eval-agent           | Eval harness (pass@k + LLM-as-judge)                         |
-| `/hes test`                       | LLM harness-test-agent   | Harness self-tests (structural + behavioral)                 |
-| `/hes language <code>`            | LLM harness              | Sets/overrides user language                                 |
-| `/hes mode <mode>`                | LLM harness              | Sets audience mode (beginner\|expert)                        |
-| `/clear` or `/new`                | LLM session-manager      | Saves checkpoint + clears session                            |
-| `/hes checkpoint`                 | LLM session-manager      | Saves checkpoint without clearing                            |
-| `/hes unlock --force`             | LLM session-manager      | Bypasses phase lock (logs risk event)                        |
-| `/hes uninstall`                  | LLM uninstall-agent      | Removes all HES artifacts — double confirmation required     |
+| Command                              | LLM Executes             | Action                                                       |
+| ------------------------------------ | ------------------------ | ------------------------------------------------------------ |
+| `/hes`                               | LLM harness              | Starts HES — detects state and routes autonomously           |
+| `/hes start <feature>`               | LLM harness              | New feature → DISCOVERY phase                                |
+| `/hes start --parallel <feature>`    | LLM planner-agent        | *(v3.6)* Decomposes feature and starts parallel agent fleet  |
+| `/hes fleet` \| `/hes fleet status`  | LLM orchestrator-agent   | *(v3.7)* Show parallel agent fleet state                     |
+| `/hes switch <feature>`              | LLM session-manager      | Switch feature focus without losing state                    |
+| `/hes status`                        | LLM session-manager      | Show all features + session info                             |
+| `/hes rollback <phase>`              | LLM session-manager      | Revert to previous phase (with confirmation)                 |
+| `/hes checkpoint`                    | LLM session-manager      | Save session checkpoint without clearing                     |
+| `/hes unlock --force`                | LLM session-manager      | Bypass phase lock — logs risk event                          |
+| `/hes domain <n>`                    | LLM harness              | Create/activate a DDD bounded context                        |
+| `/hes lessons`                       | LLM harness              | Show lessons.md + pending promotions to skill-files          |
+| `/hes report`                        | LLM report-agent         | Batch learning report from events.log                        |
+| `/hes insights`                      | LLM harness-evolver      | *(v3.8)* Learning dashboard + evolution metrics              |
+| `/hes insights --evolve`             | LLM harness-evolver      | *(v3.8)* Propose harness improvements from events.log        |
+| `/hes refactor <module>`             | LLM refactor-agent       | Guided safe refactoring                                      |
+| `/hes harness`                       | LLM harness-health-agent | 3-dimension harness diagnostics                              |
+| `/hes error`                         | LLM error-recovery-agent | Diagnose and recover from agent errors                       |
+| `/hes security`                      | LLM security-agent       | Manual security scan (Bandit + Semgrep)                      |
+| `/hes eval`                          | LLM eval-agent           | Eval harness (pass@k + LLM-as-judge)                         |
+| `/hes test`                          | LLM harness-test-agent   | Harness self-tests (structural + behavioral)                 |
+| `/hes bug`                           | LLM issue-agent          | Create GitHub issue with auto-collected diagnostics          |
+| `/hes improvement`                   | LLM issue-agent          | Propose harness improvement as a GitHub issue                |
+| `/hes language <code>`               | LLM harness              | Set/override session language (pt-BR, en, es, fr, de)        |
+| `/hes mode <mode>`                   | LLM harness              | Set audience mode (beginner\|expert)                         |
+| `/hes optimize [path]`               | LLM optimizer-agent      | *(v3.9)* Refactor code for agent readability                 |
+| `/hes review <PR\|branch>`           | LLM reviewer-agent       | *(v4.0)* Autonomous PR review — 5 dimensions                 |
+| `/hes uninstall`                     | LLM uninstall-agent      | Remove all HES artifacts — double confirmation required      |
+| `/clear` or `/new`                   | LLM session-manager      | Save checkpoint + clear session context                      |
 
-> *(vX.Y)* = planned for that version — stub available in `skills/`, full implementation on roadmap.
+> *(vX.Y)* = planned — stub available in `skills/roadmap/`, full implementation on roadmap.
 
 ---
 
