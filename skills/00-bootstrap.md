@@ -80,13 +80,26 @@ IDE="generic"
 [ -d ".vscode" ]   && IDE="vscode"
 [ -d ".windsurf" ] && IDE="windsurf"
 [ -d ".kiro" ]     && IDE="kiro"
+[ -d ".opencode" ] && IDE="opencode"
 
-echo "project=$PROJECT stack=$STACK ide=$IDE"
+# Map IDE → interaction_tool
+INTERACTION_TOOL="null"
+[ "$IDE" = "opencode" ] && INTERACTION_TOOL='"question"'
+
+echo "project=$PROJECT stack=$STACK ide=$IDE interaction_tool=$INTERACTION_TOOL"
 ```
 
-Ask the user (once):
-- Language preference (pt-BR / en / es / fr / de)?
-- Domains (DDD bounded contexts) — if known
+Ask the user (once) — use interaction_tool protocol (SKILL.md Step 0-C):
+
+**If interaction_tool = "question":** call the question tool with:
+  - Q1: "Language preference?" options: pt-BR | en | es | fr | de
+  - Q2: "DDD domains (bounded contexts) — if known?" free text or "not yet"
+
+**If interaction_tool = null:** display:
+  ```
+  Language? (pt-BR / en / es / fr / de — default: en)
+  DDD domains? (e.g. auth, billing — or press Enter to skip)
+  ```
 
 ---
 
@@ -143,6 +156,7 @@ echo "✓ structure created · session-id: $(cat .hes/state/session-id)"
   "completed_cycles": 0,
   "last_updated": "{{NOW}}",
   "model": null,
+  "interaction_tool": {{INTERACTION_TOOL}},
   "session": { "checkpoint": null, "phase_lock": null, "messages_in_session": 0 },
   "security": { "last_scan": null, "last_gate_result": null, "exceptions_count": 0 },
   "step_budget": {

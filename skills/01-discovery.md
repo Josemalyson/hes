@@ -150,6 +150,15 @@ Feature: {{FEATURE_SLUG}} | Domain: {{DOMAIN_IF_APPLICABLE}}
 ────────────────────────────────────────────────────────────────
   → SPEC                                       skills/02-spec.md
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "Discovery complete. What next?"
+    · "approve — advance to SPEC"
+    · "adjust — describe what to change"
+    · "add rule — describe the new business rule"
+
+If `interaction_tool = null`:
   A  approve — advance to SPEC
   B  adjust — "I need to change [what]"
   C  add rule — "one more business rule: [rule]"

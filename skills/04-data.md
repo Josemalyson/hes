@@ -188,6 +188,15 @@ CREATE TRIGGER trg_{{table_name}}_updated_at
 ────────────────────────────────────────────────────────────────
   → RED                                        skills/05-tests.md
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "DATA phase complete. Migration status?"
+    · "migration ok — table created — advance to RED"
+    · "migration error — describe the error message"
+    · "schema adjustment needed — describe what to change"
+
+If `interaction_tool = null`:
   A  migration ok — table created — advance to RED
   B  migration error — "[error message]"
   C  schema adjustment — "[what needs to change]"

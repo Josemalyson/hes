@@ -1,5 +1,35 @@
 # HES — Changelog
 
+## v3.5.1 (2026-04-24)
+
+### fix: interaction_tool consistency — UI mode no longer changes mid-session
+
+**Root cause:** The harness had no mechanism to detect, persist, or enforce a
+consistent interaction mode across phases. IDEs like OpenCode expose a native
+`question` tool (structured UI with buttons), but the NEXT ACTION FORMAT in
+SKILL.md hardcoded the text-based `[A]/[B]/[C]` pattern — causing the agent
+to use the interactive tool at bootstrap and revert to plain text at every
+phase-end choice.
+
+**Changes:**
+
+- `SKILL.md` — added `interaction_tool` field to `current.json` schema;
+  added **Step 0-C** (interaction tool detection, runs once at session start);
+  added **R34** (never fall back to text when a tool is available);
+  updated **NEXT ACTION FORMAT** to dual-mode (tool-primary / text-fallback)
+  with explicit warning: *never mix modes within a session*.
+
+- `skills/00-bootstrap.md` — Step 1 detects IDE and maps to `interaction_tool`
+  (`opencode → "question"`, all others → `null`); persists in `current.json`;
+  Step 1 "Ask the user" block replaced with dual-mode protocol.
+
+- `skills/01-discovery.md`, `02-spec.md`, `03-design.md`, `04-data.md`,
+  `06-implementation.md`, `10-security.md`, `07-review.md` — all phase-end
+  closure blocks updated: if `interaction_tool = "question"`, call the tool;
+  else render text fallback. Mode is read from `current.json`, not inferred.
+
+---
+
 ## v3.5.0 (2026-04-18)
 
 Complete implementation of PLAN.md — 15 gaps vs. 2026 market standards.

@@ -33,6 +33,7 @@ State lives in `.hes/state/current.json`:
   "completed_cycles": 0,
   "last_updated": "2025-01-01T00:00:00Z",
   "model": null,
+  "interaction_tool": null,
   "session": { "checkpoint": null, "phase_lock": null, "messages_in_session": 0 },
   "security": { "last_scan": null, "last_gate_result": null, "exceptions_count": 0 },
   "step_budget": {
@@ -119,6 +120,26 @@ Detect language from first message → store in current.json.user_language
   pt-BR | es | fr | de | en (default)
 Check audience_mode → "expert" (default) or "beginner"
 Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mode>
+```
+
+### Step 0-C — Interaction Tool Detection
+
+```
+Detect IDE from current.json.ide → map to interaction_tool:
+
+  IDE            interaction_tool
+  ──────────────────────────────────
+  opencode    →  "question"
+  claude-code →  null  (text fallback)
+  cursor      →  null  (text fallback)
+  vscode      →  null  (text fallback)
+  windsurf    →  null  (text fallback)
+  kiro        →  null  (text fallback)
+  generic     →  null  (text fallback)
+
+Store in current.json.interaction_tool
+Rule: if interaction_tool != null → ALWAYS use that tool for user choices.
+      if interaction_tool == null → use text format [A]/[B]/[C].
 ```
 
 ### Step 1 — Route
@@ -300,11 +321,25 @@ R30  DELEGATE via skills/roadmap/orchestrator.md when execution-plan.json exists
 R31  READ trust-policy.yml before harness-evolver auto-modification (stub v3.8)
 R32  READ security-policy.yml at start of SECURITY phase
 R33  VALIDATE test suite after /hes optimize before committing (stub v3.9)
+R34  ALWAYS use current.json.interaction_tool for user choices when not null.
+     NEVER fall back to text [A]/[B] when an interactive tool is available.
+     Consistency across all phases is mandatory — bootstrap, discovery, and
+     every phase-end NEXT ACTION must use the same interaction mode.
 ```
 
 ---
 
 ## ◈ NEXT ACTION FORMAT (mandatory)
+
+Read `current.json.interaction_tool` before rendering choices.
+
+**Mode A — Interactive tool available (`interaction_tool != null`):**
+
+Call the IDE's native question tool with the choices as structured options.
+Do NOT render plain-text [A]/[B] in the response body — the tool renders the UI.
+Always include a brief narrative line before the tool call.
+
+**Mode B — Text fallback (`interaction_tool == null`):**
 
 ```
 ▶ NEXT ACTION — [STEP]
@@ -318,6 +353,9 @@ R33  VALIDATE test suite after /hes optimize before committing (stub v3.9)
 📄 Skill-file: skills/[XX-name].md
 💡 Tip: [one concrete tip]
 ```
+
+> ⚠ Never mix modes within a session. If Mode A was used at bootstrap,
+> ALL subsequent choices in the same session MUST also use Mode A.
 
 ---
 

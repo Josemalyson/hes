@@ -382,6 +382,15 @@ The LLM ONLY advances to REVIEW if ALL conditions are met:
 ────────────────────────────────────────────────────────────────
   → REVIEW                                   skills/07-review.md
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "SECURITY complete. What next?"
+    · "zero HIGH findings — advance to REVIEW"
+    · "HIGH findings remain — describe finding and why it's hard to fix"
+    · "exception needed — describe finding and reason it's a false positive"
+
+If `interaction_tool = null`:
   A  zero HIGH findings — advance to REVIEW
   B  HIGH findings remain — "[what + why it's hard to fix]"
   C  exception needed — "[finding] is a false positive because [reason]"
