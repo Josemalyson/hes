@@ -127,19 +127,27 @@ Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mod
 ```
 Detect IDE from current.json.ide → map to interaction_tool:
 
-  IDE            interaction_tool
-  ──────────────────────────────────
-  opencode    →  "question"
-  claude-code →  null  (text fallback)
-  cursor      →  null  (text fallback)
-  vscode      →  null  (text fallback)
-  windsurf    →  null  (text fallback)
-  kiro        →  null  (text fallback)
-  generic     →  null  (text fallback)
+  IDE             interaction_tool     Availability
+  ──────────────────────────────────────────────────────────────
+  claude-code  →  "AskUserQuestion"    native (CLI + VS Code + JetBrains)
+  gemini-cli   →  "ask_user"           native v0.29+ (TUI dialog)
+  opencode     →  "question"           native (TUI + HTTP API)
+  cursor       →  "AskQuestion"        Plan Mode only — else null
+  windsurf     →  null                 text fallback
+  vscode       →  null                 text fallback (feature request open)
+  codex-cli    →  null                 text fallback
+  kiro         →  null                 text fallback
+  generic      →  null                 text fallback
 
 Store in current.json.interaction_tool
-Rule: if interaction_tool != null → ALWAYS use that tool for user choices.
-      if interaction_tool == null → use text format [A]/[B]/[C].
+
+Rules:
+  - interaction_tool != null → call the native tool; NEVER render [A]/[B] text
+  - interaction_tool == null → use text format A / B / C (layout-standard.md)
+  - Cursor: set "AskQuestion" only when Plan Mode is confirmed; otherwise null
+  - During auto-install (no current.json yet): detect IDE from filesystem
+    (.claude/ → claude-code, .gemini/ → gemini-cli, etc.) — same priority order
+  - Full schemas + patterns: skills/reference/interactive-ui.md
 ```
 
 ### Step 1 — Route
@@ -338,20 +346,25 @@ Read `current.json.interaction_tool` before rendering choices.
 Call the IDE's native question tool with the choices as structured options.
 Do NOT render plain-text [A]/[B] in the response body — the tool renders the UI.
 Always include a brief narrative line before the tool call.
+Full call schemas: `skills/reference/interactive-ui.md`.
 
 **Mode B — Text fallback (`interaction_tool == null`):**
 
+Use layout-standard.md format:
+
 ```
-▶ NEXT ACTION — [STEP]
+────────────────────────────────────────────────────────────────
+  {{PHASE}} complete
+  {{summary}}
+────────────────────────────────────────────────────────────────
+  → {{NEXT_PHASE}}                         skills/{{NN-name}}.md
 
-[What was done]
-[What the user must decide or confirm]
+  A  {{primary action — happy path}}
+  B  {{secondary — adjust/fix}}
+  C  {{tertiary — question or edge case}}
 
-  [A] "option a" → [outcome]
-  [B] "option b" → [outcome]
-
-📄 Skill-file: skills/[XX-name].md
-💡 Tip: [one concrete tip]
+  💡 {{one concrete tip}}
+────────────────────────────────────────────────────────────────
 ```
 
 > ⚠ Never mix modes within a session. If Mode A was used at bootstrap,

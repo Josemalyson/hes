@@ -19,6 +19,16 @@ skill  skills/{{NN-name}}.md
 
 ## ◈ NEXT ACTION BLOCK (end of every response)
 
+Read `current.json.interaction_tool` before rendering.
+Full protocol: `skills/reference/interactive-ui.md`.
+
+**Mode A — interaction_tool != null (e.g. claude-code → AskUserQuestion)**
+
+Output a one-line summary, then call the native tool with structured choices.
+Do NOT print A/B/C text — the tool renders the UI.
+
+**Mode B — interaction_tool == null (text fallback)**
+
 Replace the old `▶ NEXT ACTION` code-block format entirely.
 Use this structure — plain text, no wrapping code block:
 
@@ -37,8 +47,8 @@ Use this structure — plain text, no wrapping code block:
 ────────────────────────────────────────────────────────────────
 ```
 
-Rules:
-- [A] is ALWAYS the happy-path pointer to the next phase
+Rules (Mode B):
+- A is ALWAYS the happy-path pointer to the next phase
 - Options use single letters without brackets: A  B  C  (not [A] [B] [C])
 - No code block wrapping the options
 - Horizontal rule uses exactly 68 `─` characters

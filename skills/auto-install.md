@@ -112,7 +112,26 @@ Scan for presence of:
 
 **→ ALWAYS ask the user which tool(s) to install for, even when detected.**
 
-Display exactly:
+Determine the interaction mode BEFORE asking (no current.json yet):
+
+```
+Detect host IDE from filesystem — same priority order as interactive-ui.md:
+  .claude/             present  →  claude-code  →  AskUserQuestion (multiSelect)
+  .gemini/             present  →  gemini-cli   →  ask_user        (multiSelect)
+  .opencode/           present  →  opencode     →  question        (multiSelect)
+  .cursor/             present  →  cursor       →  null (text fallback)
+  .windsurfrules       present  →  windsurf     →  null (text fallback)
+  .kiro/               present  →  kiro         →  null (text fallback)
+  copilot-instructions present  →  vscode       →  null (text fallback)
+  otherwise                        generic      →  null (text fallback)
+```
+
+**If host has native tool (claude-code / gemini-cli / opencode):**
+Call the environment's native tool (ref: `skills/reference/interactive-ui.md`
+§ IDE tool selection patterns). Include all 8 tools; set `multiSelect: true`.
+Pre-mark detected tools in `description` with "(detected)".
+
+**If host = text fallback:** display exactly:
 
 ```
   Detected tools:

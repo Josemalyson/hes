@@ -33,6 +33,7 @@ State lives in `.hes/state/current.json`:
   "completed_cycles": 0,
   "last_updated": "2025-01-01T00:00:00Z",
   "model": null,
+  "interaction_tool": null,
   "session": { "checkpoint": null, "phase_lock": null, "messages_in_session": 0 },
   "security": { "last_scan": null, "last_gate_result": null, "exceptions_count": 0 },
   "step_budget": {
@@ -49,10 +50,20 @@ State lives in `.hes/state/current.json`:
 
 **Bootstrap states** (resolved before feature machine):
 ```
-ZERO    → no .hes/ + no current.json  → auto-install
-ORPHAN  → .hes/ present, no state     → legacy assessment
-LEGACY  → .hes/ + current.json exist  → normal routing
+ZERO                 → no .hes/ + no current.json           → auto-install (automated)
+ORPHAN               → .hes/ exists + no current.json        → legacy.md path A (automated)
+LEGACY               → no .hes/ + src/ exists                → legacy.md path B (automated)
+INSTALLED_INCOMPLETE → current.json + features:{} + artifacts missing
+                       → 00-bootstrap.md Step 0-CHECK (silent auto-complete)
+HARNESS_READY        → current.json + all artifacts present + features:{}
+                       → ask: "What is the first feature?"  → DISCOVERY
 ```
+
+> **Convergence contract:** ZERO, ORPHAN, and LEGACY are **three parallel automated paths**
+> to the same destination. No user menus. No choices. Just detection → auto-execution → HARNESS_READY.
+
+> **REGRA-15**: `INSTALLED_INCOMPLETE` never shows an options menu.
+> **REGRA-16**: ORPHAN and LEGACY are automated — no manual steps or questions before HARNESS_READY.
 
 ---
 
@@ -64,10 +75,43 @@ Execute on every session start. Do not ask the user to do any of these steps.
 
 ```
 1. Check .hes/state/current.json
-2. No .hes/ dir AND no file → ZERO: load skills/auto-install.md
-3. .hes/ exists AND no file  → ORPHAN: load skills/legacy.md
-4. File exists               → read active_feature + state → continue
+2. No .hes/ dir AND no file  → ZERO:   load skills/auto-install.md (fully automated) → STOP
+3. .hes/ exists AND no file  → ORPHAN: load skills/legacy.md Path A (automated recovery) → STOP
+4. No .hes/ AND src/ exists  → LEGACY: load skills/legacy.md Path B (automated inventory+bootstrap) → STOP
+5. File exists               → read active_feature + state:
+
+   a. features == {} →  Run INSTALLED_INCOMPLETE check:
+        REQUIRED_ARTIFACTS = [
+          ".hes/tasks/lessons.md",
+          ".hes/tasks/backlog.md",
+          ".hes/state/session-checkpoint.json",
+          ".hes/state/setup-validation.json",
+          "<IDE_CONFIG>"  ← .claude/CLAUDE.md or equivalent
+        ]
+        missing = [f for f in REQUIRED_ARTIFACTS if not exists(f)]
+
+        If missing → INSTALLED_INCOMPLETE:
+          → Load skills/00-bootstrap.md → Step 0-CHECK (silent auto-complete)
+          → Log event: INSTALLED_INCOMPLETE → HARNESS_READY
+          → Announce completion (compact, 2 lines max)
+          → Point directly to DISCOVERY (no menu)
+
+        If all present → HARNESS_READY:
+          → Ask: "Harness pronto. Qual a primeira feature?"
+          → Load skills/01-discovery.md on answer
+
+   b. active_feature != null → Route by feature state (Step 1 table)
 ```
+
+> **Diagnóstico de Setup (artefatos obrigatórios do ZERO):**
+>
+> | Artefato | Gerado por |
+> |----------|-----------|
+> | `.hes/tasks/lessons.md` | 00-bootstrap Step 6 |
+> | `.hes/tasks/backlog.md` | 00-bootstrap Step 7 |
+> | `.hes/state/session-checkpoint.json` | 00-bootstrap Step 1.7 |
+> | `.hes/state/setup-validation.json` | 00-bootstrap Step 1.5 |
+> | `<IDE_CONFIG>` | 00-bootstrap Step 5 |
 
 ### Step 0-B — Language + Audience
 
@@ -78,12 +122,43 @@ Check audience_mode → "expert" (default) or "beginner"
 Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mode>
 ```
 
+### Step 0-C — Interaction Tool Detection
+
+```
+Detect IDE from current.json.ide → map to interaction_tool:
+
+  IDE             interaction_tool     Availability
+  ──────────────────────────────────────────────────────────────
+  claude-code  →  "AskUserQuestion"    native (CLI + VS Code + JetBrains)
+  gemini-cli   →  "ask_user"           native v0.29+ (TUI dialog)
+  opencode     →  "question"           native (TUI + HTTP API)
+  cursor       →  "AskQuestion"        Plan Mode only — else null
+  windsurf     →  null                 text fallback
+  vscode       →  null                 text fallback (feature request open)
+  codex-cli    →  null                 text fallback
+  kiro         →  null                 text fallback
+  generic      →  null                 text fallback
+
+Store in current.json.interaction_tool
+
+Rules:
+  - interaction_tool != null → call the native tool; NEVER render [A]/[B] text
+  - interaction_tool == null → use text format A / B / C (layout-standard.md)
+  - Cursor: set "AskQuestion" only when Plan Mode is confirmed; otherwise null
+  - During auto-install (no current.json yet): detect IDE from filesystem
+    (.claude/ → claude-code, .gemini/ → gemini-cli, etc.) — same priority order
+  - Full schemas + patterns: skills/reference/interactive-ui.md
+```
+
 ### Step 1 — Route
 
 | Condition | Skill-file |
 |-----------|-----------|
-| ZERO | `skills/auto-install.md` |
-| ORPHAN / LEGACY | `skills/legacy.md` |
+| ZERO | `skills/auto-install.md` ← automated |
+| ORPHAN | `skills/legacy.md` Path A ← automated recovery |
+| LEGACY (no .hes/ + src/) | `skills/legacy.md` Path B ← automated inventory |
+| **INSTALLED_INCOMPLETE** | `skills/00-bootstrap.md` → Step 0-CHECK (silent auto-complete) |
+| **HARNESS_READY** | Ask feature name → `skills/01-discovery.md` |
 | feature = DISCOVERY | `skills/01-discovery.md` |
 | feature = SPEC | `skills/02-spec.md` |
 | feature = DESIGN | `skills/03-design.md` |
@@ -98,12 +173,14 @@ Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mod
 | `/hes harness` | `skills/harness-health.md` |
 | `/hes error` | `skills/error-recovery.md` |
 | `/hes security` | `skills/10-security.md` |
+| **`/hes uninstall`** | **`skills/13-uninstall.md`** |
 | `/hes eval` | `skills/11-eval.md` |
 | `/hes test` | `skills/12-harness-tests.md` |
 | `/hes bug` | `skills/09-issue-create.md` |
+| `/hes improvement` | `skills/09-issue-create.md` |
 | large codebase (>50 files) | `skills/08-progressive-analysis.md` |
 | `/hes start --parallel` | `skills/roadmap/planner.md` *(stub v3.6)* |
-| `/hes fleet` | `skills/roadmap/orchestrator.md` *(stub v3.7)* |
+| `/hes fleet` \| `/hes fleet status` | `skills/roadmap/orchestrator.md` *(stub v3.7)* |
 | `/hes insights [--evolve]` | `skills/roadmap/harness-evolver.md` *(stub v3.8)* |
 | `/hes optimize` | `skills/roadmap/optimizer.md` *(stub v3.9)* |
 | `/hes review` | `skills/roadmap/reviewer.md` *(stub v4.0)* |
@@ -111,11 +188,13 @@ Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mod
 ### Step 2 — Announce
 
 ```
-📍 HES v3.5.0 — {{PROJECT_NAME}}
-Feature  : {{ACTIVE_FEATURE}} | State: {{STATE}}
-Language : {{USER_LANGUAGE}}  | Mode:  {{AUDIENCE_MODE}}
-Cycles   : {{completed_cycles}} | Lessons: {{N}}
-Loading  : skills/{{XX-name}}.md
+  HES 3.5.0 · {{PROJECT_NAME}}
+  ─────────────────────────────────────────
+  feature   {{ACTIVE_FEATURE or none}}
+  phase     {{STATE}}
+  language  {{USER_LANGUAGE}}    mode  {{AUDIENCE_MODE}}
+  cycles    {{completed_cycles}}       lessons  {{N}}
+  loading   skills/{{XX-name}}.md
 ```
 
 ### Step 3 — Check Dependencies
@@ -187,6 +266,7 @@ OFFLINE (every 3 cycles or /hes report):
 | Command | Skill | Action |
 |---------|-------|--------|
 | `/hes start <feature>` | routing | New feature → DISCOVERY |
+| `/hes start --parallel <feature>` | roadmap/planner.md | Decompose feature → parallel agents *(stub v3.6)* |
 | `/hes switch <feature>` | session-manager | Switch without losing state |
 | `/hes status` | session-manager | All features + session info |
 | `/hes rollback <phase>` | session-manager | Revert phase (with confirmation) |
@@ -197,12 +277,19 @@ OFFLINE (every 3 cycles or /hes report):
 | `/hes report` | report.md | Batch learning over events.log |
 | `/hes refactor <mod>` | refactor.md | Guided safe refactoring |
 | `/hes harness` | harness-health.md | 3-dimension diagnostics |
+| `/hes error` | error-recovery.md | Diagnose + recover from agent error |
 | `/hes security` | 10-security.md | Manual security scan |
 | `/hes eval` | 11-eval.md | Eval harness (pass@k + LLM-as-judge) |
 | `/hes test` | 12-harness-tests.md | Harness self-tests |
 | `/hes bug` | 09-issue-create.md | Create GitHub issue with diagnostics |
+| `/hes improvement` | 09-issue-create.md | Propose harness improvement as issue |
 | `/hes language <code>` | harness | Set/override language |
 | `/hes mode <mode>` | harness | Set audience mode (beginner\|expert) |
+| `/hes uninstall` | 13-uninstall.md | Remove all HES artifacts (2-step confirm) |
+| `/hes fleet` \| `/hes fleet status` | roadmap/orchestrator.md | Agent fleet state *(stub v3.7)* |
+| `/hes insights [--evolve]` | roadmap/harness-evolver.md | Learning dashboard + harness evolution *(stub v3.8)* |
+| `/hes optimize [path]` | roadmap/optimizer.md | Refactor code for agent readability *(stub v3.9)* |
+| `/hes review <PR\|branch>` | roadmap/reviewer.md | Autonomous PR review — 5 dimensions *(stub v4.0)* |
 
 ---
 
@@ -242,24 +329,46 @@ R30  DELEGATE via skills/roadmap/orchestrator.md when execution-plan.json exists
 R31  READ trust-policy.yml before harness-evolver auto-modification (stub v3.8)
 R32  READ security-policy.yml at start of SECURITY phase
 R33  VALIDATE test suite after /hes optimize before committing (stub v3.9)
+R34  ALWAYS use current.json.interaction_tool for user choices when not null.
+     NEVER fall back to text [A]/[B] when an interactive tool is available.
+     Consistency across all phases is mandatory — bootstrap, discovery, and
+     every phase-end NEXT ACTION must use the same interaction mode.
 ```
 
 ---
 
 ## ◈ NEXT ACTION FORMAT (mandatory)
 
+Read `current.json.interaction_tool` before rendering choices.
+
+**Mode A — Interactive tool available (`interaction_tool != null`):**
+
+Call the IDE's native question tool with the choices as structured options.
+Do NOT render plain-text [A]/[B] in the response body — the tool renders the UI.
+Always include a brief narrative line before the tool call.
+Full call schemas: `skills/reference/interactive-ui.md`.
+
+**Mode B — Text fallback (`interaction_tool == null`):**
+
+Use layout-standard.md format:
+
 ```
-▶ NEXT ACTION — [STEP]
+────────────────────────────────────────────────────────────────
+  {{PHASE}} complete
+  {{summary}}
+────────────────────────────────────────────────────────────────
+  → {{NEXT_PHASE}}                         skills/{{NN-name}}.md
 
-[What was done]
-[What the user must decide or confirm]
+  A  {{primary action — happy path}}
+  B  {{secondary — adjust/fix}}
+  C  {{tertiary — question or edge case}}
 
-  [A] "option a" → [outcome]
-  [B] "option b" → [outcome]
-
-📄 Skill-file: skills/[XX-name].md
-💡 Tip: [one concrete tip]
+  💡 {{one concrete tip}}
+────────────────────────────────────────────────────────────────
 ```
+
+> ⚠ Never mix modes within a session. If Mode A was used at bootstrap,
+> ALL subsequent choices in the same session MUST also use Mode A.
 
 ---
 
