@@ -182,6 +182,15 @@ Content-Type: application/json
 ────────────────────────────────────────────────────────────────
   → DESIGN                                     skills/03-design.md
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "SPEC complete. What next?"
+    · "approve — advance to DESIGN"
+    · "adjust scenario — describe which scenario and what to change"
+    · "missing rule — describe the business rule to add"
+
+If `interaction_tool = null`:
   A  approve — advance to DESIGN
   B  adjust scenario — "scenario {{N}}: [what to change]"
   C  missing rule — "add business rule: [rule]"

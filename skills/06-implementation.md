@@ -225,6 +225,15 @@ pytest --cov=src --cov-report=term-missing -v
 ────────────────────────────────────────────────────────────────
   → SECURITY                               skills/10-security.md
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "GREEN phase complete. Validation result?"
+    · "tests pass · coverage ≥ 80% — advance to SECURITY"
+    · "test failing — describe which test and the error"
+    · "coverage below 80% — report current % to add missing tests"
+
+If `interaction_tool = null`:
   A  tests pass · coverage ≥ 80% — advance to SECURITY
   B  test failing — "[which test + error]"
   C  coverage below 80% — "[current %]" — add missing tests
