@@ -248,26 +248,15 @@ If gain confirmed → /hes harness to update project score
 
 ---
 
-▶ NEXT ACTION
+────────────────────────────────────────────────────────────────
+  REFACTOR complete
+  {{module}} · all tests passing · no regressions
+────────────────────────────────────────────────────────────────
+  → continue
 
-```
-🔧 Refactoring of {{MODULE}} complete.
+  A  commit refactor — generate commit message
+  B  refactor another module — "module: [name]"
+  C  back to feature — "/hes status"
 
-  [A] "continue feature [name]"
-      → Return to active feature's skill-file
-
-  [B] "/hes harness"
-      → Harnessability gain diagnosis after refactoring
-
-  [C] "refactor another module: [name]"
-      → Start new protocol
-
-  [D] "I want to add tests before refactoring"
-      → Load skills/05-tests.md to write tests first
-
-💡 Tip (Fowler): "Greenfield teams can bake harnessability in from day one.
-   Legacy teams face the harder problem."
-   Harnessability refactoring (Type I) is the highest ROI investment
-   in legacy projects — each improvement enables sensors that prevent
-   future regressions.
-```
+  💡 Refactor = same behaviour, better structure. No new features here.
+────────────────────────────────────────────────────────────────

@@ -260,27 +260,15 @@ Register in `events.log`:
 
 ---
 
-▶ NEXT ACTION — AFTER REPORT
+────────────────────────────────────────────────────────────────
+  REPORT complete
+  {{N}} events · {{N}} lessons · {{N}} promotions pending
+────────────────────────────────────────────────────────────────
+  → continue
 
-```
-📊 Report generated: .hes/tasks/report-{{DATE}}.md
+  A  promote lessons to skill-files — execute now
+  B  start next feature — "feature name: [name]"
+  C  view full events.log — "/hes status"
 
-Harness Backlog: {{N}} improvements identified
-
-  [A] "implement [improvement X]"
-      → I'll execute the guide or sensor improvement steps
-
-  [B] "approve all lessons for skill-file"
-      → I'll add recurring lessons to the corresponding skill-file
-
-  [C] "/hes harness"
-      → Detailed diagnosis of the 3 regulation dimensions
-
-  [D] "next feature: [name]"
-      → I'll start Discovery with the already improved harness
-
-📄 Skill-file: skills/report.md (you are here)
-💡 Tip (LangChain): "Traces are the core of every learning loop."
-   events.log + lessons.md = the HES improvement flywheel.
-   With each cycle, the harness makes the project stronger.
-```
+  💡 Lessons promoted 2× become permanent harness improvements.
+────────────────────────────────────────────────────────────────

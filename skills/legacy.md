@@ -1,4 +1,10 @@
-# HES Skill — Legacy / Orphan: Automated Inventory + Auto-Bootstrap
+# LEGACY / ORPHAN — Automated Convergence to HARNESS_READY
+
+path   ORPHAN (Path A) · LEGACY (Path B)
+goal   HARNESS_READY — same destination as ZERO
+skill  skills/legacy.md
+
+> Both paths are fully automated. No menus before HARNESS_READY.
 
 > **Loaded when:** ORPHAN (.hes/ without current.json) OR LEGACY (existing src/ without .hes/).
 > **Execution mode: FULLY AUTOMATED** — same convergence target as ZERO: HARNESS_READY.

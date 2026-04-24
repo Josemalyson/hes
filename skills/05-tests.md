@@ -1,7 +1,10 @@
-# HES Skill — 05: Tests (RED Phase — TDD)
+# 05 · RED — Tests (TDD: write failing tests first)
 
-> Skill loaded when: feature.state = RED
-> Pre-condition: `04-data.md` approved, migration executed successfully.
+phase  RED  ·  pre  DATA  ·  next  GREEN
+gate   ≥1 failing test for the right reason
+skill  skills/05-tests.md
+
+> Tests are sensors. A good sensor fails when code is wrong, passes when code is right.
 >
 > Role in the harness: **Primary Sensor of the Behaviour Harness**
 > Tests are the sensor that verifies whether the code implements the spec.
@@ -311,26 +314,22 @@ After 3 unsuccessful attempts:
 
 ---
 
-▶ NEXT ACTION — RED CONFIRMATION
+────────────────────────────────────────────────────────────────
+  RED complete
+  {{N}} unit + {{N}} integration tests written
+────────────────────────────────────────────────────────────────
+  → EXECUTE — confirm tests fail for the right reason:
 
-```
-🔴 Tests written — confirm they are failing for the right reason:
+  Java    mvn test 2>&1 | tail -30
+  Node    npm test 2>&1 | tail -30
+  Python  pytest -v 2>&1 | tail -30
 
-  [Java]   mvn test 2>&1 | tail -30
-  [Node]   npm test 2>&1 | tail -30
-  [Python] pytest -v 2>&1 | tail -30
+────────────────────────────────────────────────────────────────
+  → GREEN                                 skills/06-implementation.md
 
-  [A] "tests failing — class not found / method not implemented"
-      → Perfect. Starting implementation (skills/06-implementation.md)
+  A  failing — "class not found / method not implemented" — perfect
+  B  compilation error — "[error]"
+  C  tests passed without implementation — test is wrong, review together
 
-  [B] "compilation failed: [error]"
-      → Analyze and fix the compilation issue
-
-  [C] "some tests passed without implementing"
-      → Serious problem: the test is not testing the right thing. Let's review together.
-
-📄 Next skill file: skills/06-implementation.md
-💡 Tip (Fowler): Tests are sensors. A good sensor fails exactly when the code
-   is wrong and passes exactly when it is right.
-   The error message from the failing test is the implementation contract.
-```
+  💡 The failing test message IS the implementation contract.
+────────────────────────────────────────────────────────────────

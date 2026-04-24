@@ -1,7 +1,10 @@
-# HES Skill — 04: Data Layer (Schema + Migrations)
+# 04 · DATA — Schema + Migrations
 
-> Skill loaded when: feature.state = DATA
-> Precondition: `03-design.md` and `ADR-{{NNN}}.md` approved by the user.
+phase  DATA  ·  pre  DESIGN  ·  next  RED
+gate   migration executed locally + user approval
+skill  skills/04-data.md
+
+> Migrations are always additive in production. Never DROP without explicit approval.
 
 ---
 
@@ -171,30 +174,23 @@ CREATE TRIGGER trg_{{table_name}}_updated_at
 
 ---
 
-▶ NEXT ACTION — MIGRATION VALIDATION
+────────────────────────────────────────────────────────────────
+  DATA complete
+  .hes/specs/{{FEATURE_SLUG}}/04-data.md · migration V{{N}} generated
+────────────────────────────────────────────────────────────────
+  → EXECUTE migration now:
 
-```
-💾 Data layer generated:
-   .hes/specs/{{FEATURE_SLUG}}/04-data.md
-   Migration: V{{N}}__{{description}}.sql
+  Flyway    mvn flyway:migrate
+  Liquibase mvn liquibase:update
+  Prisma    npx prisma migrate dev --name {{description}}
+  Alembic   alembic upgrade head
 
-Before advancing, run the migration locally:
+────────────────────────────────────────────────────────────────
+  → RED                                        skills/05-tests.md
 
-  [Flyway]    mvn flyway:migrate
-  [Liquibase] mvn liquibase:update
-  [Prisma]    npx prisma migrate dev --name {{description}}
-  [Alembic]   alembic upgrade head
+  A  migration ok — table created — advance to RED
+  B  migration error — "[error message]"
+  C  schema adjustment — "[what needs to change]"
 
-  [A] "migration ok, table created"
-      → I'll write the tests (RED phase — skills/05-tests.md)
-
-  [B] "migration error: [message]"
-      → I'll load skills/error-recovery.md and analyze the error
-
-  [C] "I need to adjust the schema: [change]"
-      → I'll adjust 04-data.md and regenerate the migration
-
-📄 Next skill-file: skills/05-tests.md
-💡 Tip: NUMERIC(precision, scale) for monetary values.
-   Never FLOAT/DOUBLE — precision loss in financial operations.
-```
+  💡 NUMERIC(precision, scale) for money. Never FLOAT — precision loss.
+────────────────────────────────────────────────────────────────

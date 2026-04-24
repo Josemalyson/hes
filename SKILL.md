@@ -158,11 +158,13 @@ Adapt ALL responses accordingly. Override: /hes language <code> | /hes mode <mod
 ### Step 2 — Announce
 
 ```
-📍 HES v3.5.0 — {{PROJECT_NAME}}
-Feature  : {{ACTIVE_FEATURE}} | State: {{STATE}}
-Language : {{USER_LANGUAGE}}  | Mode:  {{AUDIENCE_MODE}}
-Cycles   : {{completed_cycles}} | Lessons: {{N}}
-Loading  : skills/{{XX-name}}.md
+  HES 3.5.0 · {{PROJECT_NAME}}
+  ─────────────────────────────────────────
+  feature   {{ACTIVE_FEATURE or none}}
+  phase     {{STATE}}
+  language  {{USER_LANGUAGE}}    mode  {{AUDIENCE_MODE}}
+  cycles    {{completed_cycles}}       lessons  {{N}}
+  loading   skills/{{XX-name}}.md
 ```
 
 ### Step 3 — Check Dependencies

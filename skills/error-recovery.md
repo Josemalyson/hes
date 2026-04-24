@@ -184,25 +184,15 @@ Harness action (ALWAYS — it is a sensor gap):
 
 ---
 
-▶ NEXT ACTION — RETURN TO PIPELINE
+────────────────────────────────────────────────────────────────
+  ERROR RECOVERY complete
+  root cause identified · fix applied · tests re-run
+────────────────────────────────────────────────────────────────
+  → continue
 
-```
-After error resolution:
+  A  error resolved — resume current phase
+  B  error persists — "[updated error message]"
+  C  escalate — write to lessons.md + manual intervention needed
 
-  [A] "error resolved, green build"
-      → Return to current phase skill-file: skills/{{CURRENT_PHASE}}.md
-
-  [B] "error persists: [new message]"
-      → Continue diagnosis with new context
-
-  [C] "I want to configure a sensor to prevent this"
-      → Load skills/harness-health.md → sensor proposal section
-
-  [D] "I had to change the spec/design because of the error"
-      → Record as ADR or note in the affected document
-         and update tests before reimplementing
-
-💡 Tip (Fowler): "Whenever an issue happens multiple times, the feedforward
-   and feedback controls should be improved to make the issue less probable."
-   Every recurring error is an opportunity for systemic harness improvement.
-```
+  💡 Recurring error → fix the harness, promote to skill-file (R14).
+────────────────────────────────────────────────────────────────

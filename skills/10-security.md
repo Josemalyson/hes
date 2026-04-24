@@ -376,23 +376,15 @@ The LLM ONLY advances to REVIEW if ALL conditions are met:
 
 ---
 
-▶ NEXT ACTION — REVIEW
+────────────────────────────────────────────────────────────────
+  SECURITY complete
+  {{N}} HIGH · {{N}} MEDIUM · {{N}} LOW · {{N}} exceptions documented
+────────────────────────────────────────────────────────────────
+  → REVIEW                                   skills/07-review.md
 
-```
-🔐 Security scan complete.
+  A  zero HIGH findings — advance to REVIEW
+  B  HIGH findings remain — "[what + why it's hard to fix]"
+  C  exception needed — "[finding] is a false positive because [reason]"
 
-  [A] "gate passed, zero HIGH"
-      → Advancing to REVIEW (skills/07-review.md)
-
-  [B] "HIGH finding {test_id} in {file}:{line}"
-      → Auto-fix loop (STEP 5) — attempt {N}/2
-
-  [C] "gate failed after 2 attempts"
-      → Escalate to user — list blocking findings
-
-📄 Next skill-file: skills/07-review.md
-🤖 Agent: review-agent
-💡 Tip: Security scan runs BEFORE code review.
-   It makes no sense to review code containing known vulnerabilities.
-   Tool-first, human-review-second.
-```
+  💡 Document exceptions in .hes/specs/{{FEATURE}}/security-exceptions.md.
+────────────────────────────────────────────────────────────────

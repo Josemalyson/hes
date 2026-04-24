@@ -1,7 +1,10 @@
-# HES Skill — 06: Implementation (GREEN Phase — TDD)
+# 06 · GREEN — Implementation (make tests pass)
 
-> Skill loaded when: feature.state = GREEN
-> Pre-condition: tests written (RED) and confirmed failing for the right reason.
+phase  GREEN  ·  pre  RED  ·  next  SECURITY
+gate   all tests passing + coverage ≥ 80%
+skill  skills/06-implementation.md
+
+> Minimum viable: implement ONLY what makes tests pass. No extras. No premature optimization.
 >
 > Role in the harness: **Execution guided by Behaviour + Maintainability Harness**
 > The code produced here is regulated by sensors: tests (behaviour),
@@ -209,31 +212,22 @@ pytest --cov=src --cov-report=term-missing -v
 
 ---
 
-▶ NEXT ACTION — SECURITY (required before REVIEW)
+────────────────────────────────────────────────────────────────
+  GREEN complete
+  All tests passing · coverage {{N}}%
+────────────────────────────────────────────────────────────────
+  → EXECUTE — final validation:
 
-```
-🟢 Implementation completed?
+  Java    mvn clean test jacoco:report 2>&1 | tail -20
+  Node    npm test -- --coverage 2>&1 | tail -20
+  Python  pytest --cov=src --cov-report=term-missing 2>&1 | tail -20
 
-Confirm before proceeding to SECURITY phase:
-  1. Green build (all tests passing)?
-  2. Coverage ≥ 80%?
-  3. No TODO/FIXME?
-  4. ArchUnit passing (if configured)?
+────────────────────────────────────────────────────────────────
+  → SECURITY                               skills/10-security.md
 
-  [A] "green build, coverage ok"
-      → Load skills/10-security.md — run security scan (Bandit + Semgrep)
-      → Gate SECURITY → REVIEW: zero HIGH findings
+  A  tests pass · coverage ≥ 80% — advance to SECURITY
+  B  test failing — "[which test + error]"
+  C  coverage below 80% — "[current %]" — add missing tests
 
-  [B] "test X failing: [error]"
-      → Self-refinement attempt {{N}} — analyzing the issue
-
-  [C] "coverage at {{X}}%"
-      → Evaluate if acceptable or add tests for gaps
-
-📄 Next skill file: skills/10-security.md
-🤖 Next agent: security-agent
-💡 Tip: Security scan runs BEFORE code review.
-   No point reviewing code with known vulnerabilities (Bandit B-findings).
-   Tool-first → review-second.
-   After SECURITY gate passes → skills/07-review.md
-```
+  💡 SECURITY → REVIEW always. Never skip. Gate: zero HIGH findings.
+────────────────────────────────────────────────────────────────
