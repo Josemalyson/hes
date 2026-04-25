@@ -81,9 +81,12 @@ Lessons per category: A={{N}} B={{N}} C={{N}} D={{N}} E={{N}}
 
 ---
 
-## ◈ STEP 3 — GENERATE REPORT
+## ◈ STEP 3 — WRITE REPORT
 
-Generate `.hes/tasks/report-{{DATE}}.md`:
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient.
+
+→ EXECUTE: Write `.hes/tasks/report-{{DATE}}.md` with this content:
 
 ```markdown
 # HES Evolution Report — {{DATE}}
@@ -188,6 +191,11 @@ Trend: {{decreasing / stable / increasing}}
 ---
 
 *HES Report | Cycles {{X}}–{{Y}} | v3.1.0 | {{CURRENT_DATE}}*
+```
+
+→ VERIFY (run before STEP 4):
+```bash
+test -f .hes/tasks/report-{{DATE}}.md && echo "✓ report file exists" || echo "✗ FILE MISSING — write it before continuing"
 ```
 
 ---

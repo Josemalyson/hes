@@ -187,7 +187,12 @@ Diagnosis: 🟢 / 🟡 / 🔴
 
 ---
 
-## ◈ STEP 4 — GENERATE HEALTH REPORT
+## ◈ STEP 4 — WRITE HEALTH REPORT
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient.
+
+→ EXECUTE: Write `.hes/tasks/health-report-{{DATE}}.md` with this content:
 
 ```markdown
 # Harness Health Report — {{PROJECT_NAME}}
@@ -218,6 +223,11 @@ Date: {{CURRENT_DATE}} | HES v3.1
 1. {{IMPROVEMENT_1}} — Dimension: {{WHICH}} — Effort: {{S/M/L}}
 2. {{IMPROVEMENT_2}}
 3. {{IMPROVEMENT_3}}
+```
+
+→ VERIFY (run before STEP 5):
+```bash
+test -f .hes/tasks/health-report-{{DATE}}.md && echo "✓ report exists" || echo "✗ FILE MISSING — write it before continuing"
 ```
 
 ---

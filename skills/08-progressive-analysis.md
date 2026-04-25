@@ -74,7 +74,11 @@ Apply scoring rules:
 | 3 | Tests | `*test*`, `*spec*`, `*/tests/*` |
 | 1 | Docs, READMEs, static | `README*`, `*.md`, `*.txt`, `static/*` |
 
-### 1.3 — Generate `.hes/state/file-tree.json`
+### 1.3 — Write `.hes/state/file-tree.json`
+
+> **MANDATORY**: Use your file-write tool. Do not display JSON in chat only.
+
+→ EXECUTE: Write `.hes/state/file-tree.json` with this content:
 
 ```json
 {
@@ -217,11 +221,16 @@ When stopping:
 
 ---
 
-## ◈ STEP 4 — GENERATE CONSOLIDATED SUMMARY
+## ◈ STEP 4 — WRITE CONSOLIDATED SUMMARY
 
 > Executed when analysis is complete (analyzed_count == total_files) or on user demand.
 
-### 4.1 — Generate `.hes/analysis/{{feature}}/summary.md`
+### 4.1 — Write `.hes/analysis/{{feature}}/summary.md`
+
+> **MANDATORY**: Use your file-write tool. Do not display in chat only.
+> Run `mkdir -p .hes/analysis/{{feature}}` first.
+
+→ EXECUTE: Write `.hes/analysis/{{feature}}/summary.md` with this content:
 
 ```markdown
 # Consolidated Analysis — {{FEATURE}}

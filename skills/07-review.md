@@ -118,7 +118,12 @@ DRIFT CHECK (run if ArchUnit/dep-cruiser is available):
 
 ---
 
-## ◈ GENERATE PR TEMPLATE
+## ◈ WRITE PR TEMPLATE
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient.
+
+→ EXECUTE: Write `.hes/specs/{{FEATURE_SLUG}}/pr-template.md` with this content:
 
 ```markdown
 ## {{FEATURE_NAME}} — {{type}}: {{brief_description}}
