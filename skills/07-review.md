@@ -241,6 +241,15 @@ If `interaction_tool = "question"`: call the question tool with single-select:
     · "report — run /hes report for batch learning from events.log"
 
 If `interaction_tool = null`:
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "Feature DONE. What next?"
+    · "start next feature — provide the feature name"
+    · "rollback — describe which phase to reopen"
+    · "report — run /hes report for batch learning from events.log"
+
+If `interaction_tool = null`:
   A  start next feature — "feature name: [name]"
   B  rollback — "/hes rollback [PHASE]" — reopen a phase
   C  report — "/hes report" — batch learning from events.log

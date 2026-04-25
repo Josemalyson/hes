@@ -242,6 +242,15 @@ If `interaction_tool = "question"`: call the question tool with single-select:
     · "question — ask for clarification before deciding"
 
 If `interaction_tool = null`:
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "DESIGN complete. What next?"
+    · "approve — advance to DATA layer"
+    · "adjust design — describe the component and what to change"
+    · "question — ask for clarification before deciding"
+
+If `interaction_tool = null`:
   A  approve — advance to DATA layer
   B  adjust design — "component [X]: [what to change]"
   C  question — clarify before deciding
