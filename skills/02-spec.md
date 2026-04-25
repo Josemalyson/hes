@@ -24,7 +24,12 @@
 
 ---
 
-## ◈ STEP 1 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/02-spec.md`
+## ◈ STEP 1 — WRITE `.hes/specs/{{FEATURE_SLUG}}/02-spec.md`
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient. The file must exist on disk.
+
+→ EXECUTE: Write `.hes/specs/{{FEATURE_SLUG}}/02-spec.md` with this content:
 
 ```markdown
 # Specification — {{FEATURE_NAME}}
@@ -150,6 +155,12 @@ Content-Type: application/json
 - [ ] Does the API contract cover all entity fields?
 - [ ] Approved by user to advance to Step 3 (DESIGN)
 ```
+
+→ VERIFY (run before advancing):
+```bash
+test -f .hes/specs/{{FEATURE_SLUG}}/02-spec.md && echo "✓ file exists" || echo "✗ FILE MISSING — write it before continuing"
+```
+If file is missing: write it now. Never advance to DESIGN without this file on disk.
 
 ---
 

@@ -59,7 +59,13 @@ If the answer is ambiguous, ask for clarification before proceeding.
 
 ---
 
-## ◈ STEP 3 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/01-discovery.md`
+## ◈ STEP 3 — WRITE `.hes/specs/{{FEATURE_SLUG}}/01-discovery.md`
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient. The file must exist on disk.
+> Run `mkdir -p .hes/specs/{{FEATURE_SLUG}}` first if the directory does not exist.
+
+→ EXECUTE: Write `.hes/specs/{{FEATURE_SLUG}}/01-discovery.md` with this content:
 
 ```markdown
 # Discovery — {{FEATURE_NAME}}
@@ -108,6 +114,12 @@ Feature: {{FEATURE_SLUG}} | Domain: {{DOMAIN_IF_APPLICABLE}}
 ## Approval
 - [ ] Approved by user to advance to Step 2 (SPEC)
 ```
+
+→ VERIFY (run before advancing):
+```bash
+test -f .hes/specs/{{FEATURE_SLUG}}/01-discovery.md && echo "✓ file exists" || echo "✗ FILE MISSING — write it before continuing"
+```
+If file is missing: write it now. Never advance to SPEC without this file on disk.
 
 ---
 
