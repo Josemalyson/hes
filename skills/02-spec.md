@@ -24,7 +24,12 @@
 
 ---
 
-## ◈ STEP 1 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/02-spec.md`
+## ◈ STEP 1 — WRITE `.hes/specs/{{FEATURE_SLUG}}/02-spec.md`
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient. The file must exist on disk.
+
+→ EXECUTE: Write `.hes/specs/{{FEATURE_SLUG}}/02-spec.md` with this content:
 
 ```markdown
 # Specification — {{FEATURE_NAME}}
@@ -151,6 +156,12 @@ Content-Type: application/json
 - [ ] Approved by user to advance to Step 3 (DESIGN)
 ```
 
+→ VERIFY (run before advancing):
+```bash
+test -f .hes/specs/{{FEATURE_SLUG}}/02-spec.md && echo "✓ file exists" || echo "✗ FILE MISSING — write it before continuing"
+```
+If file is missing: write it now. Never advance to DESIGN without this file on disk.
+
 ---
 
 ## ◈ STEP 2 — UPDATE STATE
@@ -182,6 +193,15 @@ Content-Type: application/json
 ────────────────────────────────────────────────────────────────
   → DESIGN                                     skills/03-design.md
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "SPEC complete. What next?"
+    · "approve — advance to DESIGN"
+    · "adjust scenario — describe which scenario and what to change"
+    · "missing rule — describe the business rule to add"
+
+If `interaction_tool = null`:
 **Read `current.json.interaction_tool` before rendering choices:**
 
 If `interaction_tool = "question"`: call the question tool with single-select:

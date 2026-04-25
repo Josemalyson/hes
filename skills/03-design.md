@@ -28,7 +28,12 @@ Always cite the reference `src/` file when proposing something.
 
 ---
 
-## ◈ STEP 1 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/03-design.md`
+## ◈ STEP 1 — WRITE `.hes/specs/{{FEATURE_SLUG}}/03-design.md`
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient. The file must exist on disk.
+
+→ EXECUTE: Write `.hes/specs/{{FEATURE_SLUG}}/03-design.md` with this content:
 
 ```markdown
 # Design — {{FEATURE_NAME}}
@@ -121,9 +126,28 @@ See: `.hes/decisions/ADR-{{NNN}}.md`
 - [ ] Approved to advance to Step 4 (DATA)
 ```
 
+→ VERIFY (run before advancing):
+```bash
+test -f .hes/specs/{{FEATURE_SLUG}}/03-design.md && echo "✓ design file exists" || echo "✗ FILE MISSING — write it before continuing"
+```
+If file is missing: write it now. Never advance to DATA without this file on disk.
+
 ---
 
-## ◈ STEP 2 — GENERATE ADR
+## ◈ STEP 2 — WRITE ADR
+
+Determine next ADR number:
+```bash
+ls .hes/decisions/ADR-*.md 2>/dev/null | wc -l
+# Next = count + 1, 3-digit format: ADR-001
+```
+
+> **MANDATORY**: Use your file-write tool. ADR must exist on disk.
+
+→ EXECUTE: Write `.hes/decisions/ADR-{{NNN}}.md` with this content:
+
+```markdown
+# ADR-{{NNN}} — {{DECISION_TITLE}}
 
 Determine next ADR number:
 ```bash
@@ -233,6 +257,15 @@ Check if the execution flow defines new boundaries to be captured:
 ────────────────────────────────────────────────────────────────
   → DATA                                       skills/04-data.md
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "DESIGN complete. What next?"
+    · "approve — advance to DATA layer"
+    · "adjust design — describe the component and what to change"
+    · "question — ask for clarification before deciding"
+
+If `interaction_tool = null`:
 **Read `current.json.interaction_tool` before rendering choices:**
 
 If `interaction_tool = "question"`: call the question tool with single-select:

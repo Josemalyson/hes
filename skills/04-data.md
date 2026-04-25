@@ -28,7 +28,12 @@ skill  skills/04-data.md
 
 ---
 
-## ◈ STEP 1 — GENERATE `.hes/specs/{{FEATURE_SLUG}}/04-data.md`
+## ◈ STEP 1 — WRITE `.hes/specs/{{FEATURE_SLUG}}/04-data.md`
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient. The file must exist on disk.
+
+→ EXECUTE: Write `.hes/specs/{{FEATURE_SLUG}}/04-data.md` with this content:
 
 ```markdown
 # Data Layer — {{FEATURE_NAME}}
@@ -148,6 +153,12 @@ CREATE TRIGGER trg_{{table_name}}_updated_at
 - [ ] Was migration tested locally (execution + rollback)?
 - [ ] Approved to advance to Step 5 (TESTS)
 ```
+
+→ VERIFY (run before advancing):
+```bash
+test -f .hes/specs/{{FEATURE_SLUG}}/04-data.md && echo "✓ file exists" || echo "✗ FILE MISSING — write it before continuing"
+```
+If file is missing: write it now. Never advance to RED without this file on disk.
 
 ---
 

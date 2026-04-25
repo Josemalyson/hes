@@ -118,7 +118,12 @@ DRIFT CHECK (run if ArchUnit/dep-cruiser is available):
 
 ---
 
-## ◈ GENERATE PR TEMPLATE
+## ◈ WRITE PR TEMPLATE
+
+> **MANDATORY**: Use your file-write tool to create this file on disk.
+> Displaying content in chat is NOT sufficient.
+
+→ EXECUTE: Write `.hes/specs/{{FEATURE_SLUG}}/pr-template.md` with this content:
 
 ```markdown
 ## {{FEATURE_NAME}} — {{type}}: {{brief_description}}
@@ -232,6 +237,15 @@ curl -X {{METHOD}} {{URL}} \
 ────────────────────────────────────────────────────────────────
   → DONE                                   feature cycle complete
 
+**Read `current.json.interaction_tool` before rendering choices:**
+
+If `interaction_tool = "question"`: call the question tool with single-select:
+  - "Feature DONE. What next?"
+    · "start next feature — provide the feature name"
+    · "rollback — describe which phase to reopen"
+    · "report — run /hes report for batch learning from events.log"
+
+If `interaction_tool = null`:
 **Read `current.json.interaction_tool` before rendering choices:**
 
 If `interaction_tool = "question"`: call the question tool with single-select:

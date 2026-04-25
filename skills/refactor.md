@@ -49,9 +49,12 @@ What is the primary objective of the refactoring?
 
 ---
 
-## ◈ STEP 2 — GENERATE REFACTORING SPEC
+## ◈ STEP 2 — WRITE REFACTORING SPEC
 
-Create `.hes/specs/refactor-{{MODULE}}-{{DATE}}/refactor-spec.md`:
+> **MANDATORY**: Use your file-write tool. Do not display in chat only.
+> Run `mkdir -p .hes/specs/refactor-{{MODULE}}-{{DATE}}` first.
+
+→ EXECUTE: Write `.hes/specs/refactor-{{MODULE}}-{{DATE}}/refactor-spec.md` with this content:
 
 ```markdown
 # Refactoring Spec — {{MODULE}}

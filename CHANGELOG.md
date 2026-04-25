@@ -1,5 +1,56 @@
 # HES — Changelog
 
+## v3.5.3 (2026-04-24)
+
+### fix: force file-write on ALL remaining skill files that generate disk artifacts
+
+v3.5.2 only fixed 01-discovery, 02-spec, 03-design. Six more files had
+the same GENERATE (display-only) pattern with no imperative Write directive.
+
+Files fixed: skills/04-data.md, skills/07-review.md,
+skills/08-progressive-analysis.md, skills/refactor.md,
+skills/report.md, skills/harness-health.md
+
+Pattern applied consistently across all files:
+- Section header renamed from GENERATE → WRITE
+- "→ EXECUTE: Write <path>" added before every template block
+- "→ VERIFY: test -f <path>" gate added after every template block
+- MANDATORY note added explaining chat display ≠ disk write
+
+R35 in SKILL.md updated to list all affected artifact types explicitly.
+
+---
+
+## v3.5.2 (2026-04-24)
+
+### fix: spec artifacts not written to disk — agent displayed content in chat instead
+
+Root cause: skill files defined templates inside markdown code blocks
+without any imperative write command. Agent interpreted them as content
+to display in chat, not as instructions to write files to disk.
+
+- SKILL.md: added R35
+- skills/01-discovery.md: GENERATE → WRITE + EXECUTE + VERIFY
+- skills/02-spec.md: same pattern
+- skills/03-design.md: same pattern + ADR explicit WRITE directive
+
+---
+
+## v3.5.1 (2026-04-24)
+
+### fix: interaction_tool consistency — UI mode no longer changes mid-session
+
+Root cause: harness had no mechanism to detect, persist, or enforce a
+consistent interaction mode. OpenCode question tool used at bootstrap,
+but every phase-end closure reverted to plain-text [A]/[B]/[C].
+
+- SKILL.md: interaction_tool in schema; Step 0-C; R34; dual-mode NEXT ACTION
+- skills/00-bootstrap.md: IDE detection → interaction_tool; persisted
+- skills/01,02,03,06,07,10: all phase-end closures use interaction_tool
+
+---
+
+
 ## v3.5.1 (2026-04-24)
 
 ### fix: interaction_tool consistency — UI mode no longer changes mid-session
